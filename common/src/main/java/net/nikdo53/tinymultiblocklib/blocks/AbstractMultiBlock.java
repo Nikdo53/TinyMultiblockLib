@@ -36,9 +36,17 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        if (isCenter(state)) return RenderShape.ENTITYBLOCK_ANIMATED;
-        return RenderShape.INVISIBLE;
+        return getMultiblockRenderShape(state);
     }
+
+    /**
+     * Sorry for forcing everyone to override this, but its kinda important for performance and fixing visual glitches
+     * <p>
+     * If your block is a json model, return {@link RenderShape#MODEL}
+     * <p>
+     * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE}
+     * */
+    abstract RenderShape getMultiblockRenderShape(BlockState state);
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -79,7 +87,5 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
         preventCreativeDrops(player, level, pos);
         super.playerWillDestroy(level, pos, state, player);
     }
-
-
 
 }

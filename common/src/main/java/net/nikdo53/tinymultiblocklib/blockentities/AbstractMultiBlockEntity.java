@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     public BlockPos center;
-    public boolean isPlaced; //True once the whole placing logic runs (to prevent updateShape from breaking it early)
+    public boolean isPlaced;
     public PreviewMode previewMode = PreviewMode.PLACED;
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

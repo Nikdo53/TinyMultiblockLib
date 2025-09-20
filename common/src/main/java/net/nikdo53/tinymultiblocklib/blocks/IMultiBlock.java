@@ -4,15 +4,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
+import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -20,27 +23,14 @@ import java.util.stream.Stream;
 
 public interface IMultiBlock {
 
-    /*
-   How to use:
-   implement fullBlockShape and make it return the whole shape
-   getDirectionProperty = for directions in fullBlockShape, null if there are none
-
-   For placement:
-   Override setPlacedBy - return place
-   Override getStateForPlacement - return getStateForPlacementHelper
-
-   For destroying:
-   Override updateShape - return updateShapeHelper
-   Override canSurvive - return canSurviveHelper
-   Optionally Override extraSurviveRequirements
-   Optionally add preventCreativeDrops into playerWillDestroy
-
-   growHelper - for bone meal and tick growth
-   voxelShapeHelper - pretty self-explanatory
-
-   */
-
+    /** Returns a BlockPos Stream of every block in this multiblock. */
     Stream<BlockPos> fullBlockShape(@Nullable Direction direction, BlockPos center);
+
+    /**
+     * Returns the multiblocks DirectionProperty.
+     * <p>
+     * Only used for multiblocks that can be rotated, otherwise returns null
+     * */
 
     default @Nullable DirectionProperty getDirectionProperty(){
         return null; // null if block doesn't have directions
@@ -77,10 +67,17 @@ public interface IMultiBlock {
         else return Stream.of(pos);
     }
 
+    /**
+     * Changes the BlockState for each Block based on its offset from center
+     * @see IBlockPosOffsetEnum#fromOffset(Class, BlockPos, Direction, Enum)
+     * */
     default @Nullable BiFunction<BlockState, BlockPos, BlockState> getStateFromOffset() {
-        return null; // For use with json models, changes blockState based on offset from centre
+        return null;
     };
 
+    /**
+     * Places the multiblock, sets its BlockStates and BlockEntity center
+     * */
     default void place(Level level, BlockPos posOriginal, BlockState stateOriginal){
         fullBlockShape(posOriginal, stateOriginal).forEach(posNew -> {
             int flags = level.isClientSide ? 0 : 3;
@@ -99,6 +96,11 @@ public interface IMultiBlock {
     default BlockState getStateForPlacementHelper(BlockPlaceContext context) {
         return getStateForPlacementHelper(context, context.getHorizontalDirection());
     }
+
+    /**
+     * Helper for {@link Block#getStateForPlacement(BlockPlaceContext)}
+     * @param direction The direction the block will have when placed, ignored when {@link #getDirectionProperty()} is null
+     * */
     default BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
@@ -139,6 +141,11 @@ public interface IMultiBlock {
         return ret;
     }
 
+    /**
+     * Helper for {@link Block#updateShape(BlockState, Direction, BlockState, LevelAccessor, BlockPos, BlockPos)}
+     * <p>
+     * Destroys the multiblock if canSurvive returns false
+     * */
     default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             boolean canSurvive = state.canSurvive(level, pos);
@@ -154,6 +161,9 @@ public interface IMultiBlock {
         return state;
     }
 
+    /**
+     * Helper for {@link Block#canSurvive(BlockState, LevelReader, BlockPos)}
+     * */
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             //survive logic
@@ -165,13 +175,16 @@ public interface IMultiBlock {
         }
     }
 
-    //Override this one to check for other blocks (like if bondripia can hang)
-    //Runs for every single block
+    /**
+     * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
+     * */
     default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state){
         return true;
     }
 
-    // Add this to playerWillDestroy
+    /**
+     * Should be added into {@link Block#playerDestroy(Level, Player, BlockPos, BlockState, BlockEntity, ItemStack)}
+     * */
     default void preventCreativeDrops(Player player, Level level, BlockPos pos){
         if (player.isCreative() && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
             level.destroyBlock(entity.getCenter(), false);
@@ -179,12 +192,18 @@ public interface IMultiBlock {
     }
 
 
+    /**
+     * Prevents desyncs and ghost blocks when multiblocks are used in structures
+     * */
     default void fixInStructures(BlockState state, ServerLevelAccessor level, BlockPos pos){
         if (isCenter(state)) {
             level.scheduleTick(pos, state.getBlock(), 3);
         }
     }
 
+    /**
+     * Tries to fix the multiblock, called after {@link #fixInStructures(BlockState, ServerLevelAccessor, BlockPos)}
+     * */
     default void fixTick(BlockState state, Level level, BlockPos pos){
         if (isCenter(state)){
 
@@ -199,6 +218,9 @@ public interface IMultiBlock {
         }
     }
 
+    /**
+     * Checks if the multiblock needs fixing by  {@link #fixTick(BlockState, Level, BlockPos)}
+     * */
     default boolean isBroken(LevelReader level, BlockPos pos, BlockState state){
         if (!isCenter(state)) return false;
 
@@ -210,6 +232,9 @@ public interface IMultiBlock {
         });
     }
 
+    /**
+     * Returns the center BlockPos of the multiblock
+     * */
     default BlockPos getCenter(BlockGetter level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             return entity.getCenter();
@@ -250,16 +275,6 @@ public interface IMultiBlock {
         return 0;
     }
 
-    static Rotation rotationFromDirection(Direction direction){
-        return switch (direction){
-            case DOWN, NORTH, UP -> Rotation.NONE;
-            case SOUTH -> Rotation.CLOCKWISE_180;
-            case WEST -> Rotation.COUNTERCLOCKWISE_90;
-            case EAST -> Rotation.CLOCKWISE_90;
-        };
-    }
-
-
     default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape){
         return voxelShapeHelper(state,level,pos,shape, 0, 0, 0);
     }
@@ -268,7 +283,10 @@ public interface IMultiBlock {
         return voxelShapeHelper(state,level,pos,shape, xOffset, yOffset, zOffset, false);
     }
 
-
+    /**
+     * Offsets each Blocks VoxelShape to the center, allowing for VoxelShapes larger than 1 block
+     * @param hasDirectionOffsets Larger directional multiblocks may have their center in a different point for every rotation, this offsets the VoxelShapes accordingly
+     * */
     default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape, float xOffset, float yOffset, float zOffset, boolean hasDirectionOffsets){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
             var x = entity.getCenter().getX() - pos.getX() + xOffset;
@@ -290,9 +308,15 @@ public interface IMultiBlock {
         return shape;
     }
 
+    /**
+     * Increases age in each block at the same time
+     * <p>
+     * Runs only on the center block to prevent multiplying the growth speed
+     * */
     default void growHelper(Level level, BlockPos blockPos, IntegerProperty ageProperty){
         Block block = getBlock();
         if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) {
+            if (!entity.isCenter()) return;
             fullBlockShape(entity.getCenter(), level.getBlockState(blockPos)).forEach(pos -> {
                 if(level.getBlockState(pos).is(block)) {
 

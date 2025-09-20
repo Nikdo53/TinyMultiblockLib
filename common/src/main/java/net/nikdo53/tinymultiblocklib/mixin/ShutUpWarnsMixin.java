@@ -16,6 +16,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ShutUpWarnsMixin implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
 
+    /**
+     * Minecraft loves spamming errors when the player interacts with a VoxelShape larger than 1 block, this shuts it up
+     * */
     @ModifyVariable(method = "handleUseItemOn", at = @At(value = "STORE"), ordinal = 2)
     public Vec3 useAllower(Vec3 vec3, @Local ServerLevel level, @Local BlockPos pos) {
         if(level.getBlockEntity(pos) instanceof IMultiBlockEntity){

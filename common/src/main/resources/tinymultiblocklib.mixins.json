@@ -10,8 +10,7 @@
     "StructureTemplateMixin"
   ],
   "client": [
-    "ClientLevelMixin",
-    "MixinMinecraft"
+    "ClientLevelMixin"
   ],
   "server": [
   ],

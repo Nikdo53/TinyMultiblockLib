@@ -9,7 +9,10 @@ public interface IMultiBlockEntity {
     BlockPos getCenter();
     void setCenter(BlockPos pos);
 
-    boolean isPlaced(); //True once the whole placing logic runs (to prevent updateShape from breaking it early)
+    /**
+     * True once the whole placing logic runs (to prevent updateShape from breaking it early)
+     * */
+    boolean isPlaced();
     void setPlaced(boolean placed);
 
     PreviewMode getPreviewMode();
