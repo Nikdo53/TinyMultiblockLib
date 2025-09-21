@@ -314,12 +314,12 @@ public interface IMultiBlock {
     /**
      * Increases age in each block at the same time
      * <p>
-     * Runs only on the center block to prevent multiplying the growth speed
+     * If used in the randomTick method, don't forget to check {@link #isCenter(BlockState)} first,
+     * otherwise the block will grow significantly faster (each block tick separately)
      * */
     default void growHelper(Level level, BlockPos blockPos, IntegerProperty ageProperty){
         Block block = getBlock();
         if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) {
-            if (!entity.isCenter()) return;
             fullBlockShape(entity.getCenter(), level.getBlockState(blockPos)).forEach(pos -> {
                 if(level.getBlockState(pos).is(block)) {
 
