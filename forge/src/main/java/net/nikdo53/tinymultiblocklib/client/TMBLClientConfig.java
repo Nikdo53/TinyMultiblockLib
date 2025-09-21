@@ -2,7 +2,7 @@ package net.nikdo53.tinymultiblocklib.client;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-public class ClientConfig {
+public class TMBLClientConfig {
     public static final ForgeConfigSpec CLIENT_CONFIG;
     public static final ForgeConfigSpec.BooleanValue DISABLE_MULTIBLOCK_PREVIEWS;
 

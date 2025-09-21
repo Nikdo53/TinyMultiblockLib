@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.TestBlock;
 
-public class ModBlocks {
+public class TMBLBlocks {
 
     public static final Block TEST_BLOCK = registerBlock("test_block", new TestBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK)));
 

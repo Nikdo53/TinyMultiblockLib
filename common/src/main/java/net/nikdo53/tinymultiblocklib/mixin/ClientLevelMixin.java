@@ -1,11 +1,14 @@
 package net.nikdo53.tinymultiblocklib.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.nikdo53.tinymultiblocklib.blocks.IMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,13 +23,15 @@ public class ClientLevelMixin {
     @Final
     private LevelRenderer levelRenderer;
 
+    /**
+     * Transfers destroyProgress to the center block
+     * */
     @Inject(method = "destroyBlockProgress", at = @At(value = "HEAD"), cancellable = true)
     public void destroyBlockProgress(int breakerId, BlockPos pos, int progress, CallbackInfo ci) {
         ClientLevel level = (ClientLevel) (Object)this;
         BlockState blockState = level.getBlockState(pos);
 
         if (blockState.getBlock() instanceof IMultiBlock multiBlock && !blockState.getRenderShape().equals(RenderShape.MODEL)) {
-
             levelRenderer.destroyBlockProgress(breakerId, multiBlock.getCenter(level, pos), progress);
             ci.cancel();
         }

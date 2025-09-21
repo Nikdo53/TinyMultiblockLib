@@ -7,10 +7,10 @@ import net.minecraftforge.registries.RegistryObject;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.entity.TestMultiblockEntity;
 
-public class ModBlockEntities {
+public class TMBLBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Constants.MOD_ID);
 
-    public static final RegistryObject<BlockEntityType<TestMultiblockEntity>> TEST_BE = BLOCK_ENTITIES.register("test_be", () -> BlockEntityType.Builder.of(TestMultiblockEntity::new, ModBlocks.TEST.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TestMultiblockEntity>> TEST_BE = BLOCK_ENTITIES.register("test_be", () -> BlockEntityType.Builder.of(TestMultiblockEntity::new, TMBLBlocks.TEST_BLOCK.get()).build(null));
 
 }

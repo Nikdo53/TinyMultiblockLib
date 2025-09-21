@@ -1,8 +1,8 @@
 package net.nikdo53.tinymultiblocklib;
 
 import net.fabricmc.api.ModInitializer;
-import net.nikdo53.tinymultiblocklib.init.ModBlockEntities;
-import net.nikdo53.tinymultiblocklib.init.ModBlocks;
+import net.nikdo53.tinymultiblocklib.init.TMBLBlockEntities;
+import net.nikdo53.tinymultiblocklib.init.TMBLBlocks;
 
 public class TinyMultiblockLibFabric implements ModInitializer {
     
@@ -16,7 +16,7 @@ public class TinyMultiblockLibFabric implements ModInitializer {
         // Use Fabric to bootstrap the Common mod.
         Constants.LOG.info("Hello Fabric world!");
         CommonClass.init();
-        ModBlocks.register();
-        ModBlockEntities.register();
+        TMBLBlocks.register();
+        TMBLBlockEntities.register();
     }
 }

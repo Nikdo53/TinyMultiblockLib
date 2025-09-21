@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.blocks;
+package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -18,6 +19,14 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractMultiBlock extends Block implements IMultiBlock, EntityBlock {
+    /**
+     * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
+     * <p>
+     * Note that even though it's called "CENTER", it isn't necessarily the actual center.
+     * The center is just where the block would be placed, if it were just a single block
+     * @see #isCenter(BlockState)
+     * @see #getCenter(BlockGetter, BlockPos)
+     * */
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
 
     public AbstractMultiBlock(Properties properties) {
@@ -45,8 +54,9 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
      * If your block is a json model, return {@link RenderShape#MODEL}
      * <p>
      * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE}
+     * @see #getStateFromOffset() The function for setting a different blockstate to each block
      * */
-    abstract RenderShape getMultiblockRenderShape(BlockState state);
+    public abstract RenderShape getMultiblockRenderShape(BlockState state);
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -68,8 +78,9 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
 
-        if (isBroken(level, pos, state))
-            fixTick(state, level , pos);
+        if (isBroken(level, pos, state)) {
+            fixTick(state, level, pos);
+        }
     }
 
     @Override

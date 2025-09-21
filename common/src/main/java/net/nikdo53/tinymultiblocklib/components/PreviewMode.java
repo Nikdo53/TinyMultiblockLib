@@ -10,7 +10,7 @@ public enum PreviewMode {
     public final float green;
     public final float blue;
 
-    PreviewMode(float alpha , float red, float green, float blue) {
+    PreviewMode(float alpha, float red, float green, float blue) {
         this.alpha = alpha;
         this.red = red;
         this.green = green;

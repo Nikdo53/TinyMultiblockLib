@@ -3,7 +3,6 @@ package net.nikdo53.tinymultiblocklib.components;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Rotation;
-import net.nikdo53.tinymultiblocklib.blocks.IMultiBlock;
 
 import javax.annotation.Nullable;
 

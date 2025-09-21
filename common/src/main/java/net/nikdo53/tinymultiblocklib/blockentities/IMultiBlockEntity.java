@@ -30,7 +30,7 @@ public interface IMultiBlockEntity {
         if (this instanceof BlockEntity entity){
             return entity;
         } else {
-            throw new RuntimeException(this.getClass().getSimpleName() + " is not implemented on a Block Entity");
+            throw new RuntimeException(this.getClass().getSimpleName() + " is not implemented on a BlockEntity");
         }
     }
 }

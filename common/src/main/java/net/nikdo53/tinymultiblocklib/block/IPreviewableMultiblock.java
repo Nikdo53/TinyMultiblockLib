@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.blocks;
+package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

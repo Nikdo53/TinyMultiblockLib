@@ -1,8 +1,7 @@
-package net.nikdo53.tinymultiblocklib.blocks;
+package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -16,8 +15,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -40,7 +39,7 @@ public interface IMultiBlock {
         if (getDirectionProperty() != null){
             return state.getValue(getDirectionProperty());
         }
-        throw new RuntimeException("Tried to get Direction, but DirectionProperty is null");
+        return null;
     }
 
     default Block getBlock(){
@@ -69,6 +68,10 @@ public interface IMultiBlock {
 
     /**
      * Changes the BlockState for each Block based on its offset from center
+     * <p>
+     * Code Example:
+     * <p>
+     * ((state, pos) -> state.setValue(yourStateProperty, IBlockPosOffsetEnum.fromOffset(params)))
      * @see IBlockPosOffsetEnum#fromOffset(Class, BlockPos, Direction, Enum)
      * */
     default @Nullable BiFunction<BlockState, BlockPos, BlockState> getStateFromOffset() {
