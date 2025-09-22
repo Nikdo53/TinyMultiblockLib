@@ -23,15 +23,24 @@ import java.util.function.Function;
 public interface IMultiblockRenderHelper {
 
     /**
-     * Returns a translucent RenderType for previews. Use instead of specifying the RenderType directly.
+     * Returns a translucent RenderType for when rendered as a preview. Use instead of specifying the RenderType directly.
      * */
     default Function<ResourceLocation, RenderType> getRenderTypeFunction(PreviewMode previewMode) {
-       return previewMode.equals(PreviewMode.PLACED) ? RenderType::entityCutout : RenderType::entityTranslucentCull;
+       return getRenderTypeFunction(previewMode, RenderType::entityTranslucentCull);
     }
 
-    default RenderType getRenderType(PreviewMode previewMode, ResourceLocation location) {
-        return previewMode.equals(PreviewMode.PLACED) ? RenderType.entityCutout(location) : RenderType.entityTranslucentCull(location);
+    default Function<ResourceLocation, RenderType> getRenderTypeFunction(PreviewMode previewMode, Function<ResourceLocation, RenderType> defaultRenderType) {
+        return previewMode.equals(PreviewMode.PLACED) ? RenderType::entityCutout : defaultRenderType;
     }
+
+    default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture) {
+        return getRenderType(previewMode, texture, RenderType.entityTranslucentCull(texture));
+    }
+
+    default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture, RenderType defaultRenderType) {
+        return previewMode.equals(PreviewMode.PLACED) ? RenderType.entityCutout(texture) : defaultRenderType;
+    }
+
 
     /**
      * For when you use the same BER for 2 different blocks and just swap out the textures.
