@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -25,15 +26,25 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
+import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
+import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
+import tschipp.carryon.common.carry.CarryOnData;
+import tschipp.carryon.common.carry.CarryOnDataManager;
 
 public class MultiblockPreviewRenderer {
 
-    public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, Camera camera, PoseStack poseStack) {
+    public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, Camera camera, PoseStack poseStack, IPlatformHelper platformHelper) {
         LocalPlayer player = minecraft.player;
         assert player != null;
-        if (player.getMainHandItem().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof IPreviewableMultiblock multiBlock && blockItem.getBlock() instanceof EntityBlock block) {
+        Item item = player.getMainHandItem().getItem();
+
+        if (platformHelper.isModLoaded("carryon") && CarryOnPreviewHelper.isValidMultiblock(player)) {
+            item = CarryOnPreviewHelper.getMultiblockItem(player);
+        }
+
+        if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof IPreviewableMultiblock multiBlock && blockItem.getBlock() instanceof EntityBlock block) {
             HitResult hitResult = minecraft.hitResult;
 
             if (hitResult instanceof BlockHitResult blockHitResult){

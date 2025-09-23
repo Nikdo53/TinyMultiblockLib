@@ -50,6 +50,19 @@ repositories {
             includeGroup("com.eliotlash.mclib")
         }
     }
+
+    repositories {
+        exclusiveContent {
+            forRepository {
+                maven {
+                    url "https://cursemaven.com"
+                }
+            }
+            filter {
+                includeGroup "curse.maven"
+            }
+        }
+    }
 }
 
 // Declare capabilities on the outgoing configurations.

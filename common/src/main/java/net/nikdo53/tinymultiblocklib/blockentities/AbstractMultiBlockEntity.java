@@ -9,6 +9,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 import javax.annotation.Nullable;
@@ -79,4 +81,18 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     public void setPreviewMode(PreviewMode mode) {
         this.previewMode = mode;
     }
+
+/**
+ * Certain mods let you change the location of the multiblock (like Carry on)
+ * <p>
+ * That's a problem because the {@link #center} won't update. This should trick it into updating
+ */
+ @Override
+    public void setBlockState(BlockState blockState) {
+        if (IMultiBlock.isCenter(blockState)){
+            setCenter(this.getBlockPos());
+        }
+        super.setBlockState(blockState);
+    }
+
 }

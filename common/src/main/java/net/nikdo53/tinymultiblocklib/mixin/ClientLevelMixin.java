@@ -31,8 +31,8 @@ public class ClientLevelMixin {
         ClientLevel level = (ClientLevel) (Object)this;
         BlockState blockState = level.getBlockState(pos);
 
-        if (blockState.getBlock() instanceof IMultiBlock multiBlock && !blockState.getRenderShape().equals(RenderShape.MODEL)) {
-            levelRenderer.destroyBlockProgress(breakerId, multiBlock.getCenter(level, pos), progress);
+        if (IMultiBlock.isMultiblock(blockState) && !blockState.getRenderShape().equals(RenderShape.MODEL)) {
+            levelRenderer.destroyBlockProgress(breakerId, IMultiBlock.getCenter(level, pos), progress);
             ci.cancel();
         }
     }

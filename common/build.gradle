@@ -22,6 +22,7 @@ dependencies {
     implementation("com.eliotlash.mclib:mclib:20")
 
     modImplementation("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}")
+    modCompileOnly("curse.maven:carry-on-274259:4882500")
 
 }
 

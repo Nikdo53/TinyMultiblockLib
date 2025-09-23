@@ -238,40 +238,47 @@ public interface IMultiBlock {
     /**
      * Returns the center BlockPos of the multiblock
      * */
-    default BlockPos getCenter(BlockGetter level, BlockPos pos){
+    static BlockPos getCenter(BlockGetter level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             return entity.getCenter();
         }
-        Constants.LOG.error("Couldn't get center for multi block");
         return pos;
     }
 
-    default boolean isCenter(LevelReader level, BlockPos pos){
+    static boolean isCenter(LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
             return entity.getCenter().equals(pos);
         }
         return false;
     }
 
-    default boolean isCenter(BlockState state){
+    static boolean isCenter(BlockState state){
         return state.getValue(AbstractMultiBlock.CENTER);
     }
 
-    default int getXOffset(BlockGetter level, BlockPos pos){
+    static boolean isMultiblock(BlockState state){
+        return state.getBlock() instanceof IMultiBlock;
+    }
+
+    static boolean isMultiblock(BlockGetter level, BlockPos pos){
+        return isMultiblock(level.getBlockState(pos));
+    }
+
+    static int getXOffset(BlockGetter level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
             return pos.getX() - entity.getCenter().getX();
         }
         return 0;
     }
 
-    default int getYOffset(BlockGetter level, BlockPos pos){
+    static int getYOffset(BlockGetter level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
             return pos.getY() - entity.getCenter().getY();
         }
         return 0;
     }
 
-    default int getZOffset(BlockGetter level, BlockPos pos){
+    static int getZOffset(BlockGetter level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
             return pos.getZ() - entity.getCenter().getZ();
         }

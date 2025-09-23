@@ -7,7 +7,9 @@
   "mixins": [
     "ItemAccessor",
     "ShutUpWarnsMixin",
-    "StructureTemplateMixin"
+    "StructureTemplateMixin",
+    "carryon.ListHandlerMixin",
+    "carryon.PickupHandlerMixin"
   ],
   "client": [
     "ClientLevelMixin"
