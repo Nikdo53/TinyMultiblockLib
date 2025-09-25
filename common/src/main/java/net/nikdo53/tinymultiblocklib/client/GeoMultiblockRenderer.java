@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 /**
@@ -29,20 +29,9 @@ public abstract class GeoMultiblockRenderer<T extends BlockEntity & GeoAnimatabl
     }
 
     @Override
-    public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         if (!animatable.isCenter()) return;
 
-        switch (animatable.getPreviewMode()) {
-            case PREVIEW -> alpha *= PreviewMode.PREVIEW.alpha;
-
-            case INVALID -> {
-                red *= PreviewMode.INVALID.red;
-                green *= PreviewMode.INVALID.green;
-                blue *= PreviewMode.INVALID.blue;
-                alpha *= PreviewMode.INVALID.alpha;
-            }
-        }
-
-        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, IMultiblockRenderHelper.getColorFromPreviewMode(animatable.getPreviewMode(), colour));
     }
 }

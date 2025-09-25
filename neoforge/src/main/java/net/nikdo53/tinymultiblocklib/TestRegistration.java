@@ -1,6 +1,6 @@
 package net.nikdo53.tinymultiblocklib;
 
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
 import net.nikdo53.tinymultiblocklib.init.TMBLBlockEntities;
 import net.nikdo53.tinymultiblocklib.init.TMBLBlocks;
 import net.nikdo53.tinymultiblocklib.init.TMBLItems;

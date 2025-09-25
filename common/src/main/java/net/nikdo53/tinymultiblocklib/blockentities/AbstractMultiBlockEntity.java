@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib.blockentities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
@@ -27,23 +28,23 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
         tag.put("center", NbtUtils.writeBlockPos(this.center));
         tag.putBoolean("placed", this.isPlaced);
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        saveAdditional(tag);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        saveAdditional(tag, registries);
         return tag;
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        this.center = NbtUtils.readBlockPos(tag.getCompound("center"));
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.center = NbtUtils.readBlockPos(tag, "center").orElseGet(this::getBlockPos);
         this.isPlaced = tag.getBoolean("placed");
     }
 

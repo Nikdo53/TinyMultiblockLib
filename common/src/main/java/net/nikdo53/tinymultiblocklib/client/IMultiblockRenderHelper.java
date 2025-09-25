@@ -9,9 +9,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
@@ -77,12 +77,15 @@ public interface IMultiblockRenderHelper {
      * Applies the correct color + alpha according to the supplied PreviewMode
      * */
     default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, PreviewMode previewMode) {
-        float r = 1f;
-        float g = 1f;
-        float b = 1f;
-        float alpha = 1f;
+        render(modelPart, poseStack, vertexConsumer, packedLight, packedOverlay, 0xffffffff, previewMode);
+    }
 
-        render(modelPart, poseStack, vertexConsumer, packedLight, packedOverlay, r, g, b, alpha, previewMode);
+    default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int r, int g, int b, int alpha, PreviewMode previewMode) {
+        render(modelPart, poseStack, vertexConsumer, packedLight, packedOverlay, FastColor.ARGB32.color(alpha, r, g, b), previewMode);
+    }
+
+    default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, PreviewMode previewMode) {
+        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, getColorFromPreviewMode(previewMode, color));
     }
 
     /**
@@ -90,19 +93,22 @@ public interface IMultiblockRenderHelper {
      * <p>
      * Applies the correct color + alpha according to the supplied PreviewMode
      * */
-    default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float r, float g, float b, float alpha, PreviewMode previewMode) {
+    static int getColorFromPreviewMode(PreviewMode previewMode, int originalColor){
+        float r = FastColor.ARGB32.red(originalColor);
+        float g = FastColor.ARGB32.green(originalColor);
+        float b = FastColor.ARGB32.blue(originalColor);
+        float a = FastColor.ARGB32.alpha(originalColor);
 
         switch (previewMode) {
-            case PREVIEW -> alpha *= PreviewMode.PREVIEW.alpha;
+            case PREVIEW -> a *= PreviewMode.PREVIEW.alpha;
 
             case INVALID -> {
                 r *= PreviewMode.INVALID.red;
                 g *= PreviewMode.INVALID.green;
                 b *= PreviewMode.INVALID.blue;
-                alpha *= PreviewMode.INVALID.alpha;
+                a *= PreviewMode.INVALID.alpha;
             }
         }
-
-        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, r, g, b, alpha);
+        return FastColor.ARGB32.color((int) a, (int) r, (int) g, (int) b);
     }
 }

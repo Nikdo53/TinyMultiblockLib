@@ -30,8 +30,6 @@ import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
-import tschipp.carryon.common.carry.CarryOnData;
-import tschipp.carryon.common.carry.CarryOnDataManager;
 
 public class MultiblockPreviewRenderer {
 
@@ -109,13 +107,8 @@ public class MultiblockPreviewRenderer {
 
             VertexConsumerWrapper tintedConsumer = new VertexConsumerWrapper(buffer.getBuffer(RenderType.translucent())) {
                 @Override
-                public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] colorMuls, float red, float green, float blue, int[] combinedLights, int combinedOverlay, boolean mulColor) {
-                    super.putBulkData(pose, quad, colorMuls, red, green, blue, combinedLights, combinedOverlay, mulColor);
-                }
-
-                @Override
-                public VertexConsumer color(float red, float green, float blue, float alpha) {
-                    return super.color(red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha);
+                public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int packedOverlay, boolean readAlpha) {
+                    super.putBulkData(pose, quad, brightness, red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha, lightmap, packedOverlay, readAlpha);
                 }
             };
 

@@ -24,7 +24,7 @@ public abstract class ListHandlerMixin {
      * */
     @Inject(method = "initConfigLists", at = @At(value = "TAIL"), remap = false)
     private static void initConfigLists(CallbackInfo ci) {
-        TagKey<Block> tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation("carryon:block_blacklist"));
+        TagKey<Block> tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.parse("carryon:block_blacklist"));
         FORBIDDEN_TILES_TAGS.add(tagKey);
     }
 
