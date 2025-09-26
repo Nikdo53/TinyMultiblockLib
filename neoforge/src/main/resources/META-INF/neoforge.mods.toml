@@ -2,6 +2,7 @@ modLoader = "javafml"
 loaderVersion = "${neoforge_loader_version_range}"
 license = "${license}"
 issueTrackerURL="https://github.com/Nikdo53/TinyMultiblockLib/issues"
+
 [[mods]]
 modId = "${mod_id}"
 version = "${version}"
@@ -9,6 +10,11 @@ displayName = "${mod_name}"
 logoFile = "icon.png"
 authors = "${mod_author}"
 description = '''${description}'''
+
+[[mixins]]
+config = "${mod_id}.mixins.json"
+[[mixins]]
+config = "${mod_id}.neoforge.mixins.json"
 
 [[dependencies.${mod_id}]]
 modId = "neoforge"
