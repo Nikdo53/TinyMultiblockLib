@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.block;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -9,28 +10,34 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
-public interface IMultiBlock {
+import static net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock.CENTER;
 
-    /** Returns a BlockPos Stream of every block in this multiblock. */
-    Stream<BlockPos> fullBlockShape(@Nullable Direction direction, BlockPos center);
+public interface IMultiBlock extends IMBStateSyncer {
+
+    /** Returns a BlockPos Stream of every block in this multiblock.
+     * <p>
+     * Should only be used for overriding
+     * @see #fullBlockShape(BlockPos, BlockState)
+     * */
+    Stream<BlockPos> fullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state);
+
 
     /**
      * Returns the multiblocks DirectionProperty.
      * <p>
      * Only used for multiblocks that can be rotated, otherwise returns null
      * */
-
     default @Nullable DirectionProperty getDirectionProperty(){
         return null; // null if block doesn't have directions
     }
@@ -50,21 +57,22 @@ public interface IMultiBlock {
         }
     }
 
-    default Stream<BlockPos> fullBlockShape(BlockPos center, @Nullable BlockState state){
+    default Stream<BlockPos> fullBlockShape(BlockPos center, BlockState state){
         if (getDirectionProperty() == null || state == null)
-            return fullBlockShape(null, center);
+            return fullBlockShape(null, center, state);
 
-        return fullBlockShape(state.getValue(getDirectionProperty()), center);
+        return fullBlockShape(state.getValue(getDirectionProperty()), center, state);
     }
 
     static Stream<BlockPos> getFullShape(Level level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity multiBlockEntity
                 && level.getBlockState(pos).getBlock() instanceof IMultiBlock multiBlock){
 
-            return multiBlock.fullBlockShape(multiBlockEntity.getCenter(), level.getBlockState(pos));
+            return multiBlock.fullBlockShape(multiBlockEntity.getCenter(), level.getBlockState(multiBlockEntity.getCenter()));
         }
         else return Stream.of(pos);
     }
+
 
     /**
      * Changes the BlockState for each Block based on its offset from center
@@ -78,19 +86,29 @@ public interface IMultiBlock {
         return null;
     };
 
+    default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
+        boolean isPlaced = IMultiBlockEntity.isPlaced(level, pos);
+
+        if (isPlaced) syncBlockStates(level, pos, state);
+
+        if (isCenter(state)) {
+            if (!isPlaced) place(level, pos, state);
+        }
+    }
+
     /**
      * Places the multiblock, sets its BlockStates and BlockEntity center
      * */
-    default void place(Level level, BlockPos posOriginal, BlockState stateOriginal){
-        fullBlockShape(posOriginal, stateOriginal).forEach(posNew -> {
+    default void place(Level level, BlockPos centerPos, BlockState stateOriginal){
+        fullBlockShape(centerPos, stateOriginal).forEach(posNew -> {
             int flags = level.isClientSide ? 0 : 3;
 
-            BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, posOriginal.equals(posNew));
-            if (getStateFromOffset() != null) stateNew = getStateFromOffset().apply(stateNew, posNew.subtract(posOriginal));
+            BlockState stateNew = stateOriginal.setValue(CENTER, centerPos.equals(posNew));
+            if (getStateFromOffset() != null) stateNew = getStateFromOffset().apply(stateNew, posNew.subtract(centerPos));
 
             level.setBlock(posNew, stateNew, flags);
             if(level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity) {
-                entity.setCenter(posOriginal);
+                entity.setCenter(centerPos);
                 entity.getBlockEntity().setChanged();
             }
         });
@@ -107,7 +125,7 @@ public interface IMultiBlock {
     default BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        BlockState state = getBlock().defaultBlockState().setValue(AbstractMultiBlock.CENTER, true);
+        BlockState state = getBlock().defaultBlockState().setValue(CENTER, true);
 
         if (getDirectionProperty() != null){
             state = state.setValue(getDirectionProperty(), direction);
@@ -138,20 +156,22 @@ public interface IMultiBlock {
         boolean ret = fullBlockShape(center, state).allMatch(blockPos -> level.getBlockState(blockPos).is(getBlock()));
 
         if (ret && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity && !entity.isPlaced()) {
-            fullBlockShape(center, state).forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos));
+            fullBlockShape(center, state).forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
         }
 
         return ret;
     }
 
     /**
-     * Helper for {@link Block#updateShape(BlockState, Direction, BlockState, LevelAccessor, BlockPos, BlockPos)}
+     * Helper for Block.updateShape()
      * <p>
      * Destroys the multiblock if canSurvive returns false
      * */
     default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
-            boolean canSurvive = state.canSurvive(level, pos);
+            BlockPos centerPos = getCenter(level, pos);
+
+            boolean canSurvive = state.canSurvive(level, centerPos);
             if (!canSurvive){
                 destroy(entity.getCenter(), (Level) level, state);
                 return Blocks.AIR.defaultBlockState();
@@ -165,7 +185,7 @@ public interface IMultiBlock {
     }
 
     /**
-     * Helper for {@link Block#canSurvive(BlockState, LevelReader, BlockPos)}
+     * Helper for Block.canSurvive()
      * */
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
@@ -253,7 +273,7 @@ public interface IMultiBlock {
     }
 
     static boolean isCenter(BlockState state){
-        return state.getValue(AbstractMultiBlock.CENTER);
+        return state.getValue(CENTER);
     }
 
     static boolean isMultiblock(BlockState state){
