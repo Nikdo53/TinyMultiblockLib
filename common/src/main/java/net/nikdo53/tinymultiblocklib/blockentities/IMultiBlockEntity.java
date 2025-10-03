@@ -18,8 +18,13 @@ public interface IMultiBlockEntity {
     PreviewMode getPreviewMode();
     void setPreviewMode(PreviewMode mode);
 
-    static void setPlaced(LevelReader level, BlockPos blockPos) {
-        if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) entity.setPlaced(true);
+    static void setPlaced(LevelReader level, BlockPos blockPos, boolean placed) {
+        if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) entity.setPlaced(placed);
+    }
+
+    static boolean isPlaced(LevelReader level, BlockPos blockPos) {
+        if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) return entity.isPlaced();
+        return false;
     }
 
     default boolean isCenter(){
