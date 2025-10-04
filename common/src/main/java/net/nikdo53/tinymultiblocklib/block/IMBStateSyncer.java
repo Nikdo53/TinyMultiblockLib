@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.nikdo53.tinymultiblocklib.components.PropertyWrapper;
+import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -20,13 +21,26 @@ import static net.nikdo53.tinymultiblocklib.block.IMultiBlock.*;
 
 public interface IMBStateSyncer {
 
+    SyncedStatePropertiesBuilder getSyncedStatePropertiesBuilder();
+
     default List<PropertyWrapper<?>> getSyncedStateProperties(){
-        List<PropertyWrapper<?>> list = new ArrayList<>();
-        if (getMultiBlock().getDirectionProperty() != null){
-            list.add(new PropertyWrapper<>(HorizontalDirectionalBlock.FACING));
+        SyncedStatePropertiesBuilder syncedStatePropertiesBuilder = getSyncedStatePropertiesBuilder();
+
+        if (!syncedStatePropertiesBuilder.isInitialized()){
+            createSyncedBlockStates(syncedStatePropertiesBuilder);
+
+            syncedStatePropertiesBuilder.setInitialized();
         }
-        return list;
+
+        return syncedStatePropertiesBuilder.getProperties();
     };
+
+    default void createSyncedBlockStates(SyncedStatePropertiesBuilder builder){
+        DirectionProperty directionProperty = getMultiBlock().getDirectionProperty();
+        if (directionProperty != null){
+            builder.add(directionProperty);
+        }
+    }
 
     /**
      * Updates the provided BlockStateProperties for each block in the multiblock

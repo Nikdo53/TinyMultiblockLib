@@ -8,7 +8,8 @@ public class Constants {
 
 	public static final String MOD_ID = "tinymultiblocklib";
 	public static final String MOD_NAME = "Tiny MultiBlock Lib";
-	public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+    public static final boolean DEBUG_ENABLED = false;
 
     public static ResourceLocation loc(String path) {
         return new ResourceLocation(MOD_ID, path);
