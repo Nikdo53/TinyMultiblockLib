@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
+import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -35,8 +36,7 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
      * @see #getCenter(BlockGetter, BlockPos)
      * */
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
-
-    public final List<BooleanProperty> LIST = new ArrayList<>();
+    private final SyncedStatePropertiesBuilder SYNCED_STATE_BUILDER = new SyncedStatePropertiesBuilder();
 
     public AbstractMultiBlock(Properties properties) {
         super(properties);
@@ -45,6 +45,11 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
         } else {
             this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false));
         }
+    }
+
+    @Override
+    public SyncedStatePropertiesBuilder getSyncedStatePropertiesBuilder() {
+        return SYNCED_STATE_BUILDER;
     }
 
     @Override

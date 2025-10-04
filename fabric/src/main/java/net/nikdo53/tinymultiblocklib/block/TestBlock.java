@@ -18,6 +18,12 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
+    public Stream<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
+        assert direction != null;
+        return BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,2), center.above(2).relative(direction));
+    }
+
+    @Override
     public @Nullable DirectionProperty getDirectionProperty() {
         return HorizontalDirectionalBlock.FACING;
     }
@@ -25,12 +31,6 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new TestBlockEntity(pos, state);
-    }
-
-    @Override
-    public Stream<BlockPos> fullBlockShape(@Nullable Direction direction, BlockPos center) {
-        assert direction != null;
-        return BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,2), center.above(2).relative(direction));
     }
 
     @Override
