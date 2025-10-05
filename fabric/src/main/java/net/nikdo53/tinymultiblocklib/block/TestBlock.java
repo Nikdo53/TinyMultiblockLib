@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.nikdo53.tinymultiblocklib.block.entity.TestBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public class TestBlock extends AbstractMultiBlock implements IPreviewableMultiblock {
@@ -18,7 +19,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    public Stream<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
+    public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
         assert direction != null;
         return BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,2), center.above(2).relative(direction));
     }

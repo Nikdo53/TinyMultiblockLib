@@ -6,10 +6,13 @@ public enum PreviewMode {
      * <p>
      * PREVIEW - In preview and placeable
      * <p>
+     * ENTITY_BLOCKED - In preview with a valid location, but an entity in the way
+     * <p>
      * INVALID - In preview with an invalid place location
      * */
     PLACED(1f,1f,1f,1f),
     PREVIEW(0.5f,1f,1f,1f),
+    ENTITY_BLOCKED(0.5f,1f,0.7f,0.4f),
     INVALID(0.5f,1f,0.4f,0.4f);
 
     public final float alpha;

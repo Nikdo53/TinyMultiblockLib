@@ -14,10 +14,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     public BlockPos center;
     public boolean isPlaced;
     public PreviewMode previewMode = PreviewMode.PLACED;
+    public List<BlockPos> BLOCK_SHAPE_CACHE = new ArrayList<>();
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -72,6 +76,21 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     }
 
     @Override
+    public List<BlockPos> getFullBlockShapeCache() {
+        return BLOCK_SHAPE_CACHE;
+    }
+
+    @Override
+    public void setFullBlockShapeCache(List<BlockPos> blockPosList) {
+        BLOCK_SHAPE_CACHE = blockPosList;
+    }
+
+    @Override
+    public void invalidateCaches() {
+        BLOCK_SHAPE_CACHE = new ArrayList<>();
+    }
+
+    @Override
     public PreviewMode getPreviewMode() {
         return previewMode;
     }
@@ -81,17 +100,16 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
         this.previewMode = mode;
     }
 
-/**
- * Certain mods let you change the location of the multiblock (like Carry on)
- * <p>
- * That's a problem because the {@link #center} won't update. This should trick it into updating
- */
-     @Override
+    /**
+     * Certain mods let you change the location of the multiblock (like Carry on)
+     * <p>
+     * That's a problem because the {@link #center} won't update. This should trick it into updating
+     */
+    @Override
     public void setBlockState(BlockState blockState) {
         if (IMultiBlock.isCenter(blockState)){
             setCenter(this.getBlockPos());
         }
         super.setBlockState(blockState);
-     }
-
+    }
 }

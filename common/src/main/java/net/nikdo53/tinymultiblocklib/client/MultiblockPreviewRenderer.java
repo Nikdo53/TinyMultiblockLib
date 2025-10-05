@@ -13,9 +13,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
@@ -24,6 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
@@ -36,7 +40,8 @@ public class MultiblockPreviewRenderer {
     public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, Camera camera, PoseStack poseStack, IPlatformHelper platformHelper) {
         LocalPlayer player = minecraft.player;
         assert player != null;
-        Item item = player.getMainHandItem().getItem();
+        ItemStack stack = player.getMainHandItem();
+        Item item = stack.getItem();
 
         if (platformHelper.isModLoaded("carryon") && CarryOnPreviewHelper.isValidMultiblock(player)) {
             item = CarryOnPreviewHelper.getMultiblockItem(player);
@@ -64,7 +69,10 @@ public class MultiblockPreviewRenderer {
                 if (entity instanceof IMultiBlockEntity multiBlockEntity && shouldShowPreview) {
                     entity.setLevel(level);
 
-                    PreviewMode previewMode = multiBlock.canPlace(level, pos, state) ? PreviewMode.PREVIEW : PreviewMode.INVALID;
+                    boolean multiBlockCanPlace = multiBlock.canPlace(level, pos, state, player, true);
+                    boolean entityUnobstructed = multiBlock.entityUnobstructed(level, pos, state, player);
+
+                    PreviewMode previewMode = multiBlockCanPlace ? (entityUnobstructed ? PreviewMode.PREVIEW : PreviewMode.ENTITY_BLOCKED) : PreviewMode.INVALID;
                     multiBlockEntity.setPreviewMode(previewMode);
 
                     if (level.getBlockState(hitPos).canBeReplaced() && !placeOnWater) pos = pos.relative(hitDirection.getOpposite());

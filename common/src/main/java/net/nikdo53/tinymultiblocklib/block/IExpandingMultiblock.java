@@ -6,8 +6,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import static net.nikdo53.tinymultiblocklib.Constants.DEBUG_ENABLED;
 import static net.nikdo53.tinymultiblocklib.Constants.LOGGER;
@@ -16,16 +15,18 @@ public interface IExpandingMultiblock extends IMultiBlock {
 
     default boolean hasShapeChanged(BlockState state, Level level, BlockPos pos, BlockState oldState) {
         BlockPos center = IMultiBlock.getCenter(level, pos);
-        return !getfullBlockShape(center, oldState).equals(getfullBlockShape(center, state));
+        return !getFullBlockShape(center, oldState, level).equals(getFullBlockShapeNoCache(pos, state));
     }
 
     default void changeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
         if (DEBUG_ENABLED) LOGGER.warn("changeShape");
         if (level.isClientSide()) return;
 
+        IMultiBlock.invalidateCaches(level, pos);
+
         BlockPos center = IMultiBlock.getCenter(level, pos);
-        Set<BlockPos> oldShape = getfullBlockShape(center, oldState).collect(Collectors.toSet());
-        Set<BlockPos> shapeNew = getfullBlockShape(center, state).collect(Collectors.toSet());
+        List<BlockPos> oldShape = getFullBlockShapeNoCache(pos, oldState);
+        List<BlockPos> shapeNew = getFullBlockShape(pos, state, level);
 
 
         oldShape.forEach(posOld -> {
@@ -39,18 +40,13 @@ public interface IExpandingMultiblock extends IMultiBlock {
         });
 
         place(level, center, state);
-
-/*        oldShape.forEach(posOld -> {
-
-            if (hasShrunk && !shapeNew.contains(posOld)) {
-                System.out.println("sddaa");
-                level.removeBlockEntity(posOld);
-                level.setBlock(posOld, Blocks.DIAMOND_BLOCK.defaultBlockState(), 2);
-            }
-
-        });*/
-
     }
+
+/*    default boolean canChangeShape(BlockState state, Level level, BlockPos pos) {
+        canPlace()
+    }*/
+
+    //TODO: add shape change cancellation
 
     @Override
     default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
@@ -63,5 +59,4 @@ public interface IExpandingMultiblock extends IMultiBlock {
 
         IMultiBlock.super.onPlaceHelper(state, level, pos, oldState);
     }
-
 }
