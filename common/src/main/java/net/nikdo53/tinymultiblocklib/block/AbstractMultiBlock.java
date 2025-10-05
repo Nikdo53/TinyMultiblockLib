@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractMultiBlock extends Block implements IMultiBlock, EntityBlock {
+public abstract class AbstractMultiBlock extends Block implements IMultiBlock, EntityBlock, IExpandingMultiblock {
     /**
      * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
      * <p>

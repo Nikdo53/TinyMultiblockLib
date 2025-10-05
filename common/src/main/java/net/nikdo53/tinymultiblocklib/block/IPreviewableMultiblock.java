@@ -34,7 +34,7 @@ public interface IPreviewableMultiblock extends IMultiBlock {
     default List<Pair<BlockPos, BlockState>> getPreviewStates(BlockPos posOriginal, BlockState stateOriginal){
         List<Pair<BlockPos, BlockState>> list = new ArrayList<>();
 
-        getfullBlockShape(posOriginal, stateOriginal).forEach(posNew -> {
+        getFullBlockShapeNoCache(posOriginal, stateOriginal).forEach(posNew -> {
 
             posNew = posNew.immutable();
             BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, posOriginal.equals(posNew));

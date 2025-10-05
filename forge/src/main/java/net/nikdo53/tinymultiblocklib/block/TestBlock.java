@@ -1,11 +1,14 @@
 package net.nikdo53.tinymultiblocklib.block;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -16,19 +19,27 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.entity.TestMultiblockEntity;
 import net.nikdo53.tinymultiblocklib.components.PropertyWrapper;
 import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TestBlock extends AbstractMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
     public TestBlock(Properties properties) {
         super(properties);
     }
+    public static final VoxelShape SHAPE = makeShape();
 
     @Override
     public @Nullable DirectionProperty getDirectionProperty() {
@@ -42,11 +53,12 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    public Stream<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
+    public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
         assert direction != null;
-        int size = state.getValue(BlockStateProperties.AGE_3);
-        if (size <1) size = 1;
-        return BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,size), center.above(size).relative(direction));
+        int size = 1;
+        if (size < 1) size = 1;
+
+        return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,size).relative(direction, size), center.above(size)));
     }
 
     @Override
@@ -62,7 +74,9 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
             value = 0;
         }
 
-        level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.AGE_3, value));
+        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
+
+        level.setBlockAndUpdate(pos, state.setValue(getDirectionProperty(), direction.getClockWise()));
 
         return InteractionResult.SUCCESS;
     }
@@ -79,11 +93,23 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    protected void spawnDestroyParticles(Level level, Player player, BlockPos pos, BlockState state) {
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return voxelShapeHelper(state, level, pos, SHAPE, 0 , 0, 0, true);
     }
 
-    @Override
-    public boolean addLandingEffects(BlockState state1, ServerLevel level, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles) {
-        return super.addLandingEffects(state1, level, pos, state2, entity, numberOfParticles);
+    public static VoxelShape makeShape(){
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(-1, 0, 0, 1, 2, 2), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1.5, 0.75, 0.75, 1.5, 1.25, 1.25), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1, 0.75, 0.75, 2, 1.25, 1.25), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-2, 0.75, 0.75, 1, 1.25, 1.25), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1.5, 0.75, 0.75, 1.5, 1.25, 1.25), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1.5, 1.5, 0.75, 1.5, 2, 1.25), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1.5, 0, 0.75, 1.5, 0.5, 1.25), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1.5, 0.75, 1.5, 1.5, 1.25, 2), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(-1.5, 0.75, 0, 1.5, 1.25, 0.5), BooleanOp.OR);
+
+        return shape;
     }
+
 }

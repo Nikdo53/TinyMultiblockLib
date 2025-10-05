@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.world.phys.Vec3;
+import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +22,7 @@ public abstract class ShutUpWarnsMixin implements ServerPlayerConnection, Tickab
      * */
     @ModifyVariable(method = "handleUseItemOn", at = @At(value = "STORE"), ordinal = 2)
     public Vec3 useAllower(Vec3 vec3, @Local ServerLevel level, @Local BlockPos pos) {
-        if(level.getBlockEntity(pos) instanceof IMultiBlockEntity){
+        if(level.getBlockState(pos).getBlock() instanceof IMultiBlock){
             return new Vec3(0, 0 , 0);
         }
         return vec3;
