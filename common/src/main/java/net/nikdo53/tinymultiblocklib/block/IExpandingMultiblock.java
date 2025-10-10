@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,6 +13,26 @@ import static net.nikdo53.tinymultiblocklib.Constants.DEBUG_ENABLED;
 import static net.nikdo53.tinymultiblocklib.Constants.LOGGER;
 
 public interface IExpandingMultiblock extends IMultiBlock {
+
+    @Override
+    default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
+        if (DEBUG_ENABLED) LOGGER.warn("onPlaceHelper");
+
+        boolean willChangeShape = IMultiBlock.isCenter(state) && IMultiBlock.isMultiblock(oldState) && hasShapeChanged(state, level, pos, oldState);
+        if (willChangeShape) {
+            if (canChangeShape(state, level, pos)) {
+
+                changeShape(state, level, pos, oldState);
+                postChangeShape(state, level, pos, oldState);
+
+            } else {
+                cancelChangeShape(state, level, pos, oldState);
+            }
+            return;
+        }
+
+        IMultiBlock.super.onPlaceHelper(state, level, pos, oldState);
+    }
 
     default boolean hasShapeChanged(BlockState state, Level level, BlockPos pos, BlockState oldState) {
         BlockPos center = IMultiBlock.getCenter(level, pos);
@@ -42,21 +63,24 @@ public interface IExpandingMultiblock extends IMultiBlock {
         place(level, center, state);
     }
 
-/*    default boolean canChangeShape(BlockState state, Level level, BlockPos pos) {
-        canPlace()
-    }*/
+    default boolean canChangeShape(BlockState state, Level level, BlockPos pos) {
+        BlockPos center = IMultiBlock.getCenter(level, pos);
 
-    //TODO: add shape change cancellation
+        return getFullBlockShapeNoCache(center, state).stream().allMatch(posNew -> {
+            BlockState stateNew = level.getBlockState(posNew);
 
-    @Override
-    default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        if (DEBUG_ENABLED) LOGGER.warn("onPlaceHelper");
+            return (stateNew.canBeReplaced() || IMultiBlock.isSameMultiblock(level, state, stateNew, center, posNew ))
+                    && extraSurviveRequirements(level, posNew, state)
+                    && (entityUnobstructed(level, posNew, state, null));
+        });
+    }
 
-        if (IMultiBlock.isMultiblock(oldState) && hasShapeChanged(state, level, pos, oldState)) {
-            changeShape(state, level, pos, oldState);
-            return;
-        }
+    default void postChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
+        if (DEBUG_ENABLED) LOGGER.warn("postChangeShape");
+        getFullBlockShape(pos, state, level).forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
+    }
 
-        IMultiBlock.super.onPlaceHelper(state, level, pos, oldState);
+    default void cancelChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState){
+        level.setBlock(pos, oldState, 2);
     }
 }

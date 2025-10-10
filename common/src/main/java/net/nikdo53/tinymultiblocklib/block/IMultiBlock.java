@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.block;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -13,13 +14,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.nikdo53.tinymultiblocklib.Constants.*;
@@ -39,7 +44,7 @@ public interface IMultiBlock extends IMBStateSyncer {
      * Use this helper method to convert them safely
      * */
     static List<BlockPos> posStreamToList(Stream<BlockPos> posStream){
-        return posStream.map(BlockPos::immutable).toList();
+        return new ArrayList<>(posStream.map(BlockPos::immutable).toList());
     }
 
     /**
@@ -58,20 +63,30 @@ public interface IMultiBlock extends IMBStateSyncer {
         return null;
     }
 
-    default Block getBlock(){
-        if (this instanceof Block block){
-            return block;
-        } else {
-            throw new RuntimeException(this.getClass().getSimpleName() + " is not implemented on a Block");
-        }
-    }
-
     default List<BlockPos> getFullBlockShapeNoCache(BlockPos center, BlockState state){
-        if (getDirectionProperty() == null)
-            return makeFullBlockShape(null, center, state);
+        List<BlockPos> list;
 
-        return makeFullBlockShape(state.getValue(getDirectionProperty()), center, state);
+        if (getDirectionProperty() == null) {
+            list = makeFullBlockShape(null, center, state);
+        } else {
+            list = makeFullBlockShape(state.getValue(getDirectionProperty()), center, state);
+        }
+
+        // Warn everyone of Mo-jank
+        {
+            Set<BlockPos> set = new HashSet<>(list);
+            if (set.size() < list.size()) {
+                LOGGER.error("Multiblock {} has overlapping blocks in it's shape," +
+                        " this is likely caused by the BlockPos being mutable." +
+                        " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
+                        getBlock().toString());
+            }
+
+        }
+
+        return list;
     }
+
 
     default List<BlockPos> getFullBlockShape(BlockPos pos, BlockState state, BlockGetter level){
         BlockPos center = getCenter(level, pos);
@@ -108,15 +123,11 @@ public interface IMultiBlock extends IMBStateSyncer {
 
     /**
      * Changes the BlockState for each Block based on its offset from center
-     * <p>
-     * Code Example:
-     * <p>
-     * ((state, pos) -> state.setValue(yourStateProperty, IBlockPosOffsetEnum.fromOffset(params)))
      * @see IBlockPosOffsetEnum#fromOffset(Class, BlockPos, Direction, Enum)
      * */
-    default @Nullable BiFunction<BlockState, BlockPos, BlockState> getStateFromOffset() {
-        return null;
-    };
+    default BlockState getStateFromOffset(BlockState state, BlockPos offset){
+        return state;
+    }
 
     default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
         if (DEBUG_ENABLED) LOGGER.warn("onPlaceHelper");
@@ -136,25 +147,42 @@ public interface IMultiBlock extends IMBStateSyncer {
     default void place(Level level, BlockPos centerPos, BlockState stateOriginal){
         if (DEBUG_ENABLED) LOGGER.warn("place");
 
-        getFullBlockShape(centerPos, stateOriginal, level).forEach(posNew -> {
-            int flags = level.isClientSide ? 0 : 3;
+        prepareForPlace(level, centerPos, stateOriginal).forEach(pair -> {
+            int flags = 2;
 
-            BlockState stateNew = stateOriginal.setValue(CENTER, centerPos.equals(posNew));
-            if (getStateFromOffset() != null) stateNew = getStateFromOffset().apply(stateNew, posNew.subtract(centerPos));
+            BlockState stateNew = pair.getSecond();
+            BlockPos posNew = pair.getFirst();
 
-            if (level.getBlockState(posNew).equals(stateNew)) { //Don't replace identical blocks
-                if (level.getBlockEntity(posNew) instanceof IMultiBlockEntity multiBlockEntity && multiBlockEntity.getCenter().equals(centerPos)) {
-                    return;
-                }
+            // Don't replace identical blocks
+            if (!level.getBlockState(posNew).equals(stateNew)) {
+                level.setBlock(posNew, stateNew, flags);
             }
 
-            level.setBlock(posNew, stateNew, flags);
-            if(level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity) {
+            if(level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity && !entity.getCenter().equals(centerPos)) {
                 entity.setCenter(centerPos);
                 entity.getBlockEntity().setChanged();
             }
         });
     }
+
+    /**
+     * Prepares all blocks to be Placed
+     * */
+    default List<Pair<BlockPos, BlockState>> prepareForPlace(Level level, BlockPos centerPos, BlockState stateOriginal){
+        List<Pair<BlockPos, BlockState>> list = new ArrayList<>();
+
+        getFullBlockShape(centerPos, stateOriginal, level).forEach(posNew -> {
+            posNew = posNew.immutable();
+
+            BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));
+            stateNew = getStateFromOffset(stateNew, posNew.subtract(centerPos));
+
+            list.add(new Pair<>(posNew, stateNew));
+        });
+
+        return list;
+    }
+
 
     default BlockState getStateForPlacementHelper(BlockPlaceContext context) {
         return getStateForPlacementHelper(context, context.getHorizontalDirection());
@@ -236,7 +264,7 @@ public interface IMultiBlock extends IMBStateSyncer {
 
             boolean canSurvive = state.canSurvive(level, centerPos);
             if (!canSurvive){
-              //  destroy(entity.getCenter(), (Level) level, state);
+                destroy(entity.getCenter(), (Level) level, state);
                 return Blocks.AIR.defaultBlockState();
             }
         }else {
@@ -430,4 +458,17 @@ public interface IMultiBlock extends IMBStateSyncer {
     default int getMaxAge(IntegerProperty ageProperty) {
         return ageProperty.getPossibleValues().stream().toList().get(ageProperty.getPossibleValues().size() - 1);
     }
+
+    static boolean isSameMultiblock(Level level, BlockState state1, BlockState state2, BlockPos center, BlockPos posNew){
+        return state1.getBlock().equals(state2.getBlock()) && level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity && entity.getCenter().equals(center);
+    }
+
+    default Block getBlock(){
+        if (this instanceof Block block){
+            return block;
+        } else {
+            throw new RuntimeException(this.getClass().getSimpleName() + " is not implemented on a Block");
+        }
+    }
+
 }
