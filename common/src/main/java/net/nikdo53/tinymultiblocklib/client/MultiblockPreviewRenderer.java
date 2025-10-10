@@ -103,10 +103,10 @@ public class MultiblockPreviewRenderer {
         BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
         poseStack.translate(0.0001,0.0001,0.0001);
 
-        multiBlock.getPreviewStates(originalPos, stateOriginal).forEach(pair -> {
+        multiBlock.prepareForPlace(level, originalPos, stateOriginal).forEach(pair -> {
 
-            BlockState state = pair.getB();
-            BlockPos pos = pair.getA().immutable();
+            BlockState state = pair.getSecond();
+            BlockPos pos = pair.getFirst().immutable();
 
             if (!state.getRenderShape().equals(RenderShape.MODEL)) return;
 

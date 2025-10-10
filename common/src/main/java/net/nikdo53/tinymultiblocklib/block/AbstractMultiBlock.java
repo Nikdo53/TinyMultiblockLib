@@ -67,8 +67,8 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
      * <p>
      * If your block is a json model, return {@link RenderShape#MODEL}
      * <p>
-     * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE}
-     * @see #getStateFromOffset() The function for setting a different blockstate to each block
+     * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
+     * @see #getStateFromOffset(BlockState, BlockPos) The function for setting a different blockstate to each block
      * */
     public abstract RenderShape getMultiblockRenderShape(BlockState state);
 
@@ -109,10 +109,5 @@ public abstract class AbstractMultiBlock extends Block implements IMultiBlock, E
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         preventCreativeDrops(player, level, pos);
         return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
-    public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool) {
-        super.playerDestroy(level, player, pos, state, blockEntity, tool);
     }
 }

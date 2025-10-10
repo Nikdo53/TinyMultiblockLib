@@ -2,8 +2,11 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,6 +33,7 @@ import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -55,10 +59,12 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     @Override
     public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
         assert direction != null;
-        int size = 1;
+        int size = state.getValue(BlockStateProperties.AGE_3);
         if (size < 1) size = 1;
 
-        return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,size).relative(direction, size), center.above(size)));
+        List<BlockPos> list = IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.relative(Direction.NORTH, size).relative(Direction.EAST, size), center.above(size)));
+        list.add(center.above().relative(direction, 3));
+        return new HashSet<>(list).stream().toList();
     }
 
     @Override
@@ -76,7 +82,11 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
 
         Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
 
-        level.setBlockAndUpdate(pos, state.setValue(getDirectionProperty(), direction.getClockWise()));
+        level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.AGE_3, value).setValue(getDirectionProperty(), direction.getClockWise()));
+
+        if (level.getBlockState(pos).equals(state) ) {
+            player.displayClientMessage(Component.literal("Your action has been cancelled"), true);
+        }
 
         return InteractionResult.SUCCESS;
     }
@@ -94,7 +104,8 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return voxelShapeHelper(state, level, pos, SHAPE, 0 , 0, 0, true);
+        return Shapes.block();
+       // return voxelShapeHelper(state, level, pos, SHAPE, 0 , 0, 0, true);
     }
 
     public static VoxelShape makeShape(){
@@ -111,5 +122,4 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
 
         return shape;
     }
-
 }
