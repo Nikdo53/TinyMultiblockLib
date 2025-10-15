@@ -101,6 +101,13 @@ public interface IMultiblockRenderHelper {
                 b *= PreviewMode.INVALID.blue;
                 alpha *= PreviewMode.INVALID.alpha;
             }
+
+            case ENTITY_BLOCKED -> {
+                r *= PreviewMode.ENTITY_BLOCKED.red;
+                g *= PreviewMode.ENTITY_BLOCKED.green;
+                b *= PreviewMode.ENTITY_BLOCKED.blue;
+                alpha *= PreviewMode.ENTITY_BLOCKED.alpha;
+            }
         }
 
         modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, r, g, b, alpha);

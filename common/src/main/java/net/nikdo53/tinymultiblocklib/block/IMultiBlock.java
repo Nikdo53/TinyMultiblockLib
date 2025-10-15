@@ -125,8 +125,6 @@ public interface IMultiBlock extends IMBStateSyncer {
     }
 
     default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        if (DEBUG_ENABLED) LOGGER.warn("onPlaceHelper");
-
         boolean isPlaced = IMultiBlockEntity.isPlaced(level, pos);
 
         if (isPlaced) syncBlockStates(level, pos, state);
@@ -140,8 +138,6 @@ public interface IMultiBlock extends IMBStateSyncer {
      * Places the multiblock, sets its BlockStates and BlockEntity center
      * */
     default void place(Level level, BlockPos centerPos, BlockState stateOriginal){
-        if (DEBUG_ENABLED) LOGGER.warn("place");
-
         prepareForPlace(level, centerPos, stateOriginal).forEach(pair -> {
             int flags = 66;
 
@@ -188,8 +184,6 @@ public interface IMultiBlock extends IMBStateSyncer {
      * @param direction The direction the block will have when placed, ignored when {@link #getDirectionProperty()} is null
      * */
     default BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
-        if (DEBUG_ENABLED) LOGGER.warn("getStateForPlacementHelper");
-
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = self().defaultBlockState().setValue(CENTER, true);
@@ -202,8 +196,6 @@ public interface IMultiBlock extends IMBStateSyncer {
     }
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {
-        if (DEBUG_ENABLED) LOGGER.warn("canPlace");
-
         return getFullBlockShape(center, state, level).stream().allMatch(blockPos ->
                 level.getBlockState(blockPos).canBeReplaced()
                         && extraSurviveRequirements(level, blockPos, state)
@@ -213,25 +205,25 @@ public interface IMultiBlock extends IMBStateSyncer {
     default boolean entityUnobstructed(CollisionGetter level, BlockPos pos, BlockState state, @Nullable Entity player) {
         CollisionContext context = player == null ? CollisionContext.empty() : CollisionContext.of(player);
 
-        return getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> level.isUnobstructed(state, pos, context));
+        return getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> level.isUnobstructed(state, blockPos, context));
     }
 
-    default void destroy(BlockPos center, Level level, BlockState state){
-        if (DEBUG_ENABLED) LOGGER.warn("destroy");
-
+    default void destroy(BlockPos center, Level level, BlockState state, boolean dropBlock){
         if (level.isClientSide()) return;
-        getFullBlockShape(center, state, level).forEach(pos ->{
+        List<BlockPos> blocks = getFullBlockShape(center, state, level);
+
+        level.destroyBlock(center, false);
+
+        blocks.forEach(pos ->{
             BlockState blockState = level.getBlockState(pos);
             Block block = state.getBlock();
             if (blockState.is(block)) {
-                level.destroyBlock(pos, true);
+                level.destroyBlock(pos, dropBlock);
             }
         });
     }
 
     default boolean allBlocksPresent(LevelReader level, BlockPos pos, BlockState state){
-        if (DEBUG_ENABLED) LOGGER.warn("allBlocksPresent");
-
         if (level.isClientSide()) return true;
         BlockPos center = getCenter(level, pos);
 
@@ -251,14 +243,12 @@ public interface IMultiBlock extends IMBStateSyncer {
      * Destroys the multiblock if canSurvive returns false
      * */
     default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
-        if (DEBUG_ENABLED) LOGGER.warn("updateShapeHelper");
-
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             BlockPos centerPos = getCenter(level, pos);
 
             boolean canSurvive = state.canSurvive(level, centerPos);
             if (!canSurvive){
-                destroy(entity.getCenter(), (Level) level, state);
+                destroy(entity.getCenter(), (Level) level, state, true);
                 return Blocks.AIR.defaultBlockState();
             }
         }else {
@@ -272,8 +262,6 @@ public interface IMultiBlock extends IMBStateSyncer {
      * Helper for Block.canSurvive()
      * */
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
-        if (DEBUG_ENABLED) LOGGER.warn("canSurviveHelper");
-
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             //survive logic
             boolean extraSurvive = getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state));
@@ -295,8 +283,10 @@ public interface IMultiBlock extends IMBStateSyncer {
      * Should be added into {@link Block#playerDestroy(Level, Player, BlockPos, BlockState, BlockEntity, ItemStack)}
      * */
     default void preventCreativeDrops(Player player, Level level, BlockPos pos){
-        if (player.isCreative() && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            level.destroyBlock(entity.getCenter(), false);
+        if (player.isCreative() && level.getBlockEntity(pos) instanceof IMultiBlockEntity) {
+            BlockPos center = getCenter(level, pos);
+
+            destroy(center, level, level.getBlockState(pos), false);
         }
     }
 

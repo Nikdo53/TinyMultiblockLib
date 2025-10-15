@@ -2,6 +2,7 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -61,7 +62,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         int value = state.getValue(BlockStateProperties.AGE_3) + 1;
         if (value > 3) {
             value = 0;
@@ -92,7 +93,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.block();
        // return voxelShapeHelper(state, level, pos, SHAPE, 0 , 0, 0, true);
     }
