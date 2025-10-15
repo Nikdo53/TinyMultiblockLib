@@ -9,15 +9,10 @@ import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 
 import java.util.List;
 
-import static net.nikdo53.tinymultiblocklib.Constants.DEBUG_ENABLED;
-import static net.nikdo53.tinymultiblocklib.Constants.LOGGER;
-
 public interface IExpandingMultiblock extends IMultiBlock {
 
     @Override
     default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        if (DEBUG_ENABLED) LOGGER.warn("onPlaceHelper");
-
         boolean willChangeShape = IMultiBlock.isCenter(state) && IMultiBlock.isMultiblock(oldState) && hasShapeChanged(state, level, pos, oldState);
         if (willChangeShape) {
             if (canChangeShape(state, level, pos)) {
@@ -40,7 +35,6 @@ public interface IExpandingMultiblock extends IMultiBlock {
     }
 
     default void changeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        if (DEBUG_ENABLED) LOGGER.warn("changeShape");
         if (level.isClientSide()) return;
 
         IMultiBlock.invalidateCaches(level, pos);
@@ -76,7 +70,6 @@ public interface IExpandingMultiblock extends IMultiBlock {
     }
 
     default void postChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        if (DEBUG_ENABLED) LOGGER.warn("postChangeShape");
         getFullBlockShape(pos, state, level).forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
     }
 

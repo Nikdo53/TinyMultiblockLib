@@ -14,7 +14,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 
@@ -23,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.nikdo53.tinymultiblocklib.Constants.*;
@@ -73,16 +70,14 @@ public interface IMultiBlock extends IMBStateSyncer {
         }
 
         // Warn everyone of Mo-jank
-        {
-            Set<BlockPos> set = new HashSet<>(list);
-            if (set.size() < list.size()) {
-                LOGGER.error("Multiblock {} has overlapping blocks in it's shape," +
-                        " this is likely caused by the BlockPos being mutable." +
-                        " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
-                        getBlock().toString());
-            }
-
+        Set<BlockPos> set = new HashSet<>(list);
+        if (set.size() < list.size()) {
+            LOGGER.error("Multiblock {} at {} has overlapping blocks in it's shape,"
+                    + " this is likely caused by the BlockPos being mutable."
+                    + " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
+                    state.toString(), center);
         }
+
 
         return list;
     }
@@ -148,7 +143,7 @@ public interface IMultiBlock extends IMBStateSyncer {
         if (DEBUG_ENABLED) LOGGER.warn("place");
 
         prepareForPlace(level, centerPos, stateOriginal).forEach(pair -> {
-            int flags = 2;
+            int flags = 66;
 
             BlockState stateNew = pair.getSecond();
             BlockPos posNew = pair.getFirst();
@@ -197,7 +192,7 @@ public interface IMultiBlock extends IMBStateSyncer {
 
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        BlockState state = getBlock().defaultBlockState().setValue(CENTER, true);
+        BlockState state = self().defaultBlockState().setValue(CENTER, true);
 
         if (getDirectionProperty() != null){
             state = state.setValue(getDirectionProperty(), direction);
@@ -240,7 +235,7 @@ public interface IMultiBlock extends IMBStateSyncer {
         if (level.isClientSide()) return true;
         BlockPos center = getCenter(level, pos);
 
-        boolean ret = getFullBlockShape(center, state, level).stream().allMatch(blockPos -> level.getBlockState(blockPos).is(getBlock()));
+        boolean ret = getFullBlockShape(center, state, level).stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
 
         boolean isMultiblock = isMultiblock(level, pos);
         if (ret && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity && !entity.isPlaced() && isMultiblock) {
@@ -257,7 +252,6 @@ public interface IMultiBlock extends IMBStateSyncer {
      * */
     default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
         if (DEBUG_ENABLED) LOGGER.warn("updateShapeHelper");
-       // if (1 == 1)return state;
 
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             BlockPos centerPos = getCenter(level, pos);
@@ -439,7 +433,7 @@ public interface IMultiBlock extends IMBStateSyncer {
      * */
     @Deprecated
     default void growHelper(Level level, BlockPos blockPos, IntegerProperty ageProperty){
-        Block block = getBlock();
+        Block block = self();
             getFullBlockShape(blockPos, level.getBlockState(blockPos), level).forEach(pos -> {
                 if(level.getBlockState(pos).is(block)) {
 
@@ -463,7 +457,7 @@ public interface IMultiBlock extends IMBStateSyncer {
         return state1.getBlock().equals(state2.getBlock()) && level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity && entity.getCenter().equals(center);
     }
 
-    default Block getBlock(){
+    private Block self(){
         if (this instanceof Block block){
             return block;
         } else {
