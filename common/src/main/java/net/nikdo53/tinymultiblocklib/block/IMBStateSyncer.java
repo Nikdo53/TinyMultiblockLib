@@ -35,6 +35,9 @@ public interface IMBStateSyncer {
         return syncedStatePropertiesBuilder.getProperties();
     };
 
+    /**
+     * Registers BlockStates to be automatically synced across the whole multiblock
+     * */
     default void createSyncedBlockStates(SyncedStatePropertiesBuilder builder){
         DirectionProperty directionProperty = getMultiBlock().getDirectionProperty();
         if (directionProperty != null){
@@ -97,7 +100,7 @@ public interface IMBStateSyncer {
         setBlockStates(level, pos, list);
     }
 
-    default IMultiBlock getMultiBlock(){
+    private IMultiBlock getMultiBlock(){
         if (this instanceof IMultiBlock block){
             return block;
         } else {

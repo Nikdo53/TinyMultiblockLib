@@ -21,7 +21,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     @Override
     public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
         assert direction != null;
-        return BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,2), center.above(2).relative(direction));
+        return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.relative(direction.getClockWise() ,2), center.above(2).relative(direction)));
     }
 
     @Override

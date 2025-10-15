@@ -1,15 +1,8 @@
 package net.nikdo53.tinymultiblocklib.block;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -26,18 +19,12 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.entity.TestMultiblockEntity;
-import net.nikdo53.tinymultiblocklib.components.PropertyWrapper;
 import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TestBlock extends AbstractMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
     public TestBlock(Properties properties) {
@@ -82,11 +69,13 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
 
         Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
 
-        level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.AGE_3, value).setValue(getDirectionProperty(), direction.getClockWise()));
+/*        level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.AGE_3, value).setValue(getDirectionProperty(), direction.getClockWise()));
 
         if (level.getBlockState(pos).equals(state) ) {
             player.displayClientMessage(Component.literal("Your action has been cancelled"), true);
-        }
+        }*/
+
+        moveMultiblock(level, pos, state, direction);
 
         return InteractionResult.SUCCESS;
     }
