@@ -213,7 +213,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     default boolean entityUnobstructed(CollisionGetter level, BlockPos pos, BlockState state, @Nullable Entity player) {
         CollisionContext context = player == null ? CollisionContext.empty() : CollisionContext.of(player);
 
-        return getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> level.isUnobstructed(state, pos, context));
+        return getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> level.isUnobstructed(state, blockPos, context));
     }
 
     default void destroy(BlockPos center, Level level, BlockState state){
