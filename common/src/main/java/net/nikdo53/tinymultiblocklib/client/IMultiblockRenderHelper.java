@@ -108,6 +108,13 @@ public interface IMultiblockRenderHelper {
                 b *= PreviewMode.INVALID.blue;
                 a *= PreviewMode.INVALID.alpha;
             }
+
+            case ENTITY_BLOCKED -> {
+                r *= PreviewMode.ENTITY_BLOCKED.red;
+                g *= PreviewMode.ENTITY_BLOCKED.green;
+                b *= PreviewMode.ENTITY_BLOCKED.blue;
+                a *= PreviewMode.ENTITY_BLOCKED.alpha;
+            }
         }
         return FastColor.ARGB32.color((int) a, (int) r, (int) g, (int) b);
     }
