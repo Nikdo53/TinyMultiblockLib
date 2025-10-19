@@ -91,25 +91,8 @@ public interface IMultiblockRenderHelper {
      * Applies the correct color + alpha according to the supplied PreviewMode
      * */
     default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float r, float g, float b, float alpha, PreviewMode previewMode) {
+        float[] rgba = previewMode.applyColorsFloat(r, g, b, alpha);
 
-        switch (previewMode) {
-            case PREVIEW -> alpha *= PreviewMode.PREVIEW.alpha;
-
-            case INVALID -> {
-                r *= PreviewMode.INVALID.red;
-                g *= PreviewMode.INVALID.green;
-                b *= PreviewMode.INVALID.blue;
-                alpha *= PreviewMode.INVALID.alpha;
-            }
-
-            case ENTITY_BLOCKED -> {
-                r *= PreviewMode.ENTITY_BLOCKED.red;
-                g *= PreviewMode.ENTITY_BLOCKED.green;
-                b *= PreviewMode.ENTITY_BLOCKED.blue;
-                alpha *= PreviewMode.ENTITY_BLOCKED.alpha;
-            }
-        }
-
-        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, r, g, b, alpha);
+        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 }
