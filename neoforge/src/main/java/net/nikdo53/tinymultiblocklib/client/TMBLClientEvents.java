@@ -15,7 +15,7 @@ public class TMBLClientEvents {
     @SubscribeEvent
     public static void renderLevelStage(RenderLevelStageEvent event){
         if (event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) && !TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
-            MultiblockPreviewRenderer.renderMultiblockPreviews(event.getPartialTick().getGameTimeDeltaTicks(), Minecraft.getInstance(), Minecraft.getInstance().level, event.getCamera(), event.getPoseStack(), new NeoForgePlatformHelper());
+            MultiblockPreviewRenderer.renderMultiblockPreviews(event.getPartialTick().getGameTimeDeltaPartialTick(true), Minecraft.getInstance(), Minecraft.getInstance().level, event.getCamera(), event.getPoseStack(), new NeoForgePlatformHelper());
         }
     }
 

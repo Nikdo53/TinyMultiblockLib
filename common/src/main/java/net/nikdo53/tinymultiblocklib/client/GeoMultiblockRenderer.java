@@ -12,6 +12,7 @@ import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 /**
@@ -19,8 +20,8 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
  * but automatically changes the multiblock based on its preview mode
  * */
 public abstract class GeoMultiblockRenderer<T extends BlockEntity & GeoAnimatable & IMultiBlockEntity> extends GeoBlockRenderer<T> implements IMultiblockRenderHelper {
-    public GeoMultiblockRenderer(BlockEntityType<? extends T> blockEntityType) {
-        super(blockEntityType);
+    public GeoMultiblockRenderer(GeoModel<T> model) {
+        super(model);
     }
 
     @Override
@@ -32,6 +33,6 @@ public abstract class GeoMultiblockRenderer<T extends BlockEntity & GeoAnimatabl
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         if (!animatable.isCenter()) return;
 
-        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, IMultiblockRenderHelper.getColorFromPreviewMode(animatable.getPreviewMode(), colour));
+        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, animatable.getPreviewMode().applyColors(colour));
     }
 }

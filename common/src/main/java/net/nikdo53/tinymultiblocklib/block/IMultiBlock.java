@@ -116,11 +116,16 @@ public interface IMultiBlock extends IMBStateSyncer {
         }
     }
 
+    default BlockState getStateFromOffset(BlockState state, BlockPos offset, @Nullable Direction direction){
+        return state;
+    }
+
     /**
-     * Changes the BlockState for each Block based on its offset from center
+     * Changes the BlockState for each Block in this multiblock.
+     * Works like GetStateForPlacement does in regular blocks
      * @see IBlockPosOffsetEnum#fromOffset(Class, BlockPos, Direction, Enum)
      * */
-    default BlockState getStateFromOffset(BlockState state, BlockPos offset){
+    default BlockState getStateForEachBlock(BlockState state, BlockPos pos, BlockPos centerOffset, Level level, @Nullable Direction direction){
         return state;
     }
 
@@ -155,7 +160,6 @@ public interface IMultiBlock extends IMBStateSyncer {
             }
         });
     }
-
     /**
      * Prepares all blocks to be Placed
      * */
@@ -166,7 +170,7 @@ public interface IMultiBlock extends IMBStateSyncer {
             posNew = posNew.immutable();
 
             BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));
-            stateNew = getStateFromOffset(stateNew, posNew.subtract(centerPos));
+            stateNew = getStateForEachBlock(stateNew, posNew, posNew.subtract(centerPos), level, getDirection(stateOriginal));
 
             list.add(new Pair<>(posNew, stateNew));
         });
@@ -303,7 +307,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     default void fixTick(BlockState state, Level level, BlockPos pos){
         if (isCenter(state)){
 
-            getFullBlockShape(pos, state, level).forEach(posNew -> {
+            getFullBlockShapeNoCache(pos, state).forEach(posNew -> {
                 if (level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity) {
                     entity.setCenter(pos);
 

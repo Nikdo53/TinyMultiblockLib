@@ -85,37 +85,6 @@ public interface IMultiblockRenderHelper {
     }
 
     default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, PreviewMode previewMode) {
-        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, getColorFromPreviewMode(previewMode, color));
-    }
-
-    /**
-     * Should be used instead of {@link ModelPart#render(PoseStack, VertexConsumer, int, int)}
-     * <p>
-     * Applies the correct color + alpha according to the supplied PreviewMode
-     * */
-    static int getColorFromPreviewMode(PreviewMode previewMode, int originalColor){
-        float r = FastColor.ARGB32.red(originalColor);
-        float g = FastColor.ARGB32.green(originalColor);
-        float b = FastColor.ARGB32.blue(originalColor);
-        float a = FastColor.ARGB32.alpha(originalColor);
-
-        switch (previewMode) {
-            case PREVIEW -> a *= PreviewMode.PREVIEW.alpha;
-
-            case INVALID -> {
-                r *= PreviewMode.INVALID.red;
-                g *= PreviewMode.INVALID.green;
-                b *= PreviewMode.INVALID.blue;
-                a *= PreviewMode.INVALID.alpha;
-            }
-
-            case ENTITY_BLOCKED -> {
-                r *= PreviewMode.ENTITY_BLOCKED.red;
-                g *= PreviewMode.ENTITY_BLOCKED.green;
-                b *= PreviewMode.ENTITY_BLOCKED.blue;
-                a *= PreviewMode.ENTITY_BLOCKED.alpha;
-            }
-        }
-        return FastColor.ARGB32.color((int) a, (int) r, (int) g, (int) b);
+        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, previewMode.applyColors(color));
     }
 }

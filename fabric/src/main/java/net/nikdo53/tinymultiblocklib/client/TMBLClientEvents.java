@@ -11,6 +11,6 @@ public class TMBLClientEvents {
     }
 
     private static void renderLevelStageEvent(WorldRenderContext context) {
-        MultiblockPreviewRenderer.renderMultiblockPreviews(context.tickCounter().getGameTimeDeltaTicks(), Minecraft.getInstance(), context.world(), context.camera(), context.matrixStack(), new FabricPlatformHelper());
+        MultiblockPreviewRenderer.renderMultiblockPreviews(context.tickCounter().getGameTimeDeltaPartialTick(true), Minecraft.getInstance(), context.world(), context.camera(), context.matrixStack(), new FabricPlatformHelper());
     }
 }
