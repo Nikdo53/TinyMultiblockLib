@@ -116,10 +116,6 @@ public interface IMultiBlock extends IMBStateSyncer {
         }
     }
 
-    default BlockState getStateFromOffset(BlockState state, BlockPos offset, @Nullable Direction direction){
-        return state;
-    }
-
     /**
      * Changes the BlockState for each Block in this multiblock.
      * Works like GetStateForPlacement does in regular blocks
@@ -201,9 +197,16 @@ public interface IMultiBlock extends IMBStateSyncer {
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {
         return getFullBlockShape(center, state, level).stream().allMatch(blockPos ->
-                level.getBlockState(blockPos).canBeReplaced()
-                        && extraSurviveRequirements(level, blockPos, state)
+                canReplaceBlock(level, blockPos, level.getBlockState(blockPos))
+                        && extraSurviveRequirements(level, blockPos, state, blockPos.subtract(center))
                         && (entityUnobstructed(level, blockPos, state, player) || ignoreEntities));
+    }
+
+    /**
+     * Returns true if multiblock can replace this original block, runs for the whole multiblock shape
+     * */
+    default boolean canReplaceBlock(LevelReader level, BlockPos blockPos, BlockState state) {
+        return state.canBeReplaced();
     }
 
     default boolean entityUnobstructed(CollisionGetter level, BlockPos pos, BlockState state, @Nullable Entity player) {
@@ -267,7 +270,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             //survive logic
-            boolean extraSurvive = getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state));
+            boolean extraSurvive = getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state, entity.getOffset()));
             return (allBlocksPresent(level, pos, state) || !entity.isPlaced()) && extraSurvive;
         } else {
             //placement logic
@@ -277,9 +280,18 @@ public interface IMultiBlock extends IMBStateSyncer {
 
     /**
      * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
+     * @deprecated use {@link #extraSurviveRequirements(LevelReader, BlockPos, BlockState, BlockPos)} instead
      * */
+    @Deprecated
     default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state){
         return true;
+    }
+
+    /**
+     * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
+     * */
+    default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state, BlockPos centerOffset){
+        return extraSurviveRequirements(level, pos, state);
     }
 
     /**
@@ -290,48 +302,6 @@ public interface IMultiBlock extends IMBStateSyncer {
             destroy(entity.getCenter(), level, level.getBlockState(pos), false);
         }
     }
-
-
-    /**
-     * Prevents desyncs and ghost blocks when multiblocks are used in structures
-     * */
-    default void fixInStructures(BlockState state, ServerLevelAccessor level, BlockPos pos){
-        if (isCenter(state)) {
-            level.scheduleTick(pos, state.getBlock(), 3);
-        }
-    }
-
-    /**
-     * Tries to fix the multiblock, called after {@link #fixInStructures(BlockState, ServerLevelAccessor, BlockPos)}
-     * */
-    default void fixTick(BlockState state, Level level, BlockPos pos){
-        if (isCenter(state)){
-
-            getFullBlockShapeNoCache(pos, state).forEach(posNew -> {
-                if (level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity) {
-                    entity.setCenter(pos);
-
-                    entity.getBlockEntity().setChanged();
-                    level.sendBlockUpdated(posNew, state, state, 2);
-                }
-            });
-        }
-    }
-
-    /**
-     * Checks if the multiblock needs fixing by  {@link #fixTick(BlockState, Level, BlockPos)}
-     * */
-    default boolean isBroken(LevelReader level, BlockPos pos, BlockState state){
-        if (!isCenter(state)) return false;
-
-        return getFullBlockShape(pos, state, level).stream().anyMatch(blockPos -> {
-            if (level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity){
-                return !(entity.getCenter().equals(pos) && !isCenter(level.getBlockState(blockPos)));
-            }
-            return true;
-        });
-    }
-
     /**
      * Returns the center BlockPos of the multiblock
      * */
@@ -340,13 +310,6 @@ public interface IMultiBlock extends IMBStateSyncer {
             return entity.getCenter();
         }
         return pos;
-    }
-
-    static boolean isCenter(LevelReader level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            return entity.getCenter().equals(pos);
-        }
-        return false;
     }
 
     static boolean isCenter(BlockState state){
@@ -359,27 +322,6 @@ public interface IMultiBlock extends IMBStateSyncer {
 
     static boolean isMultiblock(BlockGetter level, BlockPos pos){
         return isMultiblock(level.getBlockState(pos));
-    }
-
-    static int getXOffset(BlockGetter level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            return pos.getX() - entity.getCenter().getX();
-        }
-        return 0;
-    }
-
-    static int getYOffset(BlockGetter level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            return pos.getY() - entity.getCenter().getY();
-        }
-        return 0;
-    }
-
-    static int getZOffset(BlockGetter level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            return pos.getZ() - entity.getCenter().getZ();
-        }
-        return 0;
     }
 
     default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape){
@@ -396,9 +338,9 @@ public interface IMultiBlock extends IMBStateSyncer {
      * */
     default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape, float xOffset, float yOffset, float zOffset, boolean hasDirectionOffsets){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            var x = entity.getCenter().getX() - pos.getX() + xOffset;
-            var y = entity.getCenter().getY() - pos.getY() + yOffset;
-            var z = entity.getCenter().getZ() - pos.getZ() + zOffset;
+            var x = (-entity.getOffset().getX()) + xOffset;
+            var y = (-entity.getOffset().getY()) + yOffset;
+            var z = (-entity.getOffset().getZ()) + zOffset;
 
             if (getDirectionProperty() != null && hasDirectionOffsets) {
                 switch (state.getValue(getDirectionProperty())) {
@@ -413,35 +355,6 @@ public interface IMultiBlock extends IMBStateSyncer {
             return shape.move(x,y,z);
         }
         return shape;
-    }
-
-    /**
-     * Increases age in each block at the same time
-     * <p>
-     * If used in the randomTick method, don't forget to check {@link #isCenter(BlockState)} first,
-     * otherwise the block will grow significantly faster (each block tick separately)
-     * @deprecated Use synced blockStates instead
-     * */
-    @Deprecated
-    default void growHelper(Level level, BlockPos blockPos, IntegerProperty ageProperty){
-        Block block = self();
-            getFullBlockShape(blockPos, level.getBlockState(blockPos), level).forEach(pos -> {
-                if(level.getBlockState(pos).is(block)) {
-
-                    BlockState blockState = level.getBlockState(pos);
-                    int age = blockState.getValue(ageProperty);
-                    if (blockState.getValue(ageProperty) >= getMaxAge(ageProperty)) return;
-
-                    level.setBlock(pos, blockState.setValue(ageProperty,age + 1), 2);
-
-                }else {
-                    level.destroyBlock(pos, false);
-                }
-            });
-    }
-
-    default int getMaxAge(IntegerProperty ageProperty) {
-        return ageProperty.getPossibleValues().stream().toList().get(ageProperty.getPossibleValues().size() - 1);
     }
 
     static boolean isSameMultiblock(Level level, BlockState state1, BlockState state2, BlockPos center, BlockPos posNew){

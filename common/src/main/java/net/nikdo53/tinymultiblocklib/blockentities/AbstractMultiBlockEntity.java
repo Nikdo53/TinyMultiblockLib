@@ -18,21 +18,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
-    public BlockPos center;
+    public BlockPos offset;
     public boolean isPlaced;
     public PreviewMode previewMode = PreviewMode.PLACED;
     public List<BlockPos> BLOCK_SHAPE_CACHE = new ArrayList<>();
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-        this.center = this.getBlockPos();
+        this.offset = new BlockPos(0,0,0);
         this.isPlaced = false;
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put("center", NbtUtils.writeBlockPos(this.center));
+        tag.put("offset", NbtUtils.writeBlockPos(this.offset));
         tag.putBoolean("placed", this.isPlaced);
     }
 
@@ -46,8 +46,11 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.center = NbtUtils.readBlockPos(tag, "center").orElseGet(this::getBlockPos);
+        this.offset = NbtUtils.readBlockPos(tag, "offset").orElseGet(this::getBlockPos);
         this.isPlaced = tag.getBoolean("placed");
+
+        if (tag.contains("center")) // For maintaining compatibility with TMBL < 2.1
+            setCenter(NbtUtils.readBlockPos(tag, "center").orElseGet(this::getBlockPos));
     }
 
     @Override
@@ -56,13 +59,13 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     }
 
     @Override
-    public BlockPos getCenter() {
-        return this.center;
+    public BlockPos getOffset() {
+        return offset;
     }
 
     @Override
-    public void setCenter(BlockPos pos) {
-        this.center = pos;
+    public void setOffset(BlockPos offset) {
+       this.offset = offset;
     }
 
     @Override
@@ -105,11 +108,11 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
      * <p>
      * That's a problem because the {@link #center} won't update. This should trick it into updating
      */
-    @Override
+/*    @Override
     public void setBlockState(BlockState blockState) {
         if (IMultiBlock.isCenter(blockState)){
             setCenter(this.getBlockPos());
         }
         super.setBlockState(blockState);
-    }
+    }*/
 }

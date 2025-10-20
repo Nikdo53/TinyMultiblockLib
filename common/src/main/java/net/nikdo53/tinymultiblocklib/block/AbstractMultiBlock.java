@@ -68,7 +68,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * If your block is a json model, return {@link RenderShape#MODEL}
      * <p>
      * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
-     * @see #getStateFromOffset(BlockState, BlockPos) The function for setting a different blockstate to each block
+     * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction)  (BlockState, BlockPos) The function for setting a different blockstate to each block
      * */
     public abstract RenderShape getMultiblockRenderShape(BlockState state);
 
@@ -84,15 +84,6 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
         super.onPlace(state, level, pos, oldState, movedByPiston);
 
         onPlaceHelper(state, level, pos, oldState);
-    }
-
-    @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        super.tick(state, level, pos, random);
-
-        if (isBroken(level, pos, state)) {
-            fixTick(state, level, pos);
-        }
     }
 
     @Override
