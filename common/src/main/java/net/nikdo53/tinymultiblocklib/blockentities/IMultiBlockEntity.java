@@ -3,14 +3,13 @@ package net.nikdo53.tinymultiblocklib.blockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 import java.util.List;
 
 public interface IMultiBlockEntity {
-    BlockPos getCenter();
-    void setCenter(BlockPos pos);
+    BlockPos getOffset();
+    void setOffset(BlockPos offset);
 
     /**
      * True once the whole placing logic runs (to prevent updateShape from breaking it early)
@@ -22,7 +21,6 @@ public interface IMultiBlockEntity {
     void setFullBlockShapeCache(List<BlockPos> shapeCache);
 
     void invalidateCaches();
-
 
     PreviewMode getPreviewMode();
     void setPreviewMode(PreviewMode mode);
@@ -36,8 +34,23 @@ public interface IMultiBlockEntity {
         return false;
     }
 
+    static boolean isCenter(LevelReader level, BlockPos pos){
+        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
+            return entity.isCenter();
+        }
+        return false;
+    }
+
     default boolean isCenter(){
-        return getBlockEntity().getBlockPos().equals(getCenter());
+        return getOffset().equals(new BlockPos(0,0,0));
+    }
+
+    default void setCenter(BlockPos center){
+       setOffset(getBlockEntity().getBlockPos().subtract(center));
+    };
+
+    default BlockPos getCenter(){
+       return getBlockEntity().getBlockPos().subtract(getOffset());
     }
 
     default BlockEntity getBlockEntity(){

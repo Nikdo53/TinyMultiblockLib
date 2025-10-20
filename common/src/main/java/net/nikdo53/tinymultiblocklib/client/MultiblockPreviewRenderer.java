@@ -70,6 +70,7 @@ public class MultiblockPreviewRenderer {
                 boolean shouldShowPreview = level.getBlockState(pos).canBeReplaced() && (!level.getBlockState(hitPos).isAir() || placeOnWater);
                 if (entity instanceof IMultiBlockEntity multiBlockEntity && shouldShowPreview) {
                     entity.setLevel(level);
+                    entity = multiBlock.getBlockEntityForPreviews(entity, level, pos);
 
                     boolean multiBlockCanPlace = multiBlock.canPlace(level, pos, state, player, true);
                     boolean entityUnobstructed = multiBlock.entityUnobstructed(level, pos, state, player);

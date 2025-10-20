@@ -64,7 +64,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
             BlockState stateNew = level.getBlockState(posNew);
 
             return (stateNew.canBeReplaced() || IMultiBlock.isSameMultiblock(level, state, stateNew, center, posNew ))
-                    && extraSurviveRequirements(level, posNew, state)
+                    && extraSurviveRequirements(level, posNew, state, posNew.subtract(center))
                     && (entityUnobstructed(level, posNew, state, null));
         });
     }

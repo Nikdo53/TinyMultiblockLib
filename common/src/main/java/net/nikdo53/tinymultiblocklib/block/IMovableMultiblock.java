@@ -32,9 +32,6 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
 
             level.setBlock(posMoved, blockLike.state, 66);
 
-            if (blockEntity instanceof IMultiBlockEntity multiBlockEntity)
-                multiBlockEntity.setCenter(centerMoved);
-
            if (blockEntity != null) level.setBlockEntity(blockLike.blockEntity);
         });
 
