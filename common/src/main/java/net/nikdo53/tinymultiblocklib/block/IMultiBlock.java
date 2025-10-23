@@ -315,6 +315,16 @@ public interface IMultiBlock extends IMBStateSyncer {
         return pos;
     }
 
+    /**
+     * Returns the offset BlockPos from center of the multiblock
+     * */
+    static BlockPos getOffset(BlockGetter level, BlockPos pos){
+        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
+            return entity.getOffset();
+        }
+        return new BlockPos(0,0,0);
+    }
+
     static boolean isCenter(BlockState state){
         return state.getValue(CENTER);
     }

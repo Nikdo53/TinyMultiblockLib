@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
-    public BlockPos offset;
-    public boolean isPlaced;
-    public PreviewMode previewMode = PreviewMode.PLACED;
-    public List<BlockPos> BLOCK_SHAPE_CACHE = new ArrayList<>();
+    private BlockPos offset;
+    private boolean isPlaced;
+    private PreviewMode previewMode = PreviewMode.PLACED;
+    private List<BlockPos> BLOCK_SHAPE_CACHE = new ArrayList<>();
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -103,17 +103,4 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     public void setPreviewMode(PreviewMode mode) {
         this.previewMode = mode;
     }
-
-    /**
-     * Certain mods let you change the location of the multiblock (like Carry on)
-     * <p>
-     * That's a problem because the {@link #center} won't update. This should trick it into updating
-     */
-/*    @Override
-    public void setBlockState(BlockState blockState) {
-        if (IMultiBlock.isCenter(blockState)){
-            setCenter(this.getBlockPos());
-        }
-        super.setBlockState(blockState);
-    }*/
 }
