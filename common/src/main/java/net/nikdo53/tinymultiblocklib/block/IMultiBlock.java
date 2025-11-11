@@ -219,7 +219,7 @@ public interface IMultiBlock extends IMBStateSyncer {
         if (level.isClientSide()) return;
         List<BlockPos> blocks = getFullBlockShape(center, state, level);
 
-        level.destroyBlock(center, false);
+        level.destroyBlock(center, dropBlock);
 
         blocks.forEach(pos ->{
             BlockState blockState = level.getBlockState(pos);
