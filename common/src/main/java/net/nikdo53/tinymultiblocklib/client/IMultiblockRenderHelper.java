@@ -26,19 +26,19 @@ public interface IMultiblockRenderHelper {
      * Returns a translucent RenderType for when rendered as a preview. Use instead of specifying the RenderType directly.
      * */
     default Function<ResourceLocation, RenderType> getRenderTypeFunction(PreviewMode previewMode) {
-       return getRenderTypeFunction(previewMode, RenderType::entityTranslucentCull);
+       return getRenderTypeFunction(previewMode, RenderType::entityCutout);
     }
 
     default Function<ResourceLocation, RenderType> getRenderTypeFunction(PreviewMode previewMode, Function<ResourceLocation, RenderType> defaultRenderType) {
-        return previewMode.equals(PreviewMode.PLACED) ? RenderType::entityCutout : defaultRenderType;
+        return previewMode.equals(PreviewMode.PLACED) ? defaultRenderType : RenderType::entityTranslucentCull;
     }
 
     default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture) {
-        return getRenderType(previewMode, texture, RenderType.entityTranslucentCull(texture));
+        return getRenderType(previewMode, texture, RenderType.entityCutout(texture));
     }
 
     default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture, RenderType defaultRenderType) {
-        return previewMode.equals(PreviewMode.PLACED) ? RenderType.entityCutout(texture) : defaultRenderType;
+        return previewMode.equals(PreviewMode.PLACED) ? defaultRenderType : RenderType.entityTranslucentCull(texture);
     }
 
 
