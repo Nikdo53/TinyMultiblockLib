@@ -45,13 +45,13 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
 
     @Override
     public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
-        assert direction != null;
-        int size = state.getValue(BlockStateProperties.AGE_3);
-        if (size < 1) size = 1;
+        int size = 1;
 
-        List<BlockPos> list = IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.relative(Direction.NORTH, size).relative(Direction.EAST, size), center.above(size)));
-        list.add(center.above().relative(direction, 3));
-        return new HashSet<>(list).stream().toList();
+        List<BlockPos> list = IMultiBlock.posStreamToList(
+                BlockPos.betweenClosedStream(center.relative(Direction.NORTH, size).relative(Direction.EAST, size), center.above(size))
+        );
+        list.add(center.north(3).above());
+        return list;
     }
 
     @Override

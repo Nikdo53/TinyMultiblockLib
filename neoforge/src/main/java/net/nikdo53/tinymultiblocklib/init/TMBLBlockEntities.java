@@ -11,6 +11,6 @@ import java.util.function.Supplier;
 public class TMBLBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, Constants.MOD_ID);
 
-    public static final Supplier<BlockEntityType<TestMultiblockEntity>> TEST_BE = BLOCK_ENTITIES.register("test_be", () -> BlockEntityType.Builder.of(TestMultiblockEntity::new, TMBLBlocks.TEST_BLOCK.get()).build(null));
+    public static final Supplier<BlockEntityType<TestMultiblockEntity>> TEST_BE = BLOCK_ENTITIES.register("test_be", () -> BlockEntityType.Builder.of(TestMultiblockEntity::new, TMBLBlocks.TEST_BLOCK.get(), TMBLBlocks.DIAMOND_STRUCTURE_BLOCK.get()).build(null));
 
 }

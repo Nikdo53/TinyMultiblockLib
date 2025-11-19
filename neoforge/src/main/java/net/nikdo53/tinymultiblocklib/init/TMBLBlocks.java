@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.nikdo53.tinymultiblocklib.Constants;
+import net.nikdo53.tinymultiblocklib.block.DiamondStructureBlock;
 import net.nikdo53.tinymultiblocklib.block.TestBlock;
 
 import java.util.function.Supplier;
@@ -19,6 +20,7 @@ public class TMBLBlocks {
             DeferredRegister.createBlocks(Constants.MOD_ID);
 
     public static final DeferredBlock<Block> TEST_BLOCK = registerBlockWithItem("test_block", () -> new TestBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+    public static final DeferredBlock<Block> DIAMOND_STRUCTURE_BLOCK = registerBlockWithItem("diamond_structure", () -> new DiamondStructureBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT)));
 
     private static <T extends Block> DeferredBlock<T> registerBlockWithItem(String name, Supplier<T> block) {
         DeferredBlock<T> toReturn = BLOCKS.register(name, block);

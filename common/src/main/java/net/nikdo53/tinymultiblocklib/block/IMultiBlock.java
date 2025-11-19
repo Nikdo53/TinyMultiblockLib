@@ -219,15 +219,40 @@ public interface IMultiBlock extends IMBStateSyncer {
         if (level.isClientSide()) return;
         List<BlockPos> blocks = getFullBlockShape(center, state, level);
 
-        level.destroyBlock(center, dropBlock);
+        if (level.getBlockState(center).is(state.getBlock())) {
+            level.destroyBlock(center, dropBlock);
+        }
 
-        blocks.forEach(pos ->{
+        getIsolatedBlocks(center, level, state).forEach(pos ->{
             BlockState blockState = level.getBlockState(pos);
-            Block block = state.getBlock();
-            if (blockState.is(block)) {
+            if (blockState.is(state.getBlock())) {
                 level.destroyBlock(pos, dropBlock);
             }
-        });    }
+        });
+    }
+
+    default List<BlockPos> getIsolatedBlocks(BlockPos center, Level level, BlockState state) {
+        Set<BlockPos> posSet = new HashSet<>(getFullBlockShape(center, state, level));
+
+        List<BlockPos> isolated = new ArrayList<>();
+
+        for (BlockPos pos : posSet) {
+            boolean hasNeighbor =
+                    posSet.contains(pos.above()) ||
+                            posSet.contains(pos.below()) ||
+                            posSet.contains(pos.north()) ||
+                            posSet.contains(pos.south()) ||
+                            posSet.contains(pos.east())  ||
+                            posSet.contains(pos.west());
+
+            if (!hasNeighbor) {
+                isolated.add(pos);
+            }
+        }
+
+        return isolated;
+    }
+
 
     default boolean allBlocksPresent(LevelReader level, BlockPos pos, BlockState state){
         if (level.isClientSide()) return true;
@@ -249,15 +274,13 @@ public interface IMultiBlock extends IMBStateSyncer {
      * Destroys the multiblock if canSurvive returns false
      * */
     default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
-        if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
-            BlockPos centerPos = getCenter(level, pos);
+        if (!(level.getBlockEntity(pos) instanceof IMultiBlockEntity entity)) return Blocks.AIR.defaultBlockState();
 
-            boolean canSurvive = state.canSurvive(level, centerPos);
-            if (!canSurvive){
-                destroy(entity.getCenter(), (Level) level, state, true);
-                return Blocks.AIR.defaultBlockState();
-            }
-        }else {
+        BlockPos centerPos = getCenter(level, pos);
+        boolean canSurvive = state.canSurvive(level, centerPos);
+
+        if (!canSurvive){
+            destroy(entity.getCenter(), (Level) level, state, true);
             return Blocks.AIR.defaultBlockState();
         }
 
