@@ -11,7 +11,7 @@ import net.nikdo53.tinymultiblocklib.block.entity.TestBlockEntity;
 public class TMBLBlockEntities {
     public static final BlockEntityType<TestBlockEntity> TEST_BE =
             Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Constants.loc("test_be"),
-                    FabricBlockEntityTypeBuilder.create(TestBlockEntity::new,
+                    BlockEntityType.Builder.of(TestBlockEntity::new,
                             TMBLBlocks.TEST_BLOCK).build());
 
     public static void register(){

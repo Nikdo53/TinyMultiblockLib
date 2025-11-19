@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "tinymultiblocklib:block/diamond_structure"
+    }
+  }
+}

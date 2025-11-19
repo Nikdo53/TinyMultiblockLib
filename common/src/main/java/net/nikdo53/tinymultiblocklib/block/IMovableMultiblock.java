@@ -32,7 +32,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
 
             level.setBlock(posMoved, blockLike.state, 66);
 
-           if (blockEntity != null) level.setBlockEntity(blockLike.blockEntity);
+           if (blockEntity != null) level.setBlockEntity(blockEntity);
         });
 
 
@@ -42,7 +42,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
     default List<BlockLike> gatherStates(Level level, BlockPos center, BlockState state){
         List<BlockLike> list = new ArrayList<>();
 
-        getFullBlockShape(center, state, level).forEach(pos -> list.add(new BlockLike(pos, level.getBlockState(pos), level.getBlockEntity(pos))));
+        getFullBlockShape(center, state, level).forEach(pos -> list.add(BlockLike.fromPos(level, pos)));
 
         return list;
     }
