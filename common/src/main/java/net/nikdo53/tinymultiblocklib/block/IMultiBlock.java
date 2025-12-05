@@ -199,7 +199,8 @@ public interface IMultiBlock extends IMBStateSyncer {
         return getFullBlockShape(center, state, level).stream().allMatch(blockPos ->
                 canReplaceBlock(level, blockPos, level.getBlockState(blockPos))
                         && extraSurviveRequirements(level, blockPos, state, blockPos.subtract(center))
-                        && (entityUnobstructed(level, blockPos, state, player) || ignoreEntities));
+                        && (entityUnobstructed(level, blockPos, state, player) || ignoreEntities)
+                        && blockPos.getY() < level.getMaxBuildHeight() && blockPos.getY() > level.getMinBuildHeight());
     }
 
     /**
