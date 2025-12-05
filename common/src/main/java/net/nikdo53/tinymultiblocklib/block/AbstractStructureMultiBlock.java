@@ -1,20 +1,9 @@
 package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.pattern.BlockPattern;
-import net.nikdo53.tinymultiblocklib.blockentities.AbstractStructureMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.blockentities.IStructureMultiBlockEntity;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
     public AbstractStructureMultiBlock(Properties properties) {
