@@ -44,7 +44,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
+    public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @org.jetbrains.annotations.Nullable BlockEntity blockEntity, @org.jetbrains.annotations.Nullable Direction direction) {
         int size = 1;
 
         List<BlockPos> list = IMultiBlock.posStreamToList(
@@ -81,7 +81,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     }
 
     @Override
-    public RenderShape getMultiblockRenderShape(BlockState state) {
+    public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter) {
         return RenderShape.MODEL;
     }
 

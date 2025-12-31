@@ -3,15 +3,13 @@ package net.nikdo53.tinymultiblocklib.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -20,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DiamondStructureBlock extends AbstractStructureMultiBlock{
+public class DiamondStructureBlock extends AbstractStructureMultiBlock implements IPreviewableMultiblock{
     public static final VoxelShape SHAPE = Shapes.box(0, 0, -1, 2, 2, 1);
 
     public DiamondStructureBlock(Properties properties) {
@@ -33,12 +31,12 @@ public class DiamondStructureBlock extends AbstractStructureMultiBlock{
     }
 
     @Override
-    public RenderShape getMultiblockRenderShape(BlockState state) {
-        return state.getValue(CENTER) ? RenderShape.MODEL : RenderShape.INVISIBLE;
+    public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter) {
+        return isCenter ? RenderShape.MODEL : RenderShape.INVISIBLE;
     }
 
     @Override
-    public List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state) {
+    public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
         return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center, center.above().north().east()));
     }
 

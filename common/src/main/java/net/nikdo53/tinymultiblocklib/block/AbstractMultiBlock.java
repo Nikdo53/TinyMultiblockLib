@@ -60,18 +60,18 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return getMultiblockRenderShape(state);
+        return getMultiblockRenderShape(state, IMultiBlock.isCenter(state));
     }
 
     /**
      * Sorry for forcing everyone to override this, but its kinda important for performance and fixing visual glitches
      * <p>
-     * If your block is a json model, return {@link RenderShape#MODEL}
+     * If your block is a JSON model, return {@link RenderShape#MODEL}
      * <p>
      * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
      * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction)  (BlockState, BlockPos) The function for setting a different blockstate to each block
      * */
-    public abstract RenderShape getMultiblockRenderShape(BlockState state);
+    public abstract RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter);
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

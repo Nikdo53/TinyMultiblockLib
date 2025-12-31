@@ -6,9 +6,23 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
 
 public interface IBlockPosOffsetEnum {
-    BlockPos getOffset();
+    /**
+     * A cleaner way to signify an offset. Example:
+     *
+     * <pre>
+     * ENUM_VALUE(BlockPos::north)
+     * ENUM_VALUE2(pos -> pos.above().north())
+     * </pre>
+     *
+     * */
+    Function<BlockPos, BlockPos> getOffsetFunction();
+
+    default BlockPos getOffset(){
+        return getOffsetFunction().apply(BlockPos.ZERO);
+    };
 
     /**
      * Returns an enum value of type E based on its BlockPos offset
