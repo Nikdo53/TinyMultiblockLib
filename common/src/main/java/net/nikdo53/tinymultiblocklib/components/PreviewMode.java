@@ -14,8 +14,8 @@ public enum PreviewMode {
      * */
     PLACED(1f,1f,1f,1f),
     PREVIEW(0.5f,1f,1f,1f),
-    ENTITY_BLOCKED(0.5f,1f,0.7f,0.4f),
-    INVALID(0.5f,1f,0.4f,0.4f);
+    ENTITY_BLOCKED(0.5f,1f,0.8f,0.4f),
+    INVALID(0.5f,0.8f,0.3f,0.3f);
 
     public final float alpha;
     public final float red;

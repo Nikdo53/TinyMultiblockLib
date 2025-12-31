@@ -1,7 +1,6 @@
 package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +30,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
 
     default boolean hasShapeChanged(BlockState state, Level level, BlockPos pos, BlockState oldState) {
         BlockPos center = IMultiBlock.getCenter(level, pos);
-        return !getFullBlockShape(center, oldState, level).equals(getFullBlockShapeNoCache(pos, state));
+        return !getFullBlockShape(level, center, oldState).equals(getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state));
     }
 
     default void changeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
@@ -40,8 +39,8 @@ public interface IExpandingMultiblock extends IMultiBlock {
         IMultiBlock.invalidateCaches(level, pos);
 
         BlockPos center = IMultiBlock.getCenter(level, pos);
-        List<BlockPos> oldShape = getFullBlockShapeNoCache(pos, oldState);
-        List<BlockPos> shapeNew = getFullBlockShape(pos, state, level);
+        List<BlockPos> oldShape = getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, oldState);
+        List<BlockPos> shapeNew = getFullBlockShape(level, pos, state);
 
 
         oldShape.forEach(posOld -> {
@@ -60,7 +59,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
     default boolean canChangeShape(BlockState state, Level level, BlockPos pos) {
         BlockPos center = IMultiBlock.getCenter(level, pos);
 
-        return getFullBlockShapeNoCache(center, state).stream().allMatch(posNew -> {
+        return getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state).stream().allMatch(posNew -> {
             BlockState stateNew = level.getBlockState(posNew);
 
             return (stateNew.canBeReplaced() || IMultiBlock.isSameMultiblock(level, state, stateNew, center, posNew ))
@@ -70,7 +69,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
     }
 
     default void postChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        getFullBlockShape(pos, state, level).forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
+        getFullBlockShape(level, pos, state).forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
     }
 
     default void cancelChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState){

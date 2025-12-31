@@ -52,17 +52,17 @@ public class MultiblockPreviewRenderer {
         if (item instanceof BlockItem blockItem && blockItem.getBlock() instanceof IPreviewableMultiblock multiBlock && blockItem.getBlock() instanceof EntityBlock block) {
             HitResult hitResult = minecraft.hitResult;
 
-            if (hitResult instanceof BlockHitResult blockHitResult){
+            if (hitResult instanceof BlockHitResult blockHitResult) {
                 boolean placeOnWater = false;
 
                 if (blockItem instanceof PlaceOnWaterBlockItem) {
                     blockHitResult = ItemAccessor.getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
                     placeOnWater = level.isWaterAt(blockHitResult.getBlockPos());
-                };
+                }
 
                 Direction hitDirection = blockHitResult.getDirection();
                 BlockPos hitPos = blockHitResult.getBlockPos();
-                BlockPos pos =  hitPos.relative(hitDirection);
+                BlockPos pos = hitPos.relative(hitDirection);
 
                 BlockState state = multiBlock.getDefaultStateForPreviews(player.getDirection());
                 BlockEntity entity = block.newBlockEntity(pos, state);
@@ -76,24 +76,30 @@ public class MultiblockPreviewRenderer {
                     boolean entityUnobstructed = multiBlock.entityUnobstructed(level, pos, state, player);
 
                     PreviewMode previewMode = multiBlockCanPlace ? (entityUnobstructed ? PreviewMode.PREVIEW : PreviewMode.ENTITY_BLOCKED) : PreviewMode.INVALID;
+
+                    if (!multiBlock.shouldPreview(level, player, pos, previewMode)) return;
+
                     multiBlockEntity.setPreviewMode(previewMode);
 
-                    if (level.getBlockState(hitPos).canBeReplaced() && !placeOnWater) pos = pos.relative(hitDirection.getOpposite());
+                    if (level.getBlockState(hitPos).canBeReplaced() && !placeOnWater)
+                        pos = pos.relative(hitDirection.getOpposite());
 
                     poseStack.pushPose();
 
                     double camX = camera.getPosition().x;
                     double camY = camera.getPosition().y;
                     double camZ = camera.getPosition().z;
-                    poseStack.translate(pos.getX() - camX,pos.getY() - camY,pos.getZ() - camZ);
+                    poseStack.translate(pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ);
 
 
                     MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
                     BlockEntityRenderer<BlockEntity> entityRender = minecraft.getBlockEntityRenderDispatcher().getRenderer(entity);
 
-                    if (entityRender != null) entityRender.render(entity, partialTick, poseStack, buffer, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
+                    if (entityRender != null)
+                        entityRender.render(entity, partialTick, poseStack, buffer, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
 
-                    if (!multiBlock.skipJsonRendering()) renderJsonModels(minecraft, level, poseStack, multiBlock, pos, state, buffer, previewMode);
+                    if (!multiBlock.skipJsonRendering())
+                        renderJsonModels(minecraft, level, poseStack, multiBlock, pos, state, buffer, previewMode);
 
                     poseStack.popPose();
 
@@ -104,7 +110,7 @@ public class MultiblockPreviewRenderer {
 
     private static void renderJsonModels(Minecraft minecraft, Level level, PoseStack poseStack, IPreviewableMultiblock multiBlock, BlockPos originalPos, BlockState stateOriginal, MultiBufferSource.BufferSource buffer, PreviewMode previewMode) {
         BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
-        poseStack.translate(0.0001,0.0001,0.0001);
+        poseStack.translate(0.0001, 0.0001, 0.0001);
 
         multiBlock.prepareForPlace(level, originalPos, stateOriginal).forEach(pair -> {
 
@@ -114,7 +120,7 @@ public class MultiblockPreviewRenderer {
             if (!state.getRenderShape().equals(RenderShape.MODEL)) return;
 
             BlockPos offset = pos.subtract(originalPos).immutable();
-            poseStack.translate(offset.getX(),  offset.getY(), offset.getZ());
+            poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
             VertexConsumerWrapper tintedConsumer = new VertexConsumerWrapper(buffer.getBuffer(RenderType.translucent())) {
                 @Override
@@ -132,7 +138,7 @@ public class MultiblockPreviewRenderer {
 
             buffer.endLastBatch();
 
-            poseStack.translate(-offset.getX(),  -offset.getY(), -offset.getZ());
+            poseStack.translate(-offset.getX(), -offset.getY(), -offset.getZ());
         });
     }
 

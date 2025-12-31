@@ -32,9 +32,12 @@ public interface IMultiBlock extends IMBStateSyncer {
     /** Returns a BlockPos Stream of every block in this multiblock.
      * <p>
      * Should only be used for overriding
-     * @see #getFullBlockShapeNoCache(BlockPos, BlockState)
+     * @param center The center pos of the multiblock, aka the 1st block placed
+     * @param blockEntity null when placing / previewing
+     * @param direction present only when {@link #getDirectionProperty()} is overridden with a valid property
+     * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
      * */
-    List<BlockPos> makeFullBlockShape(@Nullable Direction direction, BlockPos center, BlockState state);
+    List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction);
 
     /**
      * Mojangs BetweenClosed methods return a mutable BlockPos, which breaks everything.
@@ -60,14 +63,20 @@ public interface IMultiBlock extends IMBStateSyncer {
         return null;
     }
 
-    default List<BlockPos> getFullBlockShapeNoCache(BlockPos center, BlockState state){
-        List<BlockPos> list;
-
-        if (getDirectionProperty() == null) {
-            list = makeFullBlockShape(null, center, state);
-        } else {
-            list = makeFullBlockShape(state.getValue(getDirectionProperty()), center, state);
+    default List<BlockPos> getFullBlockShapeNoCache(@Nullable Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
+        if (level == null && blockEntity != null){
+            level = blockEntity.getLevel();
         }
+
+        if (level != null && blockEntity == null){
+            blockEntity = level.getBlockEntity(center);
+        }
+
+        if (level == null && blockEntity == null){
+            LOGGER.error("Both block entity or level or block entity is null, this should never happen.");
+        }
+
+        List<BlockPos> list = makeFullBlockShape(level, center, state, blockEntity, getDirection(state));
 
         // Warn everyone of Mo-jank
         Set<BlockPos> set = new HashSet<>(list);
@@ -83,28 +92,31 @@ public interface IMultiBlock extends IMBStateSyncer {
     }
 
 
-    default List<BlockPos> getFullBlockShape(BlockPos pos, BlockState state, BlockGetter level){
+    default List<BlockPos> getFullBlockShape(BlockGetter level, BlockPos pos, BlockState state){
         BlockPos center = getCenter(level, pos);
+        BlockEntity blockEntity = level.getBlockEntity(center);
+        Level betterLevel = level instanceof Level ? (Level) level : null;
 
-        if (!(level.getBlockEntity(center) instanceof IMultiBlockEntity blockEntity)){
-            return getFullBlockShapeNoCache(center, state);
+        if (!(blockEntity instanceof IMultiBlockEntity mbEntity)){
+            return getFullBlockShapeNoCache(betterLevel, blockEntity ,center, state);
         }
 
-        if (blockEntity.getFullBlockShapeCache().isEmpty()){
-            List<BlockPos> blockPosList = getFullBlockShapeNoCache(center, state);
+        if (mbEntity.getFullBlockShapeCache().isEmpty()){
+            List<BlockPos> blockPosList = getFullBlockShapeNoCache(betterLevel, blockEntity, center, state);
             blockPosList.forEach(BlockPos::immutable);
 
-            blockEntity.setFullBlockShapeCache(blockPosList);
+            mbEntity.setFullBlockShapeCache(blockPosList);
             return blockPosList;
         }
 
-        return blockEntity.getFullBlockShapeCache();
+        return mbEntity.getFullBlockShapeCache();
     }
 
-    static List<BlockPos> getFullShape(Level level, BlockPos pos){
+    static List<BlockPos> getFullShape(BlockGetter level, BlockPos pos){
         BlockState state = level.getBlockState(pos);
+
         if (state.getBlock() instanceof IMultiBlock multiBlock){
-            return multiBlock.getFullBlockShape(pos, state, level);
+            return multiBlock.getFullBlockShape(level, pos, state);
         }
 
         return List.of(pos);
@@ -162,7 +174,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     default List<Pair<BlockPos, BlockState>> prepareForPlace(Level level, BlockPos centerPos, BlockState stateOriginal){
         List<Pair<BlockPos, BlockState>> list = new ArrayList<>();
 
-        getFullBlockShape(centerPos, stateOriginal, level).forEach(posNew -> {
+        getFullBlockShape(level, centerPos, stateOriginal).forEach(posNew -> {
             posNew = posNew.immutable();
 
             BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));
@@ -196,7 +208,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     }
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {
-        return getFullBlockShape(center, state, level).stream().allMatch(blockPos ->
+        return getFullBlockShape(level, center, state).stream().allMatch(blockPos ->
                 canReplaceBlock(level, blockPos, level.getBlockState(blockPos))
                         && extraSurviveRequirements(level, blockPos, state, blockPos.subtract(center))
                         && (entityUnobstructed(level, blockPos, state, player) || ignoreEntities)
@@ -213,12 +225,12 @@ public interface IMultiBlock extends IMBStateSyncer {
     default boolean entityUnobstructed(CollisionGetter level, BlockPos pos, BlockState state, @Nullable Entity player) {
         CollisionContext context = player == null ? CollisionContext.empty() : CollisionContext.of(player);
 
-        return getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> level.isUnobstructed(state, blockPos, context));
+        return getFullBlockShape(level, pos, state).stream().allMatch(blockPos -> level.isUnobstructed(state, blockPos, context));
     }
 
     default void destroy(BlockPos center, Level level, BlockState state, boolean dropBlock){
         if (level.isClientSide()) return;
-        List<BlockPos> blocks = getFullBlockShape(center, state, level);
+        List<BlockPos> blocks = getFullBlockShape(level, center, state);
 
         if (level.getBlockState(center).is(state.getBlock())) {
             level.destroyBlock(center, dropBlock);
@@ -233,7 +245,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     }
 
     default List<BlockPos> getIsolatedBlocks(BlockPos center, Level level, BlockState state) {
-        Set<BlockPos> posSet = new HashSet<>(getFullBlockShape(center, state, level));
+        Set<BlockPos> posSet = new HashSet<>(getFullBlockShape(level, center, state));
 
         List<BlockPos> isolated = new ArrayList<>();
 
@@ -259,11 +271,11 @@ public interface IMultiBlock extends IMBStateSyncer {
         if (level.isClientSide()) return true;
         BlockPos center = getCenter(level, pos);
 
-        boolean ret = getFullBlockShape(center, state, level).stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
+        boolean ret = getFullBlockShape(level, center, state).stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
 
         boolean isMultiblock = isMultiblock(level, pos);
         if (ret && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity && !entity.isPlaced() && isMultiblock) {
-            getFullBlockShape(center, state, level).forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
+            getFullBlockShape(level, center, state).forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
         }
 
         return ret;
@@ -294,7 +306,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             //survive logic
-            boolean extraSurvive = getFullBlockShape(pos, state, level).stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state, entity.getOffset()));
+            boolean extraSurvive = getFullBlockShape(level, pos, state).stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state, entity.getOffset()));
             return (allBlocksPresent(level, pos, state) || !entity.isPlaced()) && extraSurvive;
         } else {
             //placement logic
@@ -304,18 +316,9 @@ public interface IMultiBlock extends IMBStateSyncer {
 
     /**
      * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
-     * @deprecated use {@link #extraSurviveRequirements(LevelReader, BlockPos, BlockState, BlockPos)} instead
-     * */
-    @Deprecated
-    default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state){
-        return true;
-    }
-
-    /**
-     * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
      * */
     default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state, BlockPos centerOffset){
-        return extraSurviveRequirements(level, pos, state);
+        return true;
     }
 
     /**
