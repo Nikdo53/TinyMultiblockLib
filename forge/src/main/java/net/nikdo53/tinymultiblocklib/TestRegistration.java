@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.DiamondStructureBlock;
 import net.nikdo53.tinymultiblocklib.components.BlockPatternUtils;

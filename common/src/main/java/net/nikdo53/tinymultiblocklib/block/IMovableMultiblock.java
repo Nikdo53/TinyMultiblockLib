@@ -2,6 +2,7 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,15 +26,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
 
         fullBlockShape.forEach(pos1 -> level.setBlock(pos1, Blocks.AIR.defaultBlockState(), 66));
 
-        originalBlocks.forEach(blockLike -> {
-            BlockPos posMoved = blockLike.pos.relative(direction);
-            BlockEntity blockEntity = blockLike.blockEntity;
-
-
-            level.setBlock(posMoved, blockLike.state, 66);
-
-           if (blockEntity != null) level.setBlockEntity(blockEntity);
-        });
+        originalBlocks.forEach(blockLike -> blockLike.move(level, BlockPos.ZERO.relative(direction)));
 
 
         getFullBlockShape(level, centerMoved, state).forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
