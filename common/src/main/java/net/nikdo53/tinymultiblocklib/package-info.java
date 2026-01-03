@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package net.nikdo53.tinymultiblocklib;
+
+import javax.annotation.ParametersAreNonnullByDefault;

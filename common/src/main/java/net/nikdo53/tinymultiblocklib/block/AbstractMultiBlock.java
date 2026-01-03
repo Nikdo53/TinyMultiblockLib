@@ -32,7 +32,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
      * <p>
      * Note that even though it's called "CENTER", it isn't necessarily the actual center.
-     * The center is just where the block would be placed, if it were just a single block
+     * The center is just where the block would be placed if it were just a single block
      * @see #isCenter(BlockState)
      * @see #getCenter(BlockGetter, BlockPos)
      * */
@@ -69,7 +69,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * If your block is a JSON model, return {@link RenderShape#MODEL}
      * <p>
      * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
-     * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction)  (BlockState, BlockPos) The function for setting a different blockstate to each block
+     * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction) The method for setting a different BlockState to each block
      * */
     public abstract RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter);
 

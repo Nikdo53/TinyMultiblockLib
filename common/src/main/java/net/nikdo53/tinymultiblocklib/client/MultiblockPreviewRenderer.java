@@ -127,6 +127,7 @@ public class MultiblockPreviewRenderer {
                 }
             };
 
+            assert minecraft.level != null;
             blockRenderer.renderBatched(state, pos, level, poseStack, tintedConsumer, false, minecraft.level.getRandom());
 
             buffer.endLastBatch();

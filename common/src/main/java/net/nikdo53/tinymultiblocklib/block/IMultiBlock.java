@@ -18,6 +18,7 @@ import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +77,7 @@ public interface IMultiBlock extends IMBStateSyncer {
             LOGGER.error("Both block entity or level or block entity is null, this should never happen.");
         }
 
+        assert level != null;
         List<BlockPos> list = makeFullBlockShape(level, center, state, blockEntity, getDirection(state));
 
         // Warn everyone of Mo-jank
