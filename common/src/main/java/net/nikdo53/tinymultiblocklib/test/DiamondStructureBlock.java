@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.block;
+package net.nikdo53.tinymultiblocklib.test;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,21 +13,18 @@ import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.block.entity.TestMultiblockEntity;
+import net.nikdo53.tinymultiblocklib.block.AbstractStructureMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DiamondStructureBlock extends AbstractStructureMultiBlock implements IPreviewableMultiblock{
+public class DiamondStructureBlock extends AbstractStructureMultiBlock implements IPreviewableMultiblock {
     public static final VoxelShape SHAPE = Shapes.box(0, 0, -1, 2, 2, 1);
 
     public DiamondStructureBlock(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TestMultiblockEntity(pos, state);
     }
 
     @Override
