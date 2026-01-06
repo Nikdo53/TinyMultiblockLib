@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.block;
+package net.nikdo53.tinymultiblocklib.test;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,11 +20,13 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.block.entity.TestMultiblockEntity;
+import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IExpandingMultiblock;
+import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.List;
 
 public class TestBlock extends AbstractMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
@@ -84,12 +86,6 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
     @Override
     public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter) {
         return RenderShape.MODEL;
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TestMultiblockEntity(pos, state);
     }
 
     @Override

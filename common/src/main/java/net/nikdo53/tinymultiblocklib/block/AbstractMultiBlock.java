@@ -2,10 +2,7 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -15,17 +12,18 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
-import net.nikdo53.tinymultiblocklib.components.PreviewMode;
+import net.nikdo53.tinymultiblocklib.CommonRegistration;
+import net.nikdo53.tinymultiblocklib.blockentities.SimpleMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
+import net.nikdo53.tinymultiblocklib.mixin.BlockEntityTypeAccessor;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock, EntityBlock {
     /**
@@ -102,4 +100,27 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
         preventCreativeDrops(player, level, pos);
         super.playerWillDestroy(level, pos, state, player);
     }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        var type = CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get();
+        return validateAndCreate(pos, state, type, this);
+    }
+
+    /**
+     * This is so people don't have to register a new BlockEntity when the block wouldn't normally need one
+     * THIS SHOULD NEVER BE USED OUTSIDE THE ABSTRACTS!!!
+     */
+    protected static <T extends BlockEntity> T validateAndCreate(BlockPos pos, BlockState state, BlockEntityType<T> type, Block block) {
+        BlockEntityTypeAccessor cast = (BlockEntityTypeAccessor) type;
+
+        if (!cast.tinymultiblocklib$getValidBlocks().contains(block)) {
+            Set<Block> validBlocks = new HashSet<>(cast.tinymultiblocklib$getValidBlocks());
+            validBlocks.add(block);
+            cast.tinymultiblocklib$setValidBlocks(validBlocks);
+        }
+
+        return type.create(pos, state);
+    }
+
 }
