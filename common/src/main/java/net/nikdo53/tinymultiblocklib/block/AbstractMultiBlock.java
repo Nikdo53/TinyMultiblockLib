@@ -12,18 +12,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
-import net.nikdo53.tinymultiblocklib.blockentities.SimpleMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
-import net.nikdo53.tinymultiblocklib.mixin.BlockEntityTypeAccessor;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock, EntityBlock {
     /**
@@ -44,6 +38,9 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
         } else {
             this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false));
         }
+
+        if (!hasCustomBE())
+            addToValidBEBlocks();
     }
 
     @Override
@@ -101,26 +98,20 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
         return super.playerWillDestroy(level, pos, state, player);
     }
 
+    /**
+     * Remember to override {@link #hasCustomBE()} when overriding, so the block doesn't get added to valid blocks for no reason
+     * */
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        var type = CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get();
-        return validateAndCreate(pos, state, type, this);
+        return CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get().create(pos, state);
     }
 
-    /**
-     * This is so people don't have to register a new BlockEntity when the block wouldn't normally need one
-     * THIS SHOULD NEVER BE USED OUTSIDE THE ABSTRACTS!!!
-     */
-    protected static <T extends BlockEntity> T validateAndCreate(BlockPos pos, BlockState state, BlockEntityType<T> type, Block block) {
-        BlockEntityTypeAccessor cast = (BlockEntityTypeAccessor) type;
+    public boolean hasCustomBE(){
+        return false;
+    }
 
-        if (!cast.tinymultiblocklib$getValidBlocks().contains(block)) {
-            Set<Block> validBlocks = new HashSet<>(cast.tinymultiblocklib$getValidBlocks());
-            validBlocks.add(block);
-            cast.tinymultiblocklib$setValidBlocks(validBlocks);
-        }
-
-        return type.create(pos, state);
+    protected void addToValidBEBlocks(){
+        CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.add(this);
     }
 
 }

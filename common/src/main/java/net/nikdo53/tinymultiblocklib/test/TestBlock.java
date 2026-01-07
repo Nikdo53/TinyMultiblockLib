@@ -28,7 +28,7 @@ import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class TestBlock extends AbstractMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
+public class TestBlock extends SimpleMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
     public TestBlock(Properties properties) {
         super(properties);
     }

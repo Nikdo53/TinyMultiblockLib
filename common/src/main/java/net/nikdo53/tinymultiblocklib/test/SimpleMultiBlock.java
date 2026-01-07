@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import org.jetbrains.annotations.Nullable;
@@ -26,5 +27,4 @@ public class SimpleMultiBlock extends AbstractMultiBlock {
     public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter) {
         return RenderShape.MODEL;
     }
-
 }

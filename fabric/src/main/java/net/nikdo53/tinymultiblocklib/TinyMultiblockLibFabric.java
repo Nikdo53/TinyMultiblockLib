@@ -34,8 +34,8 @@ public class TinyMultiblockLibFabric implements ModInitializer {
         CommonRegistration.Blocks.TEST_BLOCK = registerBlockWithItem("test_block", () -> new TestBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
         CommonRegistration.Blocks.SIMPLE_MULTIBLOCK = registerBlockWithItem("simple_multiblock", () -> new SimpleMultiBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
 
-        CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_multiblock_entity", SimpleMultiBlockEntity::new, CommonRegistration.Blocks.TEST_BLOCK.get());
-        CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_structure_multiblock_entity", SimpleStructureMultiBlockEntity::new, CommonRegistration.Blocks.SIMPLE_MULTIBLOCK.get());
+        CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_multiblock_entity", SimpleMultiBlockEntity::new, CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.toArray(new Block[0]));
+        CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_structure_multiblock_entity", SimpleStructureMultiBlockEntity::new, CommonRegistration.BlockEntities.VALID_BLOCKS_STRUCTURE.toArray(new Block[0]));
 
     }
 
