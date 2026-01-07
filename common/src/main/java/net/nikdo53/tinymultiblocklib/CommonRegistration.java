@@ -27,13 +27,10 @@ public class CommonRegistration {
         public static Supplier<Block> DIAMOND_STRUCTURE_BLOCK = register("diamond_structure", () -> new DiamondStructureBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
         public static Supplier<Block> SIMPLE_MULTIBLOCK = register("simple_multiblock", () -> new SimpleMultiBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
 
-
-
-
         public record UnregisteredBlock(String name, Supplier<Block> block) {}
 
         private static Supplier<Block> register(String name, Supplier<Block> block){
-            BLOCKS.add(new UnregisteredBlock(name, block));
+          //  BLOCKS.add(new UnregisteredBlock(name, block));
 
             return block;
         }
@@ -50,7 +47,7 @@ public class CommonRegistration {
         public record UnregisteredBlockEntity<T extends BlockEntity>(String name, BiFunction<BlockPos, BlockState, T> function, Block... blocks) {}
 
         private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String name, BiFunction<BlockPos, BlockState, T> function, Block... blocks){
-            BLOCK_ENTITIES.add(new UnregisteredBlockEntity<>(name, function, blocks));
+         //   BLOCK_ENTITIES.add(new UnregisteredBlockEntity<>(name, function, blocks));
 
             return () -> null;
         }

@@ -14,11 +14,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelChunk.class)
 public class LevelChunkMixin {
 
+/*
     @Inject(method = "setBlockEntity", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;[Ljava/lang/Object;)V", ordinal = 0), cancellable = true)
     public void setBlockEntity(BlockEntity blockEntity, CallbackInfo ci, @Local BlockState state) {
         if (blockEntity instanceof IMultiBlockEntity multiBlockEntity && !multiBlockEntity.isPlaced()){
             ci.cancel();
         }
     }
+*/
 
 }

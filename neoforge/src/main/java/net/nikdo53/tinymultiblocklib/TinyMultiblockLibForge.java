@@ -1,27 +1,33 @@
 package net.nikdo53.tinymultiblocklib;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import net.nikdo53.tinymultiblocklib.blockentities.SimpleMultiBlockEntity;
+import net.nikdo53.tinymultiblocklib.blockentities.SimpleStructureMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.client.TMBLClientConfig;
+import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
+import net.nikdo53.tinymultiblocklib.test.SimpleMultiBlock;
+import net.nikdo53.tinymultiblocklib.test.TestBlock;
 
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @Mod(Constants.MOD_ID)
@@ -40,7 +46,7 @@ public class TinyMultiblockLibForge {
         if (!FMLLoader.isProduction())
             TestRegistration.register(eventBus);
 
-        eventBus.addListener(RegisterEvent.class, TinyMultiblockLibForge::registerAll);
+        registerAll();
 
         BLOCK_ENTITIES.register(eventBus);
         ITEMS.register(eventBus);
@@ -50,18 +56,19 @@ public class TinyMultiblockLibForge {
         CommonClass.init();
     }
 
-    private static void registerAll(RegisterEvent event) {
-        if (!event.getRegistryKey().equals(Registries.BLOCK)) return;
-        
-        for (CommonRegistration.Blocks.UnregisteredBlock block : CommonRegistration.Blocks.BLOCKS) {
-            registerBlockItem(block.name(), block.block());
-        }
+    public static void registerAll(){
+        CommonRegistration.Blocks.DIAMOND_STRUCTURE_BLOCK = registerBlockWithItem("diamond_structure", () -> new DiamondStructureBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
+        CommonRegistration.Blocks.TEST_BLOCK = registerBlockWithItem("test_block", () -> new TestBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
+        CommonRegistration.Blocks.SIMPLE_MULTIBLOCK = registerBlockWithItem("simple_multiblock", () -> new SimpleMultiBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
 
-        for (CommonRegistration.BlockEntities.UnregisteredBlockEntity<?> blockEntity : CommonRegistration.BlockEntities.BLOCK_ENTITIES) {
-            BLOCK_ENTITIES.register(blockEntity.name(), () -> BlockEntityType.Builder.of(blockEntity.function()::apply, blockEntity.blocks()).build(null));
-        }
+        CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_multiblock_entity", SimpleMultiBlockEntity::new);
+        CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_structure_multiblock_entity", SimpleStructureMultiBlockEntity::new);
+
     }
 
+    public static <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BiFunction<BlockPos, BlockState, T> function, Block... blocks) {
+        return BLOCK_ENTITIES.register(name, () -> BlockEntityType.Builder.of(function::apply, blocks).build(null));
+    }
 
     private static <T extends Block> DeferredBlock<T> registerBlockWithItem(String name, Supplier<T> block) {
         DeferredBlock<T> toReturn = BLOCKS.register(name, block);
