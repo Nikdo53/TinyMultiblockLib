@@ -38,8 +38,11 @@ public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        var type = CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY.get();
-        return validateAndCreate(pos, state, type, this);
+        return CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY.get().create(pos, state);
     }
 
+    @Override
+    protected void addToValidBEBlocks() {
+        CommonRegistration.BlockEntities.VALID_BLOCKS_STRUCTURE.add(this);
+    }
 }

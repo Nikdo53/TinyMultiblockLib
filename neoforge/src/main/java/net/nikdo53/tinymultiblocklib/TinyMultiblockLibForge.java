@@ -17,6 +17,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -27,6 +28,7 @@ import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
 import net.nikdo53.tinymultiblocklib.test.SimpleMultiBlock;
 import net.nikdo53.tinymultiblocklib.test.TestBlock;
 
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -52,8 +54,15 @@ public class TinyMultiblockLibForge {
         ITEMS.register(eventBus);
         BLOCKS.register(eventBus);
 
+        eventBus.addListener(BlockEntityTypeAddBlocksEvent.class, TinyMultiblockLibForge::addBEBlocks);
+
 
         CommonClass.init();
+    }
+
+    public static void addBEBlocks(BlockEntityTypeAddBlocksEvent event){
+        event.modify(CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get(), CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.toArray(new Block[0]));
+        event.modify(CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY.get(), CommonRegistration.BlockEntities.VALID_BLOCKS_STRUCTURE.toArray(new Block[0]));
     }
 
     public static void registerAll(){
@@ -61,8 +70,8 @@ public class TinyMultiblockLibForge {
         CommonRegistration.Blocks.TEST_BLOCK = registerBlockWithItem("test_block", () -> new TestBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
         CommonRegistration.Blocks.SIMPLE_MULTIBLOCK = registerBlockWithItem("simple_multiblock", () -> new SimpleMultiBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
 
-        CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_multiblock_entity", SimpleMultiBlockEntity::new);
-        CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_structure_multiblock_entity", SimpleStructureMultiBlockEntity::new);
+        CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_multiblock_entity", SimpleMultiBlockEntity::new, CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.toArray(new Block[0]));
+        CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY = registerBlockEntity("simple_structure_multiblock_entity", SimpleStructureMultiBlockEntity::new, CommonRegistration.BlockEntities.VALID_BLOCKS_STRUCTURE.toArray(new Block[0]));
 
     }
 
