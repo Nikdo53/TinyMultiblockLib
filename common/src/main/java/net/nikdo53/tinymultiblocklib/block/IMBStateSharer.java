@@ -1,44 +1,38 @@
 package net.nikdo53.tinymultiblocklib.block;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.nikdo53.tinymultiblocklib.components.PropertyWrapper;
-import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
-import org.jetbrains.annotations.Nullable;
+import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static net.nikdo53.tinymultiblocklib.block.IMultiBlock.*;
 
-public interface IMBStateSyncer {
+public interface IMBStateSharer {
 
-    SyncedStatePropertiesBuilder getSyncedStatePropertiesBuilder();
+    SharedStatePropertiesBuilder getSharedStatePropertiesBuilder();
 
-    default List<PropertyWrapper<?>> getSyncedStateProperties(){
-        SyncedStatePropertiesBuilder syncedStatePropertiesBuilder = getSyncedStatePropertiesBuilder();
+    default List<PropertyWrapper<?>> getSharedStateProperties(){
+        SharedStatePropertiesBuilder sharedStatePropertiesBuilder = getSharedStatePropertiesBuilder();
 
-        if (!syncedStatePropertiesBuilder.isInitialized()){
-            createSyncedBlockStates(syncedStatePropertiesBuilder);
+        if (!sharedStatePropertiesBuilder.isInitialized()){
+            createSharedBlockStates(sharedStatePropertiesBuilder);
 
-            syncedStatePropertiesBuilder.setInitialized();
+            sharedStatePropertiesBuilder.setInitialized();
         }
 
-        return syncedStatePropertiesBuilder.getProperties();
+        return sharedStatePropertiesBuilder.getProperties();
     };
 
     /**
      * Registers BlockStates to be automatically synced across the whole multiblock
      * */
-    default void createSyncedBlockStates(SyncedStatePropertiesBuilder builder){
+    default void createSharedBlockStates(SharedStatePropertiesBuilder builder){
         DirectionProperty directionProperty = getMultiBlock().getDirectionProperty();
         if (directionProperty != null){
             builder.add(directionProperty);
@@ -75,8 +69,8 @@ public interface IMBStateSyncer {
         });
     }
 
-    default void syncBlockStates(Level level, BlockPos pos, BlockState state){
-        List<PropertyWrapper<?>> list = new ArrayList<>(getSyncedStateProperties());
+    default void shareBlockStates(Level level, BlockPos pos, BlockState state){
+        List<PropertyWrapper<?>> list = new ArrayList<>(getSharedStateProperties());
 
         BlockPos centerPos = getCenter(level, pos);
         BlockState centerState = level.getBlockState(centerPos);

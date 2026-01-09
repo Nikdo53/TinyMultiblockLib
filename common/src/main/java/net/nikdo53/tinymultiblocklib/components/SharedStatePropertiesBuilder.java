@@ -6,7 +6,7 @@ import net.nikdo53.tinymultiblocklib.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SyncedStatePropertiesBuilder {
+public class SharedStatePropertiesBuilder {
     private final List<PropertyWrapper<?>> PROPERTIES = new ArrayList<>();
     private boolean isInitialized = false;
 

@@ -20,11 +20,10 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IExpandingMultiblock;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
-import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
+import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -41,8 +40,8 @@ public class TestBlock extends SimpleMultiBlock implements IPreviewableMultibloc
     }
 
     @Override
-    public void createSyncedBlockStates(SyncedStatePropertiesBuilder builder) {
-        super.createSyncedBlockStates(builder);
+    public void createSharedBlockStates(SharedStatePropertiesBuilder builder) {
+        super.createSharedBlockStates(builder);
         builder.add(BlockStateProperties.AGE_3);
     }
 

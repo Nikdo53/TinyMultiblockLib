@@ -18,7 +18,6 @@ import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.stream.Stream;
 import static net.nikdo53.tinymultiblocklib.Constants.*;
 import static net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock.CENTER;
 
-public interface IMultiBlock extends IMBStateSyncer {
+public interface IMultiBlock extends IMBStateSharer {
 
     /** Returns a BlockPos Stream of every block in this multiblock.
      * <p>
@@ -142,7 +141,7 @@ public interface IMultiBlock extends IMBStateSyncer {
     default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
         boolean isPlaced = IMultiBlockEntity.isPlaced(level, pos);
 
-        if (isPlaced) syncBlockStates(level, pos, state);
+        if (isPlaced) shareBlockStates(level, pos, state);
 
         if (isCenter(state)) {
             if (!isPlaced) place(level, pos, state);
