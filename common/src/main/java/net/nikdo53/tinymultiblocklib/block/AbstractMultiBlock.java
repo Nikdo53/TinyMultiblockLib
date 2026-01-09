@@ -84,7 +84,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        return updateShapeHelper(state, level, pos);
+        return updateShapeHelper(state, direction, neighborState, level, pos, neighborPos);
     }
 
     @Override

@@ -2,11 +2,27 @@ package net.nikdo53.tinymultiblocklib.components;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.Constants;
+import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockPatternUtils {
+
+    public static boolean findAndPlace(BlockPattern blockPattern, Level level, BlockPos pos, BlockState stateToPlace, BlockPos placementOffset, Corner corner){
+        BlockPattern.BlockPatternMatch blockPatternMatch = blockPattern.find(level, pos);
+        if (blockPatternMatch == null) return false;
+
+       // Direction.WEST, Direction.DOWN, Direction.SOUTH
+        BlockPos center = BlockPatternUtils.getCorner(blockPatternMatch, corner);
+        level.setBlock(center.offset(placementOffset), stateToPlace.trySetValue(AbstractMultiBlock.CENTER, true), 3);
+
+        return true;
+    }
 
     public static BlockPos getBottomNorthWest(BlockPattern.BlockPatternMatch match) {
         int width = match.getWidth();
@@ -35,6 +51,10 @@ public class BlockPatternUtils {
         }
 
         return result;
+    }
+
+    public static BlockPos getCorner(BlockPattern.BlockPatternMatch match, Corner corner){
+        return getCorner(match, corner.x, corner.y, corner.z);
     }
 
     public static BlockPos getCorner(BlockPattern.BlockPatternMatch match, Direction xAxis, Direction yAxis, Direction zAxis) {

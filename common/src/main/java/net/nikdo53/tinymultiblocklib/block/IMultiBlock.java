@@ -288,7 +288,7 @@ public interface IMultiBlock extends IMBStateSyncer {
      * <p>
      * Destroys the multiblock if canSurvive returns false
      * */
-    default BlockState updateShapeHelper(BlockState state, LevelAccessor level, BlockPos pos){
+    default BlockState updateShapeHelper(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos){
         if (!(level.getBlockEntity(pos) instanceof IMultiBlockEntity entity)) return Blocks.AIR.defaultBlockState();
 
         BlockPos centerPos = getCenter(level, pos);
