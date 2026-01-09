@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
-import net.nikdo53.tinymultiblocklib.components.SyncedStatePropertiesBuilder;
+import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock, EntityBlock {
@@ -29,7 +29,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * @see #getCenter(BlockGetter, BlockPos)
      * */
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
-    private final SyncedStatePropertiesBuilder SYNCED_STATE_BUILDER = new SyncedStatePropertiesBuilder();
+    private final SharedStatePropertiesBuilder SHARED_STATE_BUILDER = new SharedStatePropertiesBuilder();
 
     public AbstractMultiBlock(Properties properties) {
         super(properties);
@@ -44,8 +44,8 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
     }
 
     @Override
-    public SyncedStatePropertiesBuilder getSyncedStatePropertiesBuilder() {
-        return SYNCED_STATE_BUILDER;
+    public SharedStatePropertiesBuilder getSharedStatePropertiesBuilder() {
+        return SHARED_STATE_BUILDER;
     }
 
     @Override
