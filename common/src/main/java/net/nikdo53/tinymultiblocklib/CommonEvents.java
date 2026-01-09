@@ -1,0 +1,29 @@
+package net.nikdo53.tinymultiblocklib;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.nikdo53.tinymultiblocklib.components.BlockPatternUtils;
+import net.nikdo53.tinymultiblocklib.components.Corner;
+import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
+
+public class CommonEvents {
+
+    /**
+     * Made as an example implementation of the diamond structure block, only runs in dev env!
+     * <p>
+     * Places a Diamond structure when right-clicking on a 2x2x2 cube of diamond blocks
+     */
+    public static void testRightClickBlock(Level level, BlockPos pos, Player player) {
+        if (!level.getBlockState(pos).is(Blocks.DIAMOND_BLOCK)) return;
+
+        BlockPatternUtils.findAndPlace(
+                DiamondStructureBlock.getBlockPattern(),
+                level,
+                pos,
+                CommonRegistration.Blocks.DIAMOND_STRUCTURE_BLOCK.get().defaultBlockState(),
+                BlockPos.ZERO,
+                Corner.FORWARD_LOWER_LEFT);
+    }
+}

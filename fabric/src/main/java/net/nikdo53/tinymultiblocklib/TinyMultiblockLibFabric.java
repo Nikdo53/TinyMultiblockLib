@@ -1,6 +1,8 @@
 package net.nikdo53.tinymultiblocklib;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.impl.launch.FabricLauncher;
+import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,6 +18,7 @@ import net.nikdo53.tinymultiblocklib.blockentities.SimpleStructureMultiBlockEnti
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
 import net.nikdo53.tinymultiblocklib.test.SimpleMultiBlock;
 import net.nikdo53.tinymultiblocklib.test.TestBlock;
+import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -27,6 +30,9 @@ public class TinyMultiblockLibFabric implements ModInitializer {
         CommonClass.init();
 
         registerAll();
+
+        if (FabricLauncherBase.getLauncher().isDevelopment())
+            FabricEvents.register();
     }
 
     public static void registerAll(){
@@ -52,7 +58,7 @@ public class TinyMultiblockLibFabric implements ModInitializer {
     }
 
     private static void registerBlockItem(String name, Block block) {
-        Registry.register(BuiltInRegistries.ITEM, Constants.loc(name), new BlockItem(block, new Item.Properties()));
+        Registry.register(BuiltInRegistries.ITEM, Constants.loc(name), new TestBlockItem(block, new Item.Properties()));
     }
 
 }

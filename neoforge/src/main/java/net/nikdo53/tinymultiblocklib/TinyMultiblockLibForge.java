@@ -27,8 +27,8 @@ import net.nikdo53.tinymultiblocklib.client.TMBLClientConfig;
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
 import net.nikdo53.tinymultiblocklib.test.SimpleMultiBlock;
 import net.nikdo53.tinymultiblocklib.test.TestBlock;
+import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
-import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -46,7 +46,7 @@ public class TinyMultiblockLibForge {
         container.registerConfig(ModConfig.Type.CLIENT, TMBLClientConfig.CLIENT_CONFIG);
 
         if (!FMLLoader.isProduction())
-            TestRegistration.register(eventBus);
+            ForgeEvents.register(eventBus);
 
         registerAll();
 
@@ -86,8 +86,7 @@ public class TinyMultiblockLibForge {
     }
 
     private static <T extends Block> DeferredItem<Item> registerBlockItem(String name, Supplier<T> block) {
-        return ITEMS.register(name, () -> new BlockItem(block.get(),
-                new Item.Properties()));
+        return ITEMS.register(name, () -> new TestBlockItem(block.get(), new Item.Properties()));
     }
 
 }
