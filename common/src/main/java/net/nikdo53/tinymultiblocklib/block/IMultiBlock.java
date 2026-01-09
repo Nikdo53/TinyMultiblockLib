@@ -229,7 +229,7 @@ public interface IMultiBlock extends IMBStateSharer {
         return getFullBlockShape(level, pos, state).stream().allMatch(blockPos -> level.isUnobstructed(state, blockPos, context));
     }
 
-    default void destroy(BlockPos center, Level level, BlockState state, boolean dropBlock){
+    default void destroy(BlockPos center, LevelAccessor level, BlockState state, boolean dropBlock){
         if (level.isClientSide()) return;
         List<BlockPos> blocks = getFullBlockShape(level, center, state);
 
@@ -245,7 +245,7 @@ public interface IMultiBlock extends IMBStateSharer {
         });
     }
 
-    default List<BlockPos> getIsolatedBlocks(BlockPos center, Level level, BlockState state) {
+    default List<BlockPos> getIsolatedBlocks(BlockPos center, LevelAccessor level, BlockState state) {
         Set<BlockPos> posSet = new HashSet<>(getFullBlockShape(level, center, state));
 
         List<BlockPos> isolated = new ArrayList<>();
@@ -290,11 +290,10 @@ public interface IMultiBlock extends IMBStateSharer {
     default BlockState updateShapeHelper(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos){
         if (!(level.getBlockEntity(pos) instanceof IMultiBlockEntity entity)) return Blocks.AIR.defaultBlockState();
 
-        BlockPos centerPos = getCenter(level, pos);
-        boolean canSurvive = state.canSurvive(level, centerPos);
+        boolean canSurvive = state.canSurvive(level, pos);
 
         if (!canSurvive){
-            destroy(entity.getCenter(), (Level) level, state, true);
+            destroy(entity.getCenter(), level, state, true);
             return Blocks.AIR.defaultBlockState();
         }
 
