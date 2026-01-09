@@ -39,7 +39,7 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     @Override
     public @NotNull CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
-        saveAdditional(tag, registries);
+        saveAdditional(tag);
         return tag;
     }
 

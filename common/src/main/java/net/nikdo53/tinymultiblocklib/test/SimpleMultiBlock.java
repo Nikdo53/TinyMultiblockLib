@@ -20,7 +20,7 @@ public class SimpleMultiBlock extends AbstractMultiBlock implements IPreviewable
 
     @Override
     public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
-        int height = 2;
+        int height = level.isRaining() ? 4 : 2;
         return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.east().north().above(height), center.west().south()));
     }
 

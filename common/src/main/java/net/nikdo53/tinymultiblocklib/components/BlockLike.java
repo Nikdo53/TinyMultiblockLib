@@ -23,7 +23,7 @@ public class BlockLike {
     public BlockLike(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntityTag) {
         this.pos = pos;
         this.state = state;
-        this.blockEntityTag = blockEntityTag == null ? null : blockEntityTag.saveWithId(blockEntityTag.getLevel().registryAccess());
+        this.blockEntityTag = blockEntityTag == null ? null : blockEntityTag.saveWithId();
     }
 
     public BlockLike(BlockPos pos, BlockState state) {
@@ -40,7 +40,7 @@ public class BlockLike {
         level.setBlockAndUpdate(posNew, state);
 
         if (blockEntityTag != null) {
-            BlockEntity blockEntity = BlockEntity.loadStatic(posNew, state, blockEntityTag, level.registryAccess());
+            BlockEntity blockEntity = BlockEntity.loadStatic(posNew, state, blockEntityTag);
             if (blockEntity != null) level.setBlockEntity(blockEntity);
         }
     }

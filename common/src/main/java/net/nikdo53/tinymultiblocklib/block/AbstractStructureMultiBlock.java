@@ -23,7 +23,7 @@ public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!(level.getBlockEntity(pos) instanceof IStructureMultiBlockEntity structureMBEntity)) {
             super.onRemove(state, level, pos, newState, movedByPiston);
 
