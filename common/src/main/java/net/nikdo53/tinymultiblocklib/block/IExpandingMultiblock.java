@@ -41,10 +41,10 @@ public interface IExpandingMultiblock extends IMultiBlock {
 
     @Override
     default BlockState updateShapeHelper(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        Level level1 = level.getBlockEntity(pos).getLevel();
 
         if (!IMultiBlock.isMultiblock(neighborState) // avoid being activated by itself
-                && hasShapeChanged(state, level1, pos, state) && level1 != null) {
+                && level instanceof Level level1
+                && hasShapeChanged(state, level1, pos, state)) {
             if (!IMultiBlock.isCenter(state)) {
 
                 // fakes the update shape even though the neighbors haven't updated
