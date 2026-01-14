@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 import static net.nikdo53.tinymultiblocklib.Constants.*;
 import static net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock.CENTER;
 
-public interface IMultiBlock extends IMBStateSharer {
+public interface IMultiBlock extends IMBStateSharer, EntityBlock {
 
     /** Returns a BlockPos Stream of every block in this multiblock.
      * <p>
@@ -152,7 +152,7 @@ public interface IMultiBlock extends IMBStateSharer {
      * Places the multiblock, sets its BlockStates and BlockEntity center
      * */
     default void place(Level level, BlockPos centerPos, BlockState stateOriginal){
-        prepareForPlace(level, centerPos, stateOriginal).forEach(pair -> {
+        prepareForPlace(getFullBlockShape(level, centerPos, stateOriginal), level, centerPos, stateOriginal).forEach(pair -> {
             int flags = 66;
 
             BlockState stateNew = pair.getSecond();
@@ -172,10 +172,10 @@ public interface IMultiBlock extends IMBStateSharer {
     /**
      * Prepares all blocks to be Placed
      * */
-    default List<Pair<BlockPos, BlockState>> prepareForPlace(Level level, BlockPos centerPos, BlockState stateOriginal){
+    default List<Pair<BlockPos, BlockState>> prepareForPlace(List<BlockPos> shape, Level level, BlockPos centerPos, BlockState stateOriginal){
         List<Pair<BlockPos, BlockState>> list = new ArrayList<>();
 
-        getFullBlockShape(level, centerPos, stateOriginal).forEach(posNew -> {
+        shape.forEach(posNew -> {
             posNew = posNew.immutable();
 
             BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));

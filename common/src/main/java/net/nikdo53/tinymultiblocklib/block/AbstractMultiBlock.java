@@ -19,7 +19,7 @@ import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock, EntityBlock {
+public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock {
     /**
      * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
      * <p>
