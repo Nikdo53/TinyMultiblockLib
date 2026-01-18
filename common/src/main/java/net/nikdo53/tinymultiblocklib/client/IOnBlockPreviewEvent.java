@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
@@ -10,13 +11,16 @@ import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
 public interface IOnBlockPreviewEvent {
-    PreviewMode getResult();
-    void setResult(PreviewMode result);
+    PreviewMode getPreviewMode();
+    void setPreviewMode(PreviewMode result);
 
     boolean isCancelledInternal();
     void setCancelledInternal(boolean canceled);
 
     BlockState getBlockState();
+    void setBlockState(BlockState state);
+
+    Block getBlock();
     BlockPos getPos();
     LocalPlayer getPlayer();
 

@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.Event;
@@ -15,6 +16,7 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     private PreviewMode previewMode;
     BlockState state;
     BlockPos pos;
+    Block block;
     LocalPlayer player;
     @Nullable
     BlockEntity blockEntity;
@@ -25,6 +27,7 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         this.previewMode = previewMode;
         this.state = state;
         this.pos = pos;
+        this.block = state.getBlock();
         this.player = player;
         this.blockEntity = blockEntity;
         this.partialTicks = partialTicks;
@@ -32,12 +35,12 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     @Override
-    public PreviewMode getResult() {
+    public PreviewMode getPreviewMode() {
         return previewMode;
     }
 
     @Override
-    public void setResult(PreviewMode result) {
+    public void setPreviewMode(PreviewMode result) {
         this.previewMode = result;
     }
 
@@ -54,6 +57,16 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     @Override
     public BlockState getBlockState() {
         return state;
+    }
+
+    @Override
+    public void setBlockState(BlockState state) {
+        this.state = state;
+    }
+
+    @Override
+    public Block getBlock() {
+        return block;
     }
 
     @Override

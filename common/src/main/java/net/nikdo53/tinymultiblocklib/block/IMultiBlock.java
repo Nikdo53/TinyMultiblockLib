@@ -33,7 +33,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
      * <p>
      * Should only be used for overriding
      * @param center The center pos of the multiblock, aka the 1st block placed
-     * @param blockEntity null when placing / previewing
+     * @param blockEntity null when being placed
      * @param direction present only when {@link #getDirectionProperty()} is overridden with a valid property
      * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
      * */
@@ -63,20 +63,11 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         return null;
     }
 
-    default List<BlockPos> getFullBlockShapeNoCache(@Nullable Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
-        if (level == null && blockEntity != null){
-            level = blockEntity.getLevel();
-        }
-
-        if (level != null && blockEntity == null){
+    default List<BlockPos> getFullBlockShapeNoCache(Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
+        if (blockEntity == null){
             blockEntity = level.getBlockEntity(center);
         }
 
-        if (level == null && blockEntity == null){
-            LOGGER.error("Both block entity or level or block entity is null, this should never happen.");
-        }
-
-        assert level != null;
         List<BlockPos> list = makeFullBlockShape(level, center, state, blockEntity, getDirection(state));
 
         // Warn everyone of Mo-jank
@@ -205,7 +196,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
             state = state.setValue(getDirectionProperty(), direction);
         }
 
-        return canPlace(level, pos, state, context.getPlayer(), false) ? state : null;
+        return canPlace(level, pos, state, context.getPlayer(), true) ? state : null;
     }
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {

@@ -51,12 +51,12 @@ public interface IMultiblockRenderHelper {
         PreviewMode previewMode = blockEntity.getPreviewMode();
 
         RenderType renderTypeBase = getRenderType(previewMode, materialBase.atlasLocation());
-        RenderType renderTypeCorrupted = getRenderType(previewMode, materialSecondary.atlasLocation());
+        RenderType renderTypeSecondary = getRenderType(previewMode, materialSecondary.atlasLocation());
 
         VertexConsumer baseConsumer = materialBase.sprite().wrap(buffer.getBuffer(renderTypeBase));
-        VertexConsumer corruptedConsumer = materialSecondary.sprite().wrap(buffer.getBuffer(renderTypeCorrupted));
+        VertexConsumer SecondaryConsumer = materialSecondary.sprite().wrap(buffer.getBuffer(renderTypeSecondary));
 
-        return blockEntity.getBlockEntity().getBlockState().is(blockSecondary) ? corruptedConsumer : baseConsumer;
+        return blockEntity.getBlockEntity().getBlockState().is(blockSecondary) ? SecondaryConsumer : baseConsumer;
     }
 
 
@@ -66,7 +66,7 @@ public interface IMultiblockRenderHelper {
     default Level level(){
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null){
-            throw new IllegalStateException("BlockEntityRenderer Level is null");
+            throw new IllegalStateException("Level is null, this should never happen.");
         }
         return level;
     }
