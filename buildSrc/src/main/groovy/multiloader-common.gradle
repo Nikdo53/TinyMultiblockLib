@@ -46,7 +46,7 @@ repositories {
         exclusiveContent {
             forRepository {
                 maven {
-                    url "https://cursemaven.com"
+                    url = "https://cursemaven.com"
                 }
             }
             filter {
@@ -58,7 +58,7 @@ repositories {
     repositories {
         maven {
             name = 'GeckoLib'
-            url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
             content {
                 includeGroup("software.bernie.geckolib")
             }

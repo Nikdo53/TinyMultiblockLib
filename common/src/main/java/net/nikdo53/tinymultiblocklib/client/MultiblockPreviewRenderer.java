@@ -36,7 +36,23 @@ import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class MultiblockPreviewRenderer {
+    private static final Set<Block> PREVIEWED_BLOCKS = new HashSet<>();
+
+    public static Set<Block> getPreviewedBlocks() {
+        return new HashSet<>(PREVIEWED_BLOCKS);
+    }
+
+    /**
+     * Should be used in some client init method
+     */
+    public static synchronized void registerPreviewedBlocks(Block... previewedBlocks) {
+        PREVIEWED_BLOCKS.addAll(List.of(previewedBlocks));
+    }
 
     public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, Camera camera, PoseStack poseStack, IPlatformHelper platformHelper) {
         MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
@@ -69,6 +85,8 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
+            if (!(PREVIEWED_BLOCKS.contains(block) || block instanceof IPreviewableMultiblock)) return;
+
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
             boolean hasNullState = false;
 
@@ -77,7 +95,6 @@ public class MultiblockPreviewRenderer {
                 state = block.defaultBlockState();
 
                 if (block instanceof IPreviewableMultiblock multiblock){
-                    hasNullState = false; // MBs check entity collisions in this method too
                     multiblock.getDefaultStateForPreviews(player.getDirection());
                 }
             }
@@ -88,15 +105,13 @@ public class MultiblockPreviewRenderer {
                 entity.setLevel(level);
             }
 
-            PreviewMode previewMode = getPreviewMode(level, pos, state, player);
-            previewMode = hasNullState ? PreviewMode.INVALID : previewMode;
+            PreviewMode previewMode = getPreviewMode(level, pos, state, player, hasNullState);
 
             boolean shouldShowPreview = level.getBlockState(pos).canBeReplaced()
                     && (!level.getBlockState(hitPos).isAir() || placeOnWater);
 
             if (level.getBlockState(hitPos).canBeReplaced() && !placeOnWater)
                 pos = pos.relative(hitDirection.getOpposite());
-            
 
             poseStack.pushPose();
 
@@ -105,7 +120,8 @@ public class MultiblockPreviewRenderer {
             IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, entity, partialTick, poseStack);
 
             if (!event.isCancelledInternal()) {
-                previewMode = event.getResult();
+                previewMode = event.getPreviewMode();
+                state = event.getBlockState();
 
                 renderBlockEntity(minecraft, partialTick, poseStack, entity, buffer, previewMode);
                 renderJsonModels(minecraft, level, poseStack, entity, pos, state, buffer, previewMode);
@@ -131,7 +147,9 @@ public class MultiblockPreviewRenderer {
             entityRender.render(entity, partialTick, poseStack, buffer, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
     }
 
-    private static @NotNull PreviewMode getPreviewMode(Level level, BlockPos pos, BlockState state, LocalPlayer player) {
+    private static @NotNull PreviewMode getPreviewMode(Level level, BlockPos pos, BlockState state, LocalPlayer player, boolean hasNullState) {
+        if (hasNullState) return PreviewMode.INVALID;
+
         boolean multiBlockCanPlace = canPlace(level, pos, state, player);
         boolean entityUnobstructed = isEntityUnobstructed(level, state.getBlock(), pos, state, player);
 
@@ -153,7 +171,6 @@ public class MultiblockPreviewRenderer {
         return state.canSurvive(level, pos);
     }
 
-    //todo: single buffer!!! and regular block support
     private static void renderJsonModels(Minecraft minecraft, Level level, PoseStack poseStack, BlockEntity blockEntity, BlockPos originalPos, BlockState stateOriginal, MultiBufferSource.BufferSource buffer, PreviewMode previewMode) {
         VertexConsumerWrapper tintedConsumer = new VertexConsumerWrapper(buffer.getBuffer(RenderType.translucent())) {
             @Override
@@ -192,11 +209,10 @@ public class MultiblockPreviewRenderer {
 
                                 });
             }
-        } else {
+        } else { // regular block logic
             blockRenderer.renderBatched(stateOriginal, originalPos, level, poseStack, tintedConsumer, false, minecraft.level.getRandom());
         }
 
         buffer.endLastBatch();
     }
-
 }
