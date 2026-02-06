@@ -7,7 +7,7 @@
   "mixins": [
     "BlockEntityTypeAccessor",
     "ItemAccessor",
-    "LevelAccessor",
+    "ClientLevelAccessor",
     "ShutUpWarnsMixin",
     "carryon.ListHandlerMixin",
     "carryon.PickupHandlerMixin"
