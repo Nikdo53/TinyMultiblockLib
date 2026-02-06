@@ -6,7 +6,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ItemAccessor",
-    "LevelAccessor",
+    "ClientLevelAccessor",
     "ShutUpWarnsMixin",
     "carryon.ListHandlerMixin",
     "carryon.PickupHandlerMixin"

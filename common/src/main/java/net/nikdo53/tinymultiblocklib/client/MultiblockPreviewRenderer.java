@@ -233,9 +233,14 @@ public class MultiblockPreviewRenderer {
     public static Set<BlockLike> gatherBlockStates(BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         assert Minecraft.getInstance().level != null;
 
+        Set<BlockLike> blockLikeSet = new HashSet<>();
+        blockLikeSet.add(new BlockLike(pos, state));
+
         FakeClientLevel fakeLevel = new FakeClientLevel(Minecraft.getInstance().level);
         state.getBlock().setPlacedBy(fakeLevel, pos, state, placer, stack);
 
-        return fakeLevel.blockLikeSet;
+        blockLikeSet.addAll(fakeLevel.blockLikeSet);
+
+        return blockLikeSet;
     }
 }

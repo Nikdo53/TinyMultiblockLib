@@ -27,7 +27,7 @@ public class BlockLike {
     }
 
     public BlockLike(BlockPos pos, BlockState state) {
-        new BlockLike(pos, state, null);
+        this(pos, state, null);
     }
 
     public static BlockLike fromPos(BlockGetter level, BlockPos pos){
