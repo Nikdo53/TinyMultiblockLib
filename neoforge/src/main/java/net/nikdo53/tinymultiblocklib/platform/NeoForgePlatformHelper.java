@@ -4,6 +4,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
+import net.nikdo53.tinymultiblocklib.platform.services.IUtils;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
 
@@ -28,5 +29,10 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public IEventPoster getEventPoster() {
         return NeoForgeEventPoster.INSTANCE;
+    }
+
+    @Override
+    public IUtils getUtils() {
+        return NeoForgeUtils.INSTANCE;
     }
 }

@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -125,8 +126,10 @@ public class MultiblockPreviewRenderer {
                 previewMode = event.getPreviewMode();
                 state = event.getBlockState();
 
-                renderBlockEntity(minecraft, partialTick, poseStack, entity, buffer, previewMode);
-                renderJsonModels(minecraft, level, poseStack, entity, pos, state, buffer, previewMode, stack);
+                MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);
+
+                renderBlockEntity(minecraft, partialTick, poseStack, entity, tintedBuffer, previewMode);
+                renderJsonModels(minecraft, level, poseStack, entity, pos, state, tintedBuffer, previewMode, stack);
 
                 IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, entity, partialTick, poseStack);
             }
@@ -176,12 +179,7 @@ public class MultiblockPreviewRenderer {
     private static void renderJsonModels(Minecraft minecraft, Level level, PoseStack poseStack, BlockEntity blockEntity,
                                          BlockPos originalPos, BlockState stateOriginal, MultiBufferSource.BufferSource buffer, PreviewMode previewMode, ItemStack stack) {
 
-        VertexConsumerWrapper tintedConsumer = new VertexConsumerWrapper(buffer.getBuffer(RenderType.translucent())) {
-            @Override
-            public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int packedOverlay, boolean readAlpha) {
-                super.putBulkData(pose, quad, brightness, red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha, lightmap, packedOverlay, readAlpha);
-            }
-        };
+        VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.translucent());
 
         assert minecraft.level != null;
         BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
@@ -206,7 +204,7 @@ public class MultiblockPreviewRenderer {
                              BlockPos offset = pos.subtract(originalPos).immutable();
                             poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
-                            blockRenderer.renderBatched(state, pos, level, poseStack, tintedConsumer, false, minecraft.level.getRandom());
+                            blockRenderer.renderBatched(state, pos, level, poseStack, vertexConsumer, true, minecraft.level.getRandom());
 
                             poseStack.popPose();
 
@@ -220,7 +218,7 @@ public class MultiblockPreviewRenderer {
                 BlockPos offset = blocklike.pos.subtract(originalPos).immutable();
                 poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
-                blockRenderer.renderBatched(blocklike.state, blocklike.pos, level, poseStack, tintedConsumer, false, minecraft.level.getRandom());
+                blockRenderer.renderBatched(blocklike.state, blocklike.pos, level, poseStack, vertexConsumer, true, minecraft.level.getRandom());
 
                 poseStack.popPose();
 
