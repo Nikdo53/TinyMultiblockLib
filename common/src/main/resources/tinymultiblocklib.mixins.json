@@ -8,12 +8,15 @@
     "BlockEntityTypeAccessor",
     "ItemAccessor",
     "ClientLevelAccessor",
+    "ItemAccessor",
     "ShutUpWarnsMixin",
     "carryon.ListHandlerMixin",
     "carryon.PickupHandlerMixin"
   ],
   "client": [
-    "ClientLevelMixin"
+    "BufferSourceAccessor",
+    "ClientLevelMixin",
+    "RenderTypeAccessor"
   ],
   "server": [
   ],

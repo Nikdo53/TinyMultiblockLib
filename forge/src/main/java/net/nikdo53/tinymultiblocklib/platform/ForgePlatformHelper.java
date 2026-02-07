@@ -28,4 +28,9 @@ public class ForgePlatformHelper implements IPlatformHelper {
     public IEventPoster getEventPoster() {
         return NeoForgeEventPoster.INSTANCE;
     }
+
+    @Override
+    public IUtils getUtils() {
+        return NeoForgeUtils.INSTANCE;
+    }
 }
