@@ -30,7 +30,7 @@ public interface IMultiblockRenderHelper {
     }
 
     default Function<ResourceLocation, RenderType> getRenderTypeFunction(PreviewMode previewMode, Function<ResourceLocation, RenderType> defaultRenderType) {
-        return previewMode.equals(PreviewMode.PLACED) ? defaultRenderType : RenderType::entityTranslucentCull;
+        return defaultRenderType;
     }
 
     default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture) {
@@ -38,7 +38,7 @@ public interface IMultiblockRenderHelper {
     }
 
     default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture, RenderType defaultRenderType) {
-        return previewMode.equals(PreviewMode.PLACED) ? defaultRenderType : RenderType.entityTranslucentCull(texture);
+        return defaultRenderType;
     }
 
 
@@ -85,6 +85,6 @@ public interface IMultiblockRenderHelper {
     }
 
     default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, PreviewMode previewMode) {
-        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, previewMode.applyColors(color));
+        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 }
