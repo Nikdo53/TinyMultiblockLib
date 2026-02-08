@@ -42,7 +42,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
         if (!hasCustomBE())
             addToValidBEBlocks();
     }
-
+    
     @Override
     public SharedStatePropertiesBuilder getSharedStatePropertiesBuilder() {
         return SHARED_STATE_BUILDER;

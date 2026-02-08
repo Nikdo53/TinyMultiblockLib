@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
+import net.nikdo53.tinymultiblocklib.components.BlockLike;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 
 import javax.annotation.Nullable;
@@ -143,11 +144,11 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
      * Places the multiblock, sets its BlockStates and BlockEntity center
      * */
     default void place(Level level, BlockPos centerPos, BlockState stateOriginal){
-        prepareForPlace(getFullBlockShape(level, centerPos, stateOriginal), level, centerPos, stateOriginal).forEach(pair -> {
+        prepareForPlace(getFullBlockShape(level, centerPos, stateOriginal), level, centerPos, stateOriginal).forEach(blockLike -> {
             int flags = 66;
 
-            BlockState stateNew = pair.getSecond();
-            BlockPos posNew = pair.getFirst();
+            BlockState stateNew = blockLike.state;
+            BlockPos posNew = blockLike.pos;
 
             // Don't replace identical blocks
             if (!level.getBlockState(posNew).equals(stateNew)) {
@@ -163,8 +164,8 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     /**
      * Prepares all blocks to be Placed
      * */
-    default List<Pair<BlockPos, BlockState>> prepareForPlace(List<BlockPos> shape, Level level, BlockPos centerPos, BlockState stateOriginal){
-        List<Pair<BlockPos, BlockState>> list = new ArrayList<>();
+    default List<BlockLike> prepareForPlace(List<BlockPos> shape, Level level, BlockPos centerPos, BlockState stateOriginal){
+        List<BlockLike> list = new ArrayList<>();
 
         shape.forEach(posNew -> {
             posNew = posNew.immutable();
@@ -172,7 +173,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
             BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));
             stateNew = getStateForEachBlock(stateNew, posNew, posNew.subtract(centerPos), level, getDirection(stateOriginal));
 
-            list.add(new Pair<>(posNew, stateNew));
+            list.add(new BlockLike(posNew, stateNew));
         });
 
         return list;

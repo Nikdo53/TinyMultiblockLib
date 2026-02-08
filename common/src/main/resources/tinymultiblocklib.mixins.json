@@ -9,6 +9,7 @@
     "ItemAccessor",
     "ClientLevelAccessor",
     "ItemAccessor",
+    "LevelAccessorMixin",
     "ShutUpWarnsMixin",
     "carryon.ListHandlerMixin",
     "carryon.PickupHandlerMixin"

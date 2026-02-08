@@ -30,7 +30,7 @@ public interface IMultiblockRenderHelper {
     }
 
     default Function<ResourceLocation, RenderType> getRenderTypeFunction(PreviewMode previewMode, Function<ResourceLocation, RenderType> defaultRenderType) {
-        return previewMode.equals(PreviewMode.PLACED) ? defaultRenderType : RenderType::entityTranslucentCull;
+        return defaultRenderType;
     }
 
     default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture) {
@@ -38,7 +38,7 @@ public interface IMultiblockRenderHelper {
     }
 
     default RenderType getRenderType(PreviewMode previewMode, ResourceLocation texture, RenderType defaultRenderType) {
-        return previewMode.equals(PreviewMode.PLACED) ? defaultRenderType : RenderType.entityTranslucentCull(texture);
+        return defaultRenderType;
     }
 
 
