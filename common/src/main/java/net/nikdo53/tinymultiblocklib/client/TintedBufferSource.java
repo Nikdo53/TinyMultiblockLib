@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.resources.ResourceLocation;
@@ -48,28 +49,9 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
 
         return new VertexConsumerWrapper(original) {
             @Override
-            public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int packedOverlay, boolean readAlpha) {
-                original.putBulkData(pose, quad, brightness, red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha, lightmap, packedOverlay, readAlpha);
-            }
-
-            @Override
-            public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight, float normalX, float normalY, float normalZ) {
-                original.addVertex(x, y, z, previewMode.applyColors(color), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
-            }
-
-            @Override
-            public VertexConsumer setColor(int r, int g, int b, int a) {
-                return original.setColor(r * previewMode.red, g * previewMode.green, b * previewMode.blue, a * previewMode.alpha);
-            }
-
-            @Override
-            public VertexConsumer setColor(float red, float green, float blue, float alpha) {
-                return original.setColor(red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha);
-            }
-
-            @Override
-            public VertexConsumer setColor(int color) {
-                return original.setColor(previewMode.applyColors(color));
+            public VertexConsumer color(int r, int g, int b, int a) {
+                float[] colors = previewMode.applyColorsFloat(r, g, b, a);
+                return super.color(colors[0], colors[1], colors[2], colors[3]);
             }
         };
     }

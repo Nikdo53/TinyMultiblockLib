@@ -6,8 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.Nullable;
@@ -94,7 +94,8 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         return poseStack;
     }
 
-    public static class Pre extends OnBlockPreviewEvent implements ICancellableEvent{
+    @Cancelable
+    public static class Pre extends OnBlockPreviewEvent {
         public Pre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity, float partialTicks, PoseStack poseStack) {
             super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack);
 

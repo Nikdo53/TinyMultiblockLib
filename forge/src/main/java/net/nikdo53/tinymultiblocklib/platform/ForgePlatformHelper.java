@@ -1,8 +1,10 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
+import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.nikdo53.tinymultiblocklib.platform.services.IUtils;
 
 public class ForgePlatformHelper implements IPlatformHelper {
 

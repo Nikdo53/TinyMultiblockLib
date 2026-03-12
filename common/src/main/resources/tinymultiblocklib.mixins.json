@@ -7,8 +7,6 @@
   "mixins": [
     "BlockEntityTypeAccessor",
     "ItemAccessor",
-    "ClientLevelAccessor",
-    "ItemAccessor",
     "LevelAccessorMixin",
     "ShutUpWarnsMixin",
     "carryon.ListHandlerMixin",
@@ -16,6 +14,7 @@
   ],
   "client": [
     "BufferSourceAccessor",
+    "ClientLevelAccessorMixin",
     "ClientLevelMixin",
     "RenderTypeAccessor"
   ],
