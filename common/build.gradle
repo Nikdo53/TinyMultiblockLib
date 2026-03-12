@@ -22,7 +22,7 @@ dependencies {
     annotationProcessor ("io.github.llamalad7:mixinextras-common:0.3.5")
 
     implementation("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
-    compileOnly("curse.maven:carry-on-274259:4882500")
+    implementation "curse.maven:carry-on-274259:7393892"
 }
 
 configurations {

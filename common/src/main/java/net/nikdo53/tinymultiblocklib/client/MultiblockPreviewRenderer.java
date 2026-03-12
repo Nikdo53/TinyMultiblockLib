@@ -89,7 +89,7 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
-           // if (!(PREVIEWED_BLOCKS.contains(block) || block instanceof IPreviewableMultiblock)) return;
+            if (!(PREVIEWED_BLOCKS.contains(block) || block instanceof IPreviewableMultiblock)) return;
 
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
             boolean hasNullState = false;
