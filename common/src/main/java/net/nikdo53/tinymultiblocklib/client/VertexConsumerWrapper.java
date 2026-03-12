@@ -89,16 +89,6 @@ public abstract class VertexConsumerWrapper implements VertexConsumer
     }
 
     @Override
-    public void putBulkData(PoseStack.Pose poseEntry, BakedQuad quad, float red, float green, float blue, int combinedLight, int combinedOverlay) {
-        parent.putBulkData(poseEntry, quad, red, green, blue, combinedLight, combinedOverlay);
-    }
-
-    @Override
-    public void putBulkData(PoseStack.Pose poseEntry, BakedQuad quad, float[] colorMuls, float red, float green, float blue, int[] combinedLights, int combinedOverlay, boolean mulColor) {
-        parent.putBulkData(poseEntry, quad, colorMuls, red, green, blue, combinedLights, combinedOverlay, mulColor);
-    }
-
-    @Override
     public VertexConsumer vertex(Matrix4f matrix, float x, float y, float z) {
         parent.vertex(matrix, x, y, z);
         return this;
