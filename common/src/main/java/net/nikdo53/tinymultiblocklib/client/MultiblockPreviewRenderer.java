@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -35,6 +34,7 @@ import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
 import net.nikdo53.tinymultiblocklib.components.BlockLike;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
+import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import tschipp.carryon.common.carry.CarryOnData;
@@ -43,33 +43,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class MultiblockPreviewRenderer {
-    private static final Set<Block> PREVIEWED_BLOCKS = new HashSet<>();
-
-    public static Set<Block> getPreviewedBlocks() {
-        return new HashSet<>(PREVIEWED_BLOCKS);
-    }
-
-    /**
-     * Should be used in some client init method
-     */
-    public static synchronized void registerPreviewedBlocks(Block... previewedBlocks) {
-        PREVIEWED_BLOCKS.addAll(List.of(previewedBlocks));
-    }
-
     public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, Camera camera, PoseStack poseStack, IPlatformHelper platformHelper) {
         MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
         LocalPlayer player = minecraft.player;
         assert player != null;
         ItemStack stack = player.getMainHandItem();
         Item item = stack.getItem();
+
         double camX = camera.getPosition().x;
         double camY = camera.getPosition().y;
         double camZ = camera.getPosition().z;
-
 
         if (platformHelper.isModLoaded("carryon") && CarryOnPreviewHelper.isValidMultiblock(player)) {
             item = CarryOnPreviewHelper.getMultiblockItem(player);
@@ -91,7 +77,7 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
-            if (!(PREVIEWED_BLOCKS.contains(block) || block instanceof IPreviewableMultiblock)) return;
+          //  if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock)) return;
 
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
             boolean hasNullState = false;
@@ -106,9 +92,9 @@ public class MultiblockPreviewRenderer {
             }
 
             @Nullable
-            BlockEntity entity = block instanceof EntityBlock entityBlock ? entityBlock.newBlockEntity(pos, state) : null;
-            if (entity != null) {
-                entity.setLevel(level);
+            BlockEntity blockEntity = block instanceof EntityBlock entityBlock ? entityBlock.newBlockEntity(pos, state) : null;
+            if (blockEntity != null) {
+                blockEntity.setLevel(level);
             }
 
             PreviewMode previewMode = getPreviewMode(level, pos, state, player, hasNullState);
@@ -124,14 +110,14 @@ public class MultiblockPreviewRenderer {
             poseStack.translate(pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ);
 
             FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
-            Set<BlockLike> blockLikeSet = gatherBlockLikes(fakeLevel, level, entity, pos, state, minecraft.player, stack);
-            fakeLevel.blockLikeSet =  blockLikeSet;
+            Set<BlockLike> blockLikeSet = gatherBlockLikes(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
 
-            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, entity, partialTick, poseStack);
+            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
+
+            fakeLevel.blockLikeSet = blockLikeSet;
 
             if (!event.isCancelledInternal()) {
                 previewMode = event.getPreviewMode();
-                state = event.getBlockState();
 
                 MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);
                 VertexConsumer vertexConsumer = tintedBuffer.getBuffer(RenderType.translucent());
@@ -146,7 +132,7 @@ public class MultiblockPreviewRenderer {
                     renderBlockEntity(blockLike, pos, poseStack, partialTick,  tintedBuffer, minecraft, fakeLevel);
                 }
 
-                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, entity, partialTick, poseStack);
+                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
 
             }
 
@@ -228,11 +214,11 @@ public class MultiblockPreviewRenderer {
 
     public static Set<BlockLike> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity mbEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         Set<BlockLike> blockLikeSet = new HashSet<>();
-        blockLikeSet.add(new BlockLike(pos, state));
 
         if (state.getBlock() instanceof IMultiBlock multiBlock) {
             blockLikeSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, mbEntity, pos, state), level, pos, state));
-        }
+        } else {
+            blockLikeSet.add(new BlockLike(pos, state));        }
 
         state.getBlock().setPlacedBy(fakeLevel, pos, state, placer, stack);
 

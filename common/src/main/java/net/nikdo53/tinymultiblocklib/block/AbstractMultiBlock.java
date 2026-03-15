@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
+import net.nikdo53.tinymultiblocklib.platform.Services;
+import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock {
@@ -112,6 +114,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
 
     protected void addToValidBEBlocks(){
         CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.add(this);
+        Services.PLATFORM.getRegistration().addSupportedBEBlock(CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get(), this);
     }
 
 }

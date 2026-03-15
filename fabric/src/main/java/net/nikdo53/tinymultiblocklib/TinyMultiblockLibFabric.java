@@ -31,8 +31,6 @@ public class TinyMultiblockLibFabric implements ModInitializer {
 
         if (FabricLauncherBase.getLauncher().isDevelopment())
             FabricEvents.register();
-
-        CommonRegistration.init();
     }
 
 }
