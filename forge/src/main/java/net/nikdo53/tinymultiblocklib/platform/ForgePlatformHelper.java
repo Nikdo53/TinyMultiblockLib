@@ -4,6 +4,7 @@ import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.platform.services.IUtils;
 
 public class ForgePlatformHelper implements IPlatformHelper {
@@ -34,5 +35,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public IUtils getUtils() {
         return NeoForgeUtils.INSTANCE;
+    }
+
+    @Override
+    public IRegistrationUtils getRegistration() {
+        return NeoForgeRegistration.INSTANCE;
     }
 }

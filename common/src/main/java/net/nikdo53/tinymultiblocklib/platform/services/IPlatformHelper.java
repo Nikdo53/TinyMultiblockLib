@@ -37,4 +37,6 @@ public interface IPlatformHelper {
     IEventPoster getEventPoster();
 
     IUtils getUtils();
+
+    IRegistrationUtils getRegistration();
 }
