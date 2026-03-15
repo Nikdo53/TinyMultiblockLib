@@ -51,4 +51,8 @@ dependencies {
     implementation("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
     implementation "curse.maven:carry-on-274259:5649344"
 
+    runtimeOnly "curse.maven:sodium-394468:6382651"
+    runtimeOnly"curse.maven:irisshaders-455508:6661598"
+
+
 }

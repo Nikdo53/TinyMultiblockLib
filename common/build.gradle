@@ -23,6 +23,9 @@ dependencies {
 
     implementation("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
     implementation "curse.maven:carry-on-274259:7393892"
+
+    implementation "curse.maven:irisshaders-455508:6661598"
+
 }
 
 configurations {

@@ -17,6 +17,8 @@ import static net.nikdo53.tinymultiblocklib.platform.NeoForgeRegistration.*;
 @Mod(Constants.MOD_ID)
 public class TinyMultiblockLibForge {
     public TinyMultiblockLibForge(IEventBus eventBus, Dist dist, ModContainer container) {
+        CommonClass.init();
+
         if(dist.isClient()) {
             container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         }
@@ -28,11 +30,8 @@ public class TinyMultiblockLibForge {
         BLOCK_ENTITIES.register(eventBus);
         ITEMS.register(eventBus);
         BLOCKS.register(eventBus);
-        CommonRegistration.init();
 
         eventBus.addListener(BlockEntityTypeAddBlocksEvent.class, TinyMultiblockLibForge::addBEBlocks);
-
-        CommonClass.init();
     }
 
     public static void addBEBlocks(BlockEntityTypeAddBlocksEvent event){

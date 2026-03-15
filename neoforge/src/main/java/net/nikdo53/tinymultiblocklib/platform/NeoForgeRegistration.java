@@ -13,6 +13,7 @@ import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -24,8 +25,9 @@ public class NeoForgeRegistration implements IRegistrationUtils {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
 
     @Override
-    public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BiFunction<BlockPos, BlockState, T> function, Block... blocks) {
-        return BLOCK_ENTITIES.register(name, () -> BlockEntityType.Builder.of(function::apply, blocks).build(null));
+    public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BiFunction<BlockPos, BlockState, T> function, Set<Block> blocks) {
+        Block[] array = blocks.toArray(new Block[0]);
+        return BLOCK_ENTITIES.register(name, () -> BlockEntityType.Builder.of(function::apply, array).build(null));
     }
 
     @Override
@@ -39,5 +41,10 @@ public class NeoForgeRegistration implements IRegistrationUtils {
     @Override
     public <T extends Block> Supplier<Item> registerBlockItem(String name, Supplier<T> block) {
         return ITEMS.register(name, () -> new TestBlockItem(block.get(), new Item.Properties()));
+    }
+
+    @Override
+    public void addSupportedBEBlock(BlockEntityType<?> blockEntityType, Block block) {
+        // this is only needed on fabric :/
     }
 }
