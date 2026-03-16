@@ -131,6 +131,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     }
 
     default void onPlaceHelper(BlockState state, Level level, BlockPos pos, BlockState oldState) {
+        verifyValidBlockEntity(level, pos);
         boolean isPlaced = IMultiBlockEntity.isPlaced(level, pos);
 
         if (isPlaced) shareBlockStates(level, pos, state);
@@ -396,6 +397,17 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         } else {
             throw new RuntimeException(this.getClass().getSimpleName() + " is not implemented on a Block");
         }
+    }
+
+    static void verifyValidBlockEntity(Level level, BlockPos pos){
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+
+        if (blockEntity != null){
+            if (!(blockEntity instanceof IMultiBlockEntity)){
+                throw new IllegalStateException(blockEntity.getClass().getSimpleName() + " does not implement IMultiBlockEntity!");
+            }
+        }
+
     }
 
 }

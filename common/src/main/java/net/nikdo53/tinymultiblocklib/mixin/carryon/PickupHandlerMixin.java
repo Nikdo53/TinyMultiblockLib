@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 @Mixin(PickupHandler.class)
 public class PickupHandlerMixin {
 
-    @Inject(method = "tryPickUpBlock", at = @At(value = "INVOKE", target = "Ltschipp/carryon/common/carry/CarryOnDataManager;getCarryData(Lnet/minecraft/world/entity/player/Player;)Ltschipp/carryon/common/carry/CarryOnData;", shift = At.Shift.AFTER), remap = false)
+    @Inject(method = "tryPickUpBlock", at = @At(value = "INVOKE", target = "Ltschipp/carryon/common/carry/CarryOnDataManager;getCarryData(Lnet/minecraft/world/entity/player/Player;)Ltschipp/carryon/common/carry/CarryOnData;", shift = At.Shift.AFTER), remap = false, require = 0)
     private static void tryPickUpBlock(ServerPlayer player, BlockPos pos, Level level, BiFunction<BlockState, BlockPos, Boolean> pickupCallback, CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) LocalRef<BlockPos> posLocalRef) {
         if (IMultiBlock.isMultiblock(level, pos)) {
             posLocalRef.set(IMultiBlock.getCenter(level, pos));
