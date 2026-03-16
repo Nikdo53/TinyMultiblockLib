@@ -20,5 +20,5 @@ public interface IRegistrationUtils {
 
     <T extends Block> Supplier<Item> registerBlockItem(String name, Supplier<T> block);
 
-    void addSupportedBEBlock(BlockEntityType<?> blockEntityType, Block block);
+    <T extends BlockEntity> void addSupportedBEBlock(Supplier<BlockEntityType<T>> blockEntityType, Block block);
 }

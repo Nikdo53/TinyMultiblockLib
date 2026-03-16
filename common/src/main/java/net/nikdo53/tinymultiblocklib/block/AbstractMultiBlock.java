@@ -114,7 +114,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
 
     protected void addToValidBEBlocks(){
         CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.add(this);
-        Services.PLATFORM.getRegistration().addSupportedBEBlock(CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get(), this);
+        Services.PLATFORM.getRegistration().addSupportedBEBlock(CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY, this);
     }
 
 }

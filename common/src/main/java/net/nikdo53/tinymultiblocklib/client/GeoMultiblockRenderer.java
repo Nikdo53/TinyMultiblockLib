@@ -25,11 +25,6 @@ public abstract class GeoMultiblockRenderer<T extends BlockEntity & GeoAnimatabl
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return getRenderType(animatable.getPreviewMode(), texture, super.getRenderType(animatable, texture, bufferSource, partialTick));
-    }
-
-    @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         if (!animatable.isCenter()) return;
 

@@ -75,7 +75,7 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
-          //  if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock)) return;
+            if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock)) return;
 
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
             boolean hasNullState = false;
@@ -112,9 +112,9 @@ public class MultiblockPreviewRenderer {
 
             IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
 
-            fakeLevel.blockLikeSet = blockLikeSet;
-
             if (!event.isCancelledInternal()) {
+                blockLikeSet = event.getBlocksForPreview();
+                fakeLevel.blockLikeSet = blockLikeSet;
                 previewMode = event.getPreviewMode();
 
                 MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);

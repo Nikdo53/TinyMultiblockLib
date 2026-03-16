@@ -44,7 +44,7 @@ public class NeoForgeRegistration implements IRegistrationUtils {
     }
 
     @Override
-    public void addSupportedBEBlock(BlockEntityType<?> blockEntityType, Block block) {
+    public  <T extends BlockEntity> void addSupportedBEBlock(Supplier<BlockEntityType<T>> blockEntityType, Block block){
         // this is only needed on fabric :/
     }
 }

@@ -20,6 +20,7 @@ import java.util.function.Function;
 /**
  * A helper interface for making previewable multiblock entities.
  * */
+@Deprecated
 public interface IMultiblockRenderHelper {
 
     /**
