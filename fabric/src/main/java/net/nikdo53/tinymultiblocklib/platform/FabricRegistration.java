@@ -40,7 +40,7 @@ public class FabricRegistration implements IRegistrationUtils {
     }
 
     @Override
-    public void addSupportedBEBlock(BlockEntityType<?> blockEntityType, Block block) {
-        blockEntityType.addSupportedBlock(block);
+    public  <T extends BlockEntity> void addSupportedBEBlock(Supplier<BlockEntityType<T>> blockEntityType, Block block){
+        blockEntityType.get().addSupportedBlock(block);
     }
 }

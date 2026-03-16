@@ -8,6 +8,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.nikdo53.tinymultiblocklib.client.TMBLClientConfig;
+import net.nikdo53.tinymultiblocklib.mixin.BlockEntityTypeAccessor;
 
 import static net.nikdo53.tinymultiblocklib.platform.NeoForgeRegistration.*;
 

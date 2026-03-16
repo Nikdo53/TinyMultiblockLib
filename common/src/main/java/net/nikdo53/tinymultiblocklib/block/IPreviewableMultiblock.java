@@ -18,6 +18,10 @@ public interface IPreviewableMultiblock extends IMultiBlock {
         return false;
     }
 
+    /**
+     * @deprecated Use the event
+     */
+    @Deprecated
     default boolean shouldPreview(Level level, Player player, BlockPos pos, PreviewMode previewMode) {
         return true;
     }

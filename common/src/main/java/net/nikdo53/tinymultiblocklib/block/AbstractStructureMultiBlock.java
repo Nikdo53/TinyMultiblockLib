@@ -45,7 +45,7 @@ public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
     @Override
     protected void addToValidBEBlocks() {
         CommonRegistration.BlockEntities.VALID_BLOCKS_STRUCTURE.add(this);
-        Services.PLATFORM.getRegistration().addSupportedBEBlock(CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY.get(), this);
+        Services.PLATFORM.getRegistration().addSupportedBEBlock(CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY, this);
 
     }
 }
