@@ -22,7 +22,7 @@ public abstract class ListHandlerMixin {
     /**
      * Their Blacklist tags just don't work on certain versions, this hardcodes it to get at least 1 working
      * */
-    @Inject(method = "initConfigLists", at = @At(value = "TAIL"), remap = false)
+    @Inject(method = "initConfigLists", at = @At(value = "TAIL"), remap = false, require = 0)
     private static void initConfigLists(CallbackInfo ci) {
         TagKey<Block> tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), new ResourceLocation("carryon:block_blacklist"));
         FORBIDDEN_TILES_TAGS.add(tagKey);

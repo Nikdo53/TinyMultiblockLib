@@ -11,9 +11,9 @@ import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 public interface IPreviewableMultiblock extends IMultiBlock {
     /**
-     * May save performance and fix translucency glitches if your preview only uses a block entity renderer.
-     * Usually it's easier to override {@link AbstractMultiBlock#getMultiblockRenderShape(BlockState, boolean)} instead
-     * */
+     * @deprecated Use the event
+     */
+    @Deprecated
     default boolean skipJsonRendering() {
         return false;
     }
@@ -37,10 +37,9 @@ public interface IPreviewableMultiblock extends IMultiBlock {
     };
 
     /**
-     * Allows changing the blocks block entity before it gets rendered as a preview.
-     * This block entity matches the one your {@link net.minecraft.world.level.block.EntityBlock#newBlockEntity(BlockPos, BlockState)} returns,
-     * so feel free to cast it.
-     * */
+     * @deprecated Use the event
+     */
+    @Deprecated
     default BlockEntity getBlockEntityForPreviews(BlockEntity entity, Level level, BlockPos blockPos) {
         return entity;
     }

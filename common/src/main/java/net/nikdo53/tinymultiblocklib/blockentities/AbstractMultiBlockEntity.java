@@ -20,7 +20,6 @@ import java.util.List;
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     private BlockPos offset;
     private boolean isPlaced;
-    private PreviewMode previewMode = PreviewMode.PLACED;
     private List<BlockPos> BLOCK_SHAPE_CACHE = new ArrayList<>();
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -90,16 +89,6 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
 
     @Override
     public void invalidateCaches() {
-        BLOCK_SHAPE_CACHE = new ArrayList<>();
-    }
-
-    @Override
-    public PreviewMode getPreviewMode() {
-        return previewMode;
-    }
-
-    @Override
-    public void setPreviewMode(PreviewMode mode) {
-        this.previewMode = mode;
+        BLOCK_SHAPE_CACHE.clear();
     }
 }
