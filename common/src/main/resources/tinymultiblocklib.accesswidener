@@ -6,3 +6,4 @@ accessible class net/minecraft/client/renderer/RenderStateShard$EmptyTextureStat
 accessible class net/minecraft/client/renderer/RenderStateShard$TextureStateShard
 accessible method net/minecraft/client/renderer/RenderStateShard$TextureStateShard cutoutTexture ()Ljava/util/Optional;
 accessible method net/minecraft/world/level/block/entity/BlockEntityType$Builder <init> (Lnet/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier;Ljava/util/Set;)V
+accessible field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;

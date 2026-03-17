@@ -1,6 +1,5 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,6 +40,6 @@ public class FabricRegistration implements IRegistrationUtils {
 
     @Override
     public  <T extends BlockEntity> void addSupportedBEBlock(Supplier<BlockEntityType<T>> blockEntityType, Block block){
-        blockEntityType.get().addSupportedBlock(block);
+        blockEntityType.get().validBlocks.add(block);
     }
 }

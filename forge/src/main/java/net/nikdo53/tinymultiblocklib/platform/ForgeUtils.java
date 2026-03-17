@@ -7,8 +7,8 @@ import net.nikdo53.tinymultiblocklib.platform.services.IUtils;
 
 import java.util.Optional;
 
-public class NeoForgeUtils implements IUtils {
-    public static final NeoForgeUtils INSTANCE = new NeoForgeUtils();
+public class ForgeUtils implements IUtils {
+    public static final ForgeUtils INSTANCE = new ForgeUtils();
 
     @Override
     public Optional<ResourceLocation> locFromRenderType(RenderType renderType) {

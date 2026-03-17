@@ -15,8 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public class NeoForgeEventPoster implements IEventPoster {
-    public static final NeoForgeEventPoster INSTANCE = new NeoForgeEventPoster();
+public class ForgeEventPoster implements IEventPoster {
+    public static final ForgeEventPoster INSTANCE = new ForgeEventPoster();
 
     @Override
     public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {

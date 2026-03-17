@@ -1,7 +1,6 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,8 +17,8 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class NeoForgeRegistration implements IRegistrationUtils {
-    public static final NeoForgeRegistration INSTANCE = new NeoForgeRegistration();
+public class ForgeRegistration implements IRegistrationUtils {
+    public static final ForgeRegistration INSTANCE = new ForgeRegistration();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Constants.MOD_ID);

@@ -10,7 +10,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.nikdo53.tinymultiblocklib.client.TMBLClientConfig;
 import net.nikdo53.tinymultiblocklib.mixin.BlockEntityTypeAccessor;
 
-import static net.nikdo53.tinymultiblocklib.platform.NeoForgeRegistration.*;
+import static net.nikdo53.tinymultiblocklib.platform.ForgeRegistration.*;
 
 @Mod(Constants.MOD_ID)
 public class TinyMultiblockLibForge {
