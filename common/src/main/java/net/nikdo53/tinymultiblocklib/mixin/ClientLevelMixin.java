@@ -43,7 +43,7 @@ public class ClientLevelMixin {
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void afterLoad(ClientPacketListener connection, ClientLevel.ClientLevelData clientLevelData, ResourceKey dimension, Holder dimensionType, int viewDistance, int serverSimulationDistance, Supplier profiler, LevelRenderer levelRenderer, boolean isDebug, long biomeZoomSeed, CallbackInfo ci){
+    private void afterLoad(ClientPacketListener connection, ClientLevel.ClientLevelData levelData, ResourceKey dimension, Holder dimensionTypeRegistration, int viewDistance, int serverSimulationDistance, LevelRenderer levelRenderer, boolean isDebug, long biomeZoomSeed, int seaLevel, CallbackInfo ci){
         if (!(tinyMultiblockLib$self() instanceof FakeClientLevel)) {
             FakeClientLevel.INSTANCE = new FakeClientLevel(tinyMultiblockLib$self());
         }

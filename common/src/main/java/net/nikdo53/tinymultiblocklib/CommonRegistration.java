@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib;
 
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.nikdo53.tinymultiblocklib.blockentities.SimpleMultiBlockEntity;
@@ -19,19 +20,19 @@ public interface CommonRegistration {
     IRegistrationUtils REGISTRATION = Services.PLATFORM.getRegistration();
 
     static void init(){
-        Blocks.init();
+        BlockReg.init();
         BlockEntities.init();
     }
 
-    interface Blocks{
+    interface BlockReg {
         Supplier<Block> TEST_BLOCK =
-                REGISTRATION.registerBlockWithItem("test_block", () -> new TestBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
+                REGISTRATION.registerBlockWithItem("test_block", TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
 
          Supplier<Block> DIAMOND_STRUCTURE_BLOCK =
-                REGISTRATION.registerBlockWithItem("diamond_structure", () -> new DiamondStructureBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
+                REGISTRATION.registerBlockWithItem("diamond_structure", DiamondStructureBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK));
 
          Supplier<Block> SIMPLE_MULTIBLOCK =
-                REGISTRATION.registerBlockWithItem("simple_multiblock", () -> new SimpleMultiBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
+                REGISTRATION.registerBlockWithItem("simple_multiblock", SimpleMultiBlock::new,() -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
 
         static void init(){
 

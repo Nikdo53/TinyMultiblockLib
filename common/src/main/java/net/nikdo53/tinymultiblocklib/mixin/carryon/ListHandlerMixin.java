@@ -1,7 +1,7 @@
 package net.nikdo53.tinymultiblocklib.mixin.carryon;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +24,7 @@ public abstract class ListHandlerMixin {
      * */
     @Inject(method = "initConfigLists", at = @At(value = "TAIL"), remap = false, require = 0)
     private static void initConfigLists(CallbackInfo ci) {
-        TagKey<Block> tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.parse("carryon:block_blacklist"));
+        TagKey<Block> tagKey = TagKey.create(BuiltInRegistries.BLOCK.key(), Identifier.parse("carryon:block_blacklist"));
         FORBIDDEN_TILES_TAGS.add(tagKey);
     }
 

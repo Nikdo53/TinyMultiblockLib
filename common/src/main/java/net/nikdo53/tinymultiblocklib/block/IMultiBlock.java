@@ -53,7 +53,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
      * <p>
      * Only used for multiblocks that can be rotated, otherwise returns null
      * */
-    default @Nullable DirectionProperty getDirectionProperty(){
+    default @Nullable EnumProperty<Direction> getDirectionProperty(){
         return null; // null if block doesn't have directions
     }
 
@@ -206,7 +206,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
                 canReplaceBlock(level, blockPos, level.getBlockState(blockPos))
                         && extraSurviveRequirements(level, blockPos, state, blockPos.subtract(center))
                         && (entityUnobstructed(level, blockPos, state, player) || ignoreEntities)
-                        && blockPos.getY() < level.getMaxBuildHeight() && blockPos.getY() > level.getMinBuildHeight());
+                        && blockPos.getY() < level.getMaxY() && blockPos.getY() > level.getMinY());
     }
 
     /**

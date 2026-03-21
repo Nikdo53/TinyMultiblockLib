@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -13,9 +14,17 @@ import net.nikdo53.tinymultiblocklib.platform.NeoForgePlatformHelper;
 public class TMBLClientEvents {
 
     @SubscribeEvent
-    public static void renderLevelStage(RenderLevelStageEvent event){
-        if (event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) && !TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
-            MultiblockPreviewRenderer.renderMultiblockPreviews(event.getPartialTick().getGameTimeDeltaPartialTick(true), Minecraft.getInstance(), Minecraft.getInstance().level, event.getCamera(), event.getPoseStack(), new NeoForgePlatformHelper());
+    public static void renderLevelStage(RenderLevelStageEvent.AfterTranslucentBlocks event){
+        if (!TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
+            MultiblockPreviewRenderer.renderMultiblockPreviews(
+                    DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
+                    Minecraft.getInstance(),
+                    Minecraft.getInstance().level,
+                    event.getLevelRenderState().cameraRenderState,
+                    event.getPoseStack(),
+                    event.getLevelRenderer(),
+                    event.getLevelRenderState()
+            );
         }
     }
 

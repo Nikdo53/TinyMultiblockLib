@@ -8,6 +8,8 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.nikdo53.tinymultiblocklib.components.BlockLike;
 
 public class AbstractStructureMultiBlockEntity extends AbstractMultiBlockEntity implements IStructureMultiBlockEntity{
@@ -28,14 +30,18 @@ public class AbstractStructureMultiBlockEntity extends AbstractMultiBlockEntity 
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        if (oldBlockState != null) tag.put("blockState", NbtUtils.writeBlockState(oldBlockState));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        if (oldBlockState != null)
+            output.store("blockState", BlockState.CODEC, oldBlockState);
+
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        oldBlockState = NbtUtils.readBlockState(BlockLike.getBlockGetter(getLevel()), tag.getCompound("blockState"));
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        oldBlockState = input.read("blockState", BlockState.CODEC).orElseGet(() -> this.oldBlockState);
+
     }
+
 }

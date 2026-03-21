@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,17 +24,13 @@ public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
         }
     }
 
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    //gets called by the vanilla event for now
+    public static void onRemove(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         if (!(level.getBlockEntity(pos) instanceof IStructureMultiBlockEntity structureMBEntity)) {
-            super.onRemove(state, level, pos, newState, movedByPiston);
-
             return;
         }
 
         BlockState oldState = structureMBEntity.getOldBlockState();
-        super.onRemove(state, level, pos, newState, movedByPiston);
-
         level.setBlockAndUpdate(pos, oldState);
     }
 

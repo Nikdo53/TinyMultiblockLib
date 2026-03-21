@@ -6,12 +6,16 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.nikdo53.tinymultiblocklib.Constants;
 
 import javax.annotation.Nullable;
 
@@ -23,7 +27,13 @@ public class BlockLike {
     public BlockLike(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntityTag) {
         this.pos = pos;
         this.state = state;
-        this.blockEntityTag = blockEntityTag == null ? null : blockEntityTag.saveWithId(blockEntityTag.getLevel().registryAccess());
+        if (blockEntityTag == null) {
+            this.blockEntityTag = null;
+        } else {
+            TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(Constants.LOGGER), blockEntityTag.getLevel().registryAccess());
+            blockEntityTag.saveWithId(output);
+            this.blockEntityTag = output.buildResult();
+        }
     }
 
     public BlockLike(BlockPos pos, BlockState state) {
@@ -46,6 +56,6 @@ public class BlockLike {
     }
 
     public static HolderGetter<Block> getBlockGetter(@Nullable LevelReader level) {
-       return level != null ? level.holderLookup(Registries.BLOCK) : BuiltInRegistries.BLOCK.asLookup();
+       return level != null ? level.holderLookup(Registries.BLOCK) : BuiltInRegistries.BLOCK;
     }
 }

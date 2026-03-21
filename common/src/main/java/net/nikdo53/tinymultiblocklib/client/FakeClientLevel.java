@@ -22,7 +22,7 @@ public class FakeClientLevel extends ClientLevel {
     public Set<BlockLike> blockLikeSet = new HashSet<>();
 
     public FakeClientLevel(ClientLevel level) {
-        super(((ClientLevelAccessorMixin) level).getConnection(), level.getLevelData(), level.dimension(), level.dimensionTypeRegistration(), 1, 1, level.getProfilerSupplier(), Minecraft.getInstance().levelRenderer, false, 10);
+        super(((ClientLevelAccessorMixin) level).getConnection(), level.getLevelData(), level.dimension(), level.dimensionTypeRegistration(), 1, 1, Minecraft.getInstance().levelRenderer, false, 67, 67);
         this.originalLevel = level;
 
         setClientSide(false);

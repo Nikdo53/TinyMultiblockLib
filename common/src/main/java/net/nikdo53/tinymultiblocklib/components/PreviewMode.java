@@ -1,6 +1,9 @@
 package net.nikdo53.tinymultiblocklib.components;
 
-import net.minecraft.util.FastColor;
+
+import net.minecraft.util.ARGB;
+
+import java.awt.*;
 
 public enum PreviewMode {
     /**
@@ -30,17 +33,17 @@ public enum PreviewMode {
     }
 
     public int applyColors(int originalColor){
-        float r = FastColor.ARGB32.red(originalColor);
-        float g = FastColor.ARGB32.green(originalColor);
-        float b = FastColor.ARGB32.blue(originalColor);
-        float a = FastColor.ARGB32.alpha(originalColor);
+        float r = ARGB.red(originalColor);
+        float g = ARGB.green(originalColor);
+        float b = ARGB.blue(originalColor);
+        float a = ARGB.alpha(originalColor);
 
         r = r * red;
         g = g * green;
         b = b * blue;
         a = a * alpha;
 
-        return FastColor.ARGB32.color((int) a, (int) r, (int) g, (int) b);
+        return ARGB.color((int) a, (int) r, (int) g, (int) b);
     }
 
     public float[] applyColorsFloat(float r, float g, float b, float a){

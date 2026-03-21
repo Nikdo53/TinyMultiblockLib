@@ -7,9 +7,15 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,27 +34,25 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put("offset", NbtUtils.writeBlockPos(this.offset));
-        tag.putBoolean("placed", this.isPlaced);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.store("offset", BlockPos.CODEC, this.offset);
+        output.putBoolean("placed", this.isPlaced);
     }
 
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(Constants.LOGGER), registries);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.offset = NbtUtils.readBlockPos(tag, "offset").orElseGet(() -> this.offset);
-        this.isPlaced = tag.getBoolean("placed");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.offset = input.read("offset", BlockPos.CODEC).orElseGet(() -> this.offset);
+        this.isPlaced = input.getBooleanOr("placed", this.isPlaced());
 
-        if (tag.contains("center")) // For maintaining compatibility with TMBL < 2.1
-            setCenter(NbtUtils.readBlockPos(tag, "center").orElseGet(this::getBlockPos));
     }
 
     @Override

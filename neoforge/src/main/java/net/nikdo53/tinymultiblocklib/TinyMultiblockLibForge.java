@@ -25,7 +25,7 @@ public class TinyMultiblockLibForge {
 
         container.registerConfig(ModConfig.Type.CLIENT, TMBLClientConfig.CLIENT_CONFIG);
 
-        if (!FMLLoader.isProduction()) ForgeEvents.register(eventBus);
+        if (!FMLLoader.getCurrent().isProduction()) ForgeEvents.register(eventBus);
 
         BLOCK_ENTITIES.register(eventBus);
         ITEMS.register(eventBus);

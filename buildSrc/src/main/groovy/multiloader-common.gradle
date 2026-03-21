@@ -42,27 +42,25 @@ repositories {
         name = 'BlameJared'
         url = 'https://maven.blamejared.com'
     }
-    repositories {
-        exclusiveContent {
-            forRepository {
-                maven {
-                    url = "https://cursemaven.com"
-                }
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = "https://cursemaven.com"
             }
-            filter {
-                includeGroup "curse.maven"
-            }
+        }
+        filter {
+            includeGroup "curse.maven"
         }
     }
 
-    repositories {
-        maven {
-            name = 'GeckoLib'
-            url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-            content {
-                includeGroup("software.bernie.geckolib")
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'GeckoLib'
+                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
             }
         }
+        filter { includeGroupAndSubgroups('software.bernie.geckolib') }
     }
 }
 
@@ -70,6 +68,7 @@ repositories {
 // Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
 ['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
     configurations."$variant".outgoing {
+        capability("$group:${project.name}:$version")
         capability("$group:${base.archivesName.get()}:$version")
         capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
         capability("$group:$mod_id:$version")
@@ -122,9 +121,18 @@ processResources {
             'java_version'                 : java_version
     ]
 
-    filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {
+    var jsonExpandProps = expandProps.collectEntries {
+        key, value -> [(key): value instanceof String ? value.replace("\n", "\\\\n") : value]
+    }
+
+    filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
         expand expandProps
     }
+
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) {
+        expand jsonExpandProps
+    }
+
     inputs.properties(expandProps)
 }
 

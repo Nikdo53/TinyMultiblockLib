@@ -2,12 +2,10 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -16,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
+import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
@@ -65,7 +64,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * <p>
      * If your block is a JSON model, return {@link RenderShape#MODEL}
      * <p>
-     * If your block has a BlockEntity renderer, return {@link RenderShape#ENTITYBLOCK_ANIMATED} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
+     * If your block has a BlockEntity renderer, return {@link RenderShape#INVISIBLE} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
      * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction) The method for setting a different BlockState to each block
      * */
     public abstract RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter);
@@ -85,8 +84,12 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        return updateShapeHelper(state, direction, neighborState, level, pos, neighborPos);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        if (!(level instanceof  LevelAccessor levelAccessor)){
+            Constants.LOGGER.error("level goofed up oh no");
+            return state;
+        }
+        return updateShapeHelper(state, direction, neighborState, levelAccessor, pos, neighborPos);
     }
 
     @Override

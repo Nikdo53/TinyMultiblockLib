@@ -1,9 +1,10 @@
 package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.nikdo53.tinymultiblocklib.components.PropertyWrapper;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
@@ -33,7 +34,7 @@ public interface IMBStateSharer {
      * Registers BlockStates to be automatically synced across the whole multiblock
      * */
     default void createSharedBlockStates(SharedStatePropertiesBuilder builder){
-        DirectionProperty directionProperty = getMultiBlock().getDirectionProperty();
+        EnumProperty<Direction> directionProperty = getMultiBlock().getDirectionProperty();
         if (directionProperty != null){
             builder.add(directionProperty);
         }

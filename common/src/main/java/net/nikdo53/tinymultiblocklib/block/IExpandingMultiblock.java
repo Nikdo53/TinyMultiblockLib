@@ -50,7 +50,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
                 // fakes the update shape even though the neighbors haven't updated
                 BlockPos center = IMultiBlock.getCenter(level, pos);
                 BlockPos relative = center.relative(Direction.NORTH);
-                level.getBlockState(center).updateShape(Direction.NORTH, Blocks.AIR.defaultBlockState() ,level, center, relative);
+                level.getBlockState(center).updateShape(level1, level1, pos, Direction.NORTH, relative, level.getBlockState(relative), level1.getRandom());
             } else {
                if (tryChangeShape(state, level1, pos, state, true))
                    return state;

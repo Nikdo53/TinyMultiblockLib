@@ -1,8 +1,8 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.nikdo53.tinymultiblocklib.platform.services.IUtils;
 
 import java.util.Optional;
@@ -11,11 +11,11 @@ public class NeoForgeUtils implements IUtils {
     public static final NeoForgeUtils INSTANCE = new NeoForgeUtils();
 
     @Override
-    public Optional<ResourceLocation> locFromRenderType(RenderType renderType) {
-        if (renderType instanceof RenderType.CompositeRenderType compositeState)
-            if (compositeState.state().textureState instanceof RenderStateShard.TextureStateShard textureStateShard){
-                return textureStateShard.cutoutTexture();
-            }
+    public Optional<Identifier> locFromRenderType(RenderType renderType) {
+        RenderSetup.TextureBinding sampler0 = renderType.state.textures.get("Sampler0");
+        if (sampler0 != null) {
+            return Optional.of(sampler0.location());
+        }
         return Optional.empty();
     }
 }
