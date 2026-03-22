@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "${mod_id}",
+    "id": "tinymultiblocklib",
     "version": "${version}",
     "name": "${mod_name}",
     "description": "${description}",
@@ -12,19 +12,21 @@
         "sources": "https://github.com/FabricMC/fabric-example-mod"
     },
     "license": "${license}",
-    "icon": "${mod_id}.png",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "net.nikdo53.tinymultiblocklib.TinyMultiblockLibFabric"
+        ],
+        "client": [
+            "net.nikdo53.tinymultiblocklib.TinyMultiBlockLibClient"
         ]
     },
     "mixins": [
-        "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
+        "tinymultiblocklib.fabric.mixins.json",
+        "tinymultiblocklib.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=${fabric_loader_version}",
+        "fabricloader": ">=0.14",
         "fabric-api": "*",
         "minecraft": "~${minecraft_version}",
         "java": ">=${java_version}"

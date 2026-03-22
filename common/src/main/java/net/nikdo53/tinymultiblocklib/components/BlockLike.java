@@ -16,8 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.nikdo53.tinymultiblocklib.Constants;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class BlockLike {
     public BlockPos pos;

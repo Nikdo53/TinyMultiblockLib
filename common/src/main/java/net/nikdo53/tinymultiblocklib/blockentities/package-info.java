@@ -1,4 +1,4 @@
-@ParametersAreNonnullByDefault
+@NullMarked
 package net.nikdo53.tinymultiblocklib.blockentities;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
