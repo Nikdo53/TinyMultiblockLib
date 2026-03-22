@@ -8,8 +8,8 @@
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "sources": "https://github.com/Nikdo53/TinyMultiblockLib",
+        "issues": "https://github.com/Nikdo53/TinyMultiblockLib/issues"
     },
     "license": "${license}",
     "environment": "*",
