@@ -47,6 +47,7 @@ import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
 import net.nikdo53.tinymultiblocklib.components.BlockLike;
 import net.nikdo53.tinymultiblocklib.components.NotRandomSource;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
+import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.NotNull;
@@ -103,7 +104,7 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
-          //  if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock)) return;
+            if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock)) return;
 
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
             boolean hasNullState = false;
