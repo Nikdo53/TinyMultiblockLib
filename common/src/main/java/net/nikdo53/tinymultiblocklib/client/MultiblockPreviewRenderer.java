@@ -205,7 +205,7 @@ public class MultiblockPreviewRenderer {
                 BlockPos offset = blockLike.pos.subtract(originalPos).immutable();
                 poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
-                entityRender.extractRenderState(entity, renderState, partialTick, camera.pos, new ModelFeatureRenderer.CrumblingOverlay(0, poseStack.last()));
+                entityRender.extractRenderState(entity, renderState, partialTick, camera.pos, null);
                 entityRender.submit(renderState, poseStack, NODE_STORAGE, camera);
 
                 poseStack.popPose();

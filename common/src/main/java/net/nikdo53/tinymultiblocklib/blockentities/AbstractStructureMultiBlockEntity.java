@@ -30,6 +30,12 @@ public class AbstractStructureMultiBlockEntity extends AbstractMultiBlockEntity 
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        level.setBlockAndUpdate(pos, oldBlockState);
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         if (oldBlockState != null)

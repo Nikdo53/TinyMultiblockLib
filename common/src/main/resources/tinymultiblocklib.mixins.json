@@ -8,7 +8,6 @@
     "ClientLevelAccessorMixin",
     "ItemAccessor",
     "LevelAccessorMixin",
-    "ServerLevelMixin",
     "ShutUpWarnsMixin",
     "carryon.ListHandlerMixin",
     "carryon.PickupHandlerMixin"
@@ -16,7 +15,6 @@
   "client": [
     "BufferSourceAccessor",
     "ClientLevelMixin",
-    ,
     "RenderTypeAccessor"
   ],
   "server": [

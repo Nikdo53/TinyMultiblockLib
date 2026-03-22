@@ -33,14 +33,4 @@ public class CommonEvents {
                 BlockPos.ZERO,
                 Corner.FORWARD_LOWER_LEFT);
     }
-
-    public static void onVanillaEvent(ServerLevel level, Holder<GameEvent> gameEventHolder, Vec3 pos, GameEvent.Context context){
-        if (gameEventHolder.is(GameEvent.BLOCK_DESTROY)){
-            BlockState state = context.affectedState();
-            if (state != null && state.getBlock() instanceof AbstractStructureMultiBlock) {
-                AbstractStructureMultiBlock.onRemove(state, level, BlockPos.containing(pos.x(), pos.y(), pos.z()), false);
-            }
-        }
-
-    }
 }
