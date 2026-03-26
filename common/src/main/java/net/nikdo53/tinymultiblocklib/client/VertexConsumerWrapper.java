@@ -1,9 +1,8 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import org.joml.*;
 
 public abstract class VertexConsumerWrapper implements VertexConsumer{
@@ -28,14 +27,25 @@ public abstract class VertexConsumerWrapper implements VertexConsumer{
     }
 
     @Override
-    public VertexConsumer addVertex(PoseStack.Pose pose, Vector3f pos) {
-        parent.addVertex(pose, pos);
+    public VertexConsumer setNormal(PoseStack.Pose pose, Vector3fc normal) {
+        parent.setNormal(pose, normal);
         return this;
     }
 
     @Override
-    public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, float alpha, int packedLight, int packedOverlay) {
-        parent.putBulkData(pose, quad, red, green, blue, alpha, packedLight, packedOverlay);
+    public VertexConsumer addVertex(PoseStack.Pose pose, Vector3fc position) {
+        parent.addVertex(pose, position);
+        return this;
+    }
+
+    @Override
+    public void putBakedQuad(PoseStack.Pose pose, net.minecraft.client.resources.model.geometry.BakedQuad quad, QuadInstance instance) {
+        parent.putBakedQuad(pose, quad, instance);
+    }
+
+    @Override
+    public void putBlockBakedQuad(float x, float y, float z, net.minecraft.client.resources.model.geometry.BakedQuad quad, QuadInstance instance) {
+        parent.putBlockBakedQuad(x, y, z, quad, instance);
     }
 
     @Override
@@ -63,6 +73,7 @@ public abstract class VertexConsumerWrapper implements VertexConsumer{
         parent.setColor(red, green, blue, alpha);
         return this;
     }
+
 
     @Override
     public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight, float normalX, float normalY, float normalZ) {
@@ -106,11 +117,6 @@ public abstract class VertexConsumerWrapper implements VertexConsumer{
     }
 
     @Override
-    public void putBulkData(PoseStack.Pose p_85988_, BakedQuad p_85989_, float[] p_331397_, float p_85990_, float p_85991_, float p_85992_, float p_331416_, int[] p_331378_, int p_85993_) {
-        this.parent.putBulkData(p_85988_, p_85989_, p_331397_, p_85990_, p_85991_, p_85992_, p_331416_, p_331378_, p_85993_);
-    }
-
-    @Override
     public VertexConsumer addVertex(Vector3fc p_458106_) {
          this.parent.addVertex(p_458106_);
         return this;
@@ -126,13 +132,6 @@ public abstract class VertexConsumerWrapper implements VertexConsumer{
     @Override
     public VertexConsumer addVertexWith2DPose(Matrix3x2fc p_457647_, float p_415815_, float p_416074_) {
          this.parent.addVertexWith2DPose(p_457647_, p_415815_, p_416074_);
-        return this;
-
-    }
-
-    @Override
-    public VertexConsumer setNormal(PoseStack.Pose pose, Vector3f normalVector) {
-         this.parent.setNormal(pose, normalVector);
         return this;
 
     }

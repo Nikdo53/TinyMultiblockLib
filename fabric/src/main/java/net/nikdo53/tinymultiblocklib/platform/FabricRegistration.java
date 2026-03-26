@@ -45,7 +45,7 @@ public class FabricRegistration implements IRegistrationUtils {
 
     @Override
     public  <T extends BlockEntity> void addSupportedBEBlock(Supplier<BlockEntityType<T>> blockEntityType, Block block){
-        blockEntityType.get().addSupportedBlock(block);
+        blockEntityType.get().addValidBlock(block);
     }
 
     private static ResourceKey<Block> blockId(String name) {

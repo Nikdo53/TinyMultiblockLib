@@ -3,8 +3,6 @@ package net.nikdo53.tinymultiblocklib.components;
 
 import net.minecraft.util.ARGB;
 
-import java.awt.*;
-
 public enum PreviewMode {
     /**
      * PLACED - Regular multiblock placed in the world
@@ -54,6 +52,10 @@ public enum PreviewMode {
         rgba[3] = a * alpha;
 
         return  rgba;
+    }
+
+    public int packedARGB(){
+       return ARGB.color((int) (alpha * 255), (int) (red * 255), (int) (green * 255), (int) (blue * 255));
     }
 }
 

@@ -1,4 +1,4 @@
-accessWidener v1 named
+accessWidener v1 official
 
 accessible field net/minecraft/client/renderer/LevelRenderer submitNodeStorage Lnet/minecraft/client/renderer/SubmitNodeStorage;
 accessible field net/minecraft/client/renderer/rendertype/RenderType state Lnet/minecraft/client/renderer/rendertype/RenderSetup;

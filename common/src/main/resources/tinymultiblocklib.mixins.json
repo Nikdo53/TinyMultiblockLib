@@ -13,8 +13,10 @@
     "carryon.PickupHandlerMixin"
   ],
   "client": [
+    "BlockModelRenderStateAccessor",
     "BufferSourceAccessor",
     "ClientLevelMixin",
+    "MinecraftAccessor",
     "RenderTypeAccessor"
   ],
   "server": [

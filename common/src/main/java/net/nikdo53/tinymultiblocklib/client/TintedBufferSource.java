@@ -1,19 +1,19 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.resources.Identifier;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.mixin.BufferSourceAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.RenderTypeAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4fc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,13 +52,9 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
         return new VertexConsumerWrapper(original) {
 
             @Override
-            public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int overlay) {
-                super.putBulkData(pose, quad, brightness, red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha, lightmap, overlay);
-            }
-
-            @Override
-            public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, float alpha, int packedLight, int packedOverlay) {
-                super.putBulkData(pose, quad, red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha, packedLight, packedOverlay);
+            public void putBakedQuad(PoseStack.Pose pose, BakedQuad quad, QuadInstance instance) {
+                instance.multiplyColor(previewMode.packedARGB());
+                super.putBakedQuad(pose, quad, instance);
             }
 
             @Override
@@ -89,15 +85,15 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
     private static @NotNull List<Pair<String, Function<Optional<Identifier>, RenderType>>> getValidTypes() {
         List<Pair<String, Function<Optional<Identifier>, RenderType>>> list = new ArrayList<>();
         list.add(new Pair<>("entity_solid",
-                loc -> renderTypeOrNull(loc, RenderTypes::itemEntityTranslucentCull)));
+                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
         list.add(new Pair<>("entity_cutout",
-                loc -> renderTypeOrNull(loc, RenderTypes::itemEntityTranslucentCull)));
+                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
         list.add(new Pair<>("entity_cutout_no_cull",
                 loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
         list.add(new Pair<>("entity_cutout_no_cull_z_offset",
                 loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
         list.add(new Pair<>("entity_smooth_cutout",
-                loc -> renderTypeOrNull(loc, RenderTypes::itemEntityTranslucentCull)));
+                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
         list.add(new Pair<>("solid",
                 loc -> RenderTypes.translucentMovingBlock()));
         list.add(new Pair<>("cutout_mipped",
