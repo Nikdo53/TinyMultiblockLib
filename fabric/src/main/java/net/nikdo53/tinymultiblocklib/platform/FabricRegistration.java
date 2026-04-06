@@ -1,6 +1,5 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,7 +21,7 @@ public class FabricRegistration implements IRegistrationUtils {
 
     @Override
     public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BiFunction<BlockPos, BlockState, T> function, Set<Block> blocks) {
-        BlockEntityType<T> registered = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, name, new BlockEntityType.Builder<>(function::apply, blocks).build(null));
+        BlockEntityType<T> registered = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, name, BlockEntityType.Builder.of(function::apply, blocks.toArray(new Block[0])).build(null));
         return () -> registered;
     }
 
