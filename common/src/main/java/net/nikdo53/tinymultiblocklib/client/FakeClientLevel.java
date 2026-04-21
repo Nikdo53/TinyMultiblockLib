@@ -12,10 +12,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.components.BlockLike;
@@ -138,7 +138,21 @@ public class FakeClientLevel extends ClientLevel {
     }
 
     @Override
-    public void addEntity(Entity entity) {
+    public void addPlayer(int playerId, AbstractClientPlayer playerEntity) {
+
+    }
+
+    @Override
+    protected void addMapData(Map<String, MapItemSavedData> map) {
+    }
+
+    @Override
+    public void addBlockEntityTicker(TickingBlockEntity ticker) {
+    }
+
+    @Override
+    public boolean addFreshEntity(Entity entity) {
+        return false;
     }
 
     @Override
@@ -147,14 +161,6 @@ public class FakeClientLevel extends ClientLevel {
 
     @Override
     public void animateTick(int posX, int posY, int posZ) {
-    }
-
-    @Override
-    public void overrideMapData(MapId mapId, MapItemSavedData mapData) {
-    }
-
-    @Override
-    public void setMapData(MapId mapId, MapItemSavedData mapData) {
     }
 
     @Override
@@ -190,12 +196,10 @@ public class FakeClientLevel extends ClientLevel {
     }
 
     @Override
-    public void gameEvent(Holder<GameEvent> gameEvent, Vec3 pos, GameEvent.Context context) {
+    public void gameEvent(GameEvent event, Vec3 position, GameEvent.Context context) {
+
     }
 
-    @Override
-    protected void addMapData(Map<MapId, MapItemSavedData> map) {
-    }
 
     @Override
     public void setServerSimulationDistance(int serverSimulationDistance) {
