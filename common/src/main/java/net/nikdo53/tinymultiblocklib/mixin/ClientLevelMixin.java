@@ -1,5 +1,7 @@
 package net.nikdo53.tinymultiblocklib.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -48,7 +50,6 @@ public class ClientLevelMixin {
             FakeClientLevel.INSTANCE = new FakeClientLevel(tinyMultiblockLib$self());
         }
     }
-
 
     @Unique
     private @NotNull ClientLevel tinyMultiblockLib$self() {

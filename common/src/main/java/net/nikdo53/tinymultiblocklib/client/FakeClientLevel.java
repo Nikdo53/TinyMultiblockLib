@@ -2,18 +2,30 @@ package net.nikdo53.tinymultiblocklib.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.components.BlockLike;
 import net.nikdo53.tinymultiblocklib.mixin.ClientLevelAccessorMixin;
 import net.nikdo53.tinymultiblocklib.mixin.LevelAccessorMixin;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BooleanSupplier;
 
 public class FakeClientLevel extends ClientLevel {
     public static @Nullable FakeClientLevel INSTANCE = null;
@@ -22,7 +34,17 @@ public class FakeClientLevel extends ClientLevel {
     public Set<BlockLike> blockLikeSet = new HashSet<>();
 
     public FakeClientLevel(ClientLevel level) {
-        super(((ClientLevelAccessorMixin) level).getConnection(), level.getLevelData(), level.dimension(), level.dimensionTypeRegistration(), 1, 1, Minecraft.getInstance().levelRenderer, false, 67, 67);
+        super(((ClientLevelAccessorMixin) level).getConnection(),
+                level.getLevelData(),
+                level.dimension(),
+                level.dimensionTypeRegistration(),
+                1,
+                1,
+                Minecraft.getInstance().levelRenderer,
+                false,
+                67,
+                67
+        );
         this.originalLevel = level;
 
         setClientSide(false);
@@ -63,4 +85,135 @@ public class FakeClientLevel extends ClientLevel {
         return false;
     }
 
+    @Override
+    public void sendPacketToServer(Packet<?> packet) {
+
+    }
+
+    @Override
+    public void syncBlockState(BlockPos pos, BlockState state, Vec3 playerPos) {
+    }
+
+    @Override
+    public void pollLightUpdates() {
+    }
+
+    @Override
+    public void queueLightUpdate(Runnable task) {
+    }
+
+    @Override
+    public void handleBlockChangedAck(int sequence) {
+    }
+
+    @Override
+    public void tick(BooleanSupplier hasTimeLeft) {
+    }
+
+    @Override
+    public void tickEntities() {
+    }
+
+    @Override
+    public void tickNonPassenger(Entity p_entity) {
+    }
+
+    @Override
+    public void unload(LevelChunk chunk) {
+    }
+
+    @Override
+    public void onChunkLoaded(ChunkPos chunkPos) {
+    }
+
+    @Override
+    public void clearTintCaches() {
+    }
+
+    @Override
+    public void addEntity(Entity entity) {
+    }
+
+    @Override
+    public void animateTick(int posX, int posY, int posZ) {
+    }
+
+    @Override
+    public void overrideMapData(MapId mapId, MapItemSavedData mapData) {
+    }
+
+    @Override
+    public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+    }
+
+    @Override
+    public void setSectionDirtyWithNeighbors(int sectionX, int sectionY, int sectionZ) {
+    }
+
+    @Override
+    public void setBlocksDirty(BlockPos blockPos, BlockState oldState, BlockState newState) {
+    }
+
+    @Override
+    public void destroyBlockProgress(int breakerId, BlockPos pos, int progress) {
+    }
+
+    @Override
+    public void globalLevelEvent(int id, BlockPos pos, int data) {
+    }
+
+
+    @Override
+    public void setSkyFlashTime(int timeFlash) {
+    }
+
+
+    @Override
+    public void gameEvent(Holder<GameEvent> gameEvent, Vec3 pos, GameEvent.Context context) {
+    }
+
+    @Override
+    protected void addMapData(Map<MapId, MapItemSavedData> map) {
+    }
+
+    @Override
+    public void setServerSimulationDistance(int serverSimulationDistance) {
+    }
+
+    @Override
+    public void setServerVerifiedBlockState(BlockPos pos, BlockState state, int flags) {
+    }
+
+    @Override
+    public List<AbstractClientPlayer> players() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public void setRainLevel(float strength) {
+    }
+
+    @Override
+    public void setThunderLevel(float strength) {
+    }
+
+    @Override
+    public void setTimeFromServer(long gameTime) {
+    }
+
+    @Override
+    public void setRespawnData(LevelData.RespawnData respawnData) {
+    }
+
+    @Override
+    public void setSectionRangeDirty(int minSectionX, int minSectionY, int minSectionZ, int maxSectionX, int maxSectionY, int maxSectionZ) {
+    }
+
+    @Override
+    public void setSpawnSettings(boolean spawnEnemies) {
+    }
+
+    @Override
+    public void setBlockEntity(BlockEntity blockEntity) {
+    }
 }
