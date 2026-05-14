@@ -119,14 +119,17 @@ public class MultiblockPreviewRenderer {
             FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
             Set<BlockLive> blockLiveSet = gatherBlockLikes(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
 
-            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet);
+            TintedBufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);
+
+            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet, tintedBuffer);
 
             if (!event.isCancelledInternal()) {
                 blockLiveSet = event.getBlocksForPreview();
                 fakeLevel.blockLiveSet = blockLiveSet;
                 previewMode = event.getPreviewMode();
 
-                MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);
+                tintedBuffer.color = previewMode;
+
                 VertexConsumer vertexConsumer = tintedBuffer.getBuffer(RenderTypes.translucentMovingBlock());
 
                 for (BlockLive blockLive : blockLiveSet) {
@@ -140,7 +143,7 @@ public class MultiblockPreviewRenderer {
                 }
 
                 RenderUtils.renderFromStorage(NODE_STORAGE, tintedBuffer);
-                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet);
+                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet, tintedBuffer);
 
             }
 
@@ -231,13 +234,13 @@ public class MultiblockPreviewRenderer {
         poseStack.popPose();
     }
 
-    public static Set<BlockLive> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity mbEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public static Set<BlockLive> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (state.getBlock() instanceof IMultiBlock multiBlock) {
-            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, mbEntity, pos, state), level, pos, state));
+            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, blockEntity, pos, state), level, pos, state));
         } else {
-            blockLiveSet.add(new BlockLive(pos, state));        }
+            blockLiveSet.add(new BlockLive.Live(pos, state, blockEntity));        }
 
         state.getBlock().setPlacedBy(fakeLevel, pos, state, placer, stack);
 

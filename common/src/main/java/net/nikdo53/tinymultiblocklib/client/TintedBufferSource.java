@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class TintedBufferSource extends MultiBufferSource.BufferSource{
-    IColorSupplier color;
+    public IColorSupplier color;
     BufferSource originalBuffer;
 
     public TintedBufferSource(BufferSource bufferSource, IColorSupplier color) {
