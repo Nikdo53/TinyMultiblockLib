@@ -14,8 +14,8 @@ neoForge {
 
 dependencies {
     compileOnly ("org.spongepowered:mixin:0.8.5")
-    compileOnly ("io.github.llamalad7:mixinextras-common:0.3.5")
-    annotationProcessor ("io.github.llamalad7:mixinextras-common:0.3.5")
+    compileOnly ("io.github.llamalad7:mixinextras-common:0.5.4")
+    annotationProcessor ("io.github.llamalad7:mixinextras-common:0.5.4")
 
    // implementation("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
      implementation "curse.maven:carry-on-274259:7386188"

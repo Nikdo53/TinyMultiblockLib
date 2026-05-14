@@ -2,8 +2,9 @@ package net.nikdo53.tinymultiblocklib.components;
 
 
 import net.minecraft.util.ARGB;
+import net.nikdo53.tinymultiblocklib.client.IColorSupplier;
 
-public enum PreviewMode {
+public enum PreviewMode implements IColorSupplier {
     /**
      * PLACED - Regular multiblock placed in the world
      * <p>
@@ -30,32 +31,24 @@ public enum PreviewMode {
         this.blue = blue;
     }
 
-    public int applyColors(int originalColor){
-        float r = ARGB.red(originalColor);
-        float g = ARGB.green(originalColor);
-        float b = ARGB.blue(originalColor);
-        float a = ARGB.alpha(originalColor);
-
-        r = r * red;
-        g = g * green;
-        b = b * blue;
-        a = a * alpha;
-
-        return ARGB.color((int) a, (int) r, (int) g, (int) b);
+    @Override
+    public float getRed() {
+        return red;
     }
 
-    public float[] applyColorsFloat(float r, float g, float b, float a){
-        float[] rgba = new float[4];
-        rgba[0] = r * red;
-        rgba[1] = g * green;
-        rgba[2] = b * blue;
-        rgba[3] = a * alpha;
-
-        return  rgba;
+    @Override
+    public float getGreen() {
+        return green;
     }
 
-    public int packedARGB(){
-       return ARGB.color((int) (alpha * 255), (int) (red * 255), (int) (green * 255), (int) (blue * 255));
+    @Override
+    public float getBlue() {
+        return blue;
+    }
+
+    @Override
+    public float getAlpha() {
+        return alpha;
     }
 }
 

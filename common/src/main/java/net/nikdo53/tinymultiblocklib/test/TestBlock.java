@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.IExpandingMultiblock;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
+import net.nikdo53.tinymultiblocklib.client.ghost.GhostBlockRenderer;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import org.jspecify.annotations.Nullable;
 
@@ -68,13 +70,11 @@ public class TestBlock extends SimpleMultiBlock implements IPreviewableMultibloc
             value = 0;
         }
 
+        new GhostBlockRenderer(pos.above(), 1000, Blocks.GRASS_BLOCK.defaultBlockState())
+                .enableDistanceFade(10, 5)
+                .addToRenderList();
+
         Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
-
-/*        level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.AGE_3, value).setValue(getDirectionProperty(), direction.getClockWise()));
-
-        if (level.getBlockState(pos).equals(state) ) {
-            player.displayClientMessage(Component.literal("Your action has been cancelled"), true);
-        }*/
 
         moveMultiblock(level, pos, state, direction);
 
@@ -89,7 +89,7 @@ public class TestBlock extends SimpleMultiBlock implements IPreviewableMultibloc
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.block();
-       // return voxelShapeHelper(state, level, pos, SHAPE, 0 , 0, 0, true);
+       // return voxelShapeHelper(state, level, posEither, SHAPE, 0 , 0, 0, true);
     }
 
     public static VoxelShape makeShape(){

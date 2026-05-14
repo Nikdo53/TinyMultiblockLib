@@ -14,7 +14,7 @@ public interface IBlockPosOffsetEnum {
      *
      * <pre>
      * ENUM_VALUE(BlockPos::north)
-     * ENUM_VALUE2(pos -> pos.above().north())
+     * ENUM_VALUE2(posEither -> posEither.above().north())
      * </pre>
      *
      * */

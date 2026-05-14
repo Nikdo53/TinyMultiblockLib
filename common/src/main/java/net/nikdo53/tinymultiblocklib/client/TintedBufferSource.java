@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.resources.Identifier;
-import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.mixin.BufferSourceAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.RenderTypeAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
@@ -21,12 +20,12 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class TintedBufferSource extends MultiBufferSource.BufferSource{
-    PreviewMode previewMode;
+    IColorSupplier color;
     BufferSource originalBuffer;
 
-    protected TintedBufferSource(BufferSource bufferSource, PreviewMode previewMode) {
+    public TintedBufferSource(BufferSource bufferSource, IColorSupplier color) {
         super(((BufferSourceAccessor)bufferSource).getSharedBuffer(), ((BufferSourceAccessor)bufferSource).getFixedBuffers());
-        this.previewMode = previewMode;
+        this.color = color;
         this.originalBuffer = bufferSource;
     }
 
@@ -53,28 +52,28 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
 
             @Override
             public void putBakedQuad(PoseStack.Pose pose, BakedQuad quad, QuadInstance instance) {
-                instance.multiplyColor(previewMode.packedARGB());
+                instance.multiplyColor(color.packedARGB());
                 super.putBakedQuad(pose, quad, instance);
             }
 
             @Override
             public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight, float normalX, float normalY, float normalZ) {
-                original.addVertex(x, y, z, previewMode.applyColors(color), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
+                original.addVertex(x, y, z, TintedBufferSource.this.color.applyColors(color), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
             }
 
             @Override
             public VertexConsumer setColor(int r, int g, int b, int a) {
-                return original.setColor(r * previewMode.red, g * previewMode.green, b * previewMode.blue, a * previewMode.alpha);
+                return original.setColor(r * color.getRed(), g * color.getGreen(), b * color.getBlue(), a * color.getAlpha());
             }
 
             @Override
             public VertexConsumer setColor(float red, float green, float blue, float alpha) {
-                return original.setColor(red * previewMode.red, green * previewMode.green, blue * previewMode.blue, alpha * previewMode.alpha);
+                return original.setColor(red * color.getRed(), green * color.getGreen(), blue * color.getBlue(), alpha * color.getAlpha());
             }
 
             @Override
             public VertexConsumer setColor(int color) {
-                return original.setColor(previewMode.applyColors(color));
+                return original.setColor(TintedBufferSource.this.color.applyColors(color));
             }
 
         };

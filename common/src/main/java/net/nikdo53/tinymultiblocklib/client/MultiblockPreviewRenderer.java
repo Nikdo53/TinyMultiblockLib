@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -60,6 +61,7 @@ import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.MinecraftAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -68,18 +70,7 @@ import java.util.List;
 import java.util.Set;
 
 public class MultiblockPreviewRenderer {
-    public static final SubmitNodeStorage NODE_STORAGE = new SubmitNodeStorage(){
-        @Override
-        public <S> void submitModel(Model<? super S> p_433938_, S p_434123_, PoseStack p_434445_, RenderType renderType, int p_433912_, int p_435238_, int p_433959_, @Nullable TextureAtlasSprite p_433439_, int p_435627_, ModelFeatureRenderer.@Nullable CrumblingOverlay p_439709_) {
-            super.submitModel(p_433938_, p_434123_, p_434445_, TintedBufferSource.getTranslucent(renderType), p_433912_, p_435238_, p_433959_, p_433439_, p_435627_, p_439709_);
-        }
-
-        @Override
-        public <S> void submitModel(Model<? super S> model, S renderState, PoseStack poseStack, RenderType renderType, int packedLight, int packedOverlay, int outlineColor, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay) {
-            super.submitModel(model, renderState, poseStack, TintedBufferSource.getTranslucent(renderType), packedLight, packedOverlay, outlineColor, crumblingOverlay);
-        }
-
-    };
+    public static final SubmitNodeStorage NODE_STORAGE = RenderUtils.createTranslucentNodeStorage();
 
     public static final RandomSource NOT_RANDOM = new NotRandomSource();
 
@@ -168,19 +159,7 @@ public class MultiblockPreviewRenderer {
                     renderBlockEntity(blockLike, pos, poseStack, partialTick,  tintedBuffer, minecraft, fakeLevel, camera, levelRenderer);
                 }
 
-                FeatureRenderDispatcher featureRenderDispatcher = new FeatureRenderDispatcher(
-                        NODE_STORAGE,
-                        minecraft.getModelManager(),
-                        tintedBuffer,
-                        minecraft.getAtlasManager(),
-                        minecraft.renderBuffers().outlineBufferSource(),
-                        minecraft.renderBuffers().crumblingBufferSource(),
-                        minecraft.font,
-                        minecraft.gameRenderer.getGameRenderState()
-                );
-
-                featureRenderDispatcher.renderAllFeatures();
-
+                RenderUtils.renderFromStorage(NODE_STORAGE, tintedBuffer);
                 IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
 
             }
@@ -250,9 +229,6 @@ public class MultiblockPreviewRenderer {
         return state.canSurvive(level, pos);
     }
 
-    // this is bullshit
-    public static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
-
     private static void renderJsonModels(BlockLike blockLike, BlockPos originalPos, PoseStack poseStack, VertexConsumer vertexConsumer, Minecraft minecraft, FakeClientLevel fakeLevel) {
 
         if (!blockLike.state.getRenderShape().equals(RenderShape.MODEL)) return;
@@ -269,14 +245,8 @@ public class MultiblockPreviewRenderer {
         ArrayList<BlockStateModelPart> parts = new ArrayList<>();
         blockRenderer.getBlockStateModelSet().get(blockLike.state).collectParts(NOT_RANDOM, parts);
 
-        BlockModelRenderState renderState = new BlockModelRenderState();
-
-        ((MinecraftAccessor) minecraft).getBlockModelResolver().update(renderState, blockLike.state, BLOCK_DISPLAY_CONTEXT);
-        ((BlockModelRenderStateAccessor) renderState).setRenderType(Sheets.translucentBlockSheet());
-
-        renderState.submit(poseStack, NODE_STORAGE,
-                LightCoordsUtil.pack(level.getBrightness(LightLayer.BLOCK, blockLike.pos), level.getBrightness(LightLayer.SKY, blockLike.pos)),
-                OverlayTexture.NO_OVERLAY, 0);
+        NODE_STORAGE.submitMovingBlock(poseStack,
+                RenderUtils.createMovingBlockRenderState(fakeLevel, blockLike.pos, blockLike.state, true, Sheets.translucentBlockSheet(), null, null));
 
         poseStack.popPose();
     }

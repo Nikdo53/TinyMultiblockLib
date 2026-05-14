@@ -33,7 +33,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     /** Returns a BlockPos Stream of every block in this multiblock.
      * <p>
      * Should only be used for overriding
-     * @param center The center pos of the multiblock, aka the 1st block placed
+     * @param center The center posEither of the multiblock, aka the 1st block placed
      * @param blockEntity null when being placed
      * @param direction present only when {@link #getDirectionProperty()} is overridden with a valid property
      * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
