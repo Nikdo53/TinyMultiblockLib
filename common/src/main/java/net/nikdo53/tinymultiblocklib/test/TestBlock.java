@@ -1,11 +1,13 @@
 package net.nikdo53.tinymultiblocklib.test;
 
+import com.mojang.math.Axis;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -70,8 +72,10 @@ public class TestBlock extends SimpleMultiBlock implements IPreviewableMultibloc
             value = 0;
         }
 
-        new GhostBlockRenderer(pos.above(), 1000, Blocks.GRASS_BLOCK.defaultBlockState())
+        new GhostBlockRenderer(pos.above(), 100, Blocks.GRASS_BLOCK.defaultBlockState())
+                .setBiome(level.getBiome(pos))
                 .enableDistanceFade(10, 5)
+                .transform(poseStack -> poseStack.mulPose(Axis.XP.rotationDegrees(45)))
                 .addToRenderList();
 
         Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);

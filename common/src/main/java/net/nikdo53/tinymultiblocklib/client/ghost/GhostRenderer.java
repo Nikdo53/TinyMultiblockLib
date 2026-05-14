@@ -19,6 +19,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class GhostRenderer {
     public static List<GhostRenderer> RENDERERS = new ArrayList<>();
@@ -35,6 +36,7 @@ public abstract class GhostRenderer {
     protected float maxAlpha = 1;
     protected Integer fadeOutTicks = null;
     protected Pair<Double, Double> fadeDistanceAndStart = null;
+    protected Consumer<PoseStack> poseStackConsumer = _ -> {};
 
     public GhostRenderer(Vec3 position, int ticksRemaining) {
         this.posEither = Either.left(position);
@@ -106,6 +108,7 @@ public abstract class GhostRenderer {
         Vec3 position = getPosition();
         poseStack.translate(position.x(), position.y(), position.z());
         renderOffsetType.applyTransforms(poseStack);
+        poseStackConsumer.accept(poseStack);
 
         render(partialTick, camera, level, poseStack, buffer);
 
@@ -153,6 +156,12 @@ public abstract class GhostRenderer {
 
     public GhostRenderer setLight(int packedLight){
         this.packedLight = packedLight;
+        return this;
+    }
+
+
+    public GhostRenderer transform(Consumer<PoseStack> poseStackConsumer){
+        this.poseStackConsumer = poseStackConsumer;
         return this;
     }
 

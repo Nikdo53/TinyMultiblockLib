@@ -33,7 +33,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
     default List<BlockLive> gatherStates(Level level, BlockPos center, BlockState state){
         List<BlockLive> list = new ArrayList<>();
 
-        getFullBlockShape(level, center, state).forEach(pos -> list.add(BlockLive.fromPos(level, pos)));
+        getFullBlockShape(level, center, state).forEach(pos -> list.add(new BlockLive.Tag(level, pos)));
 
         return list;
     }

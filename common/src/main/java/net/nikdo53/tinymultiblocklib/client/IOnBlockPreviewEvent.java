@@ -2,6 +2,7 @@ package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,12 +33,15 @@ public interface IOnBlockPreviewEvent {
 
     Set<BlockLive> getBlocksForPreview();
 
-    static IOnBlockPreviewEvent firePreEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
-       return Services.PLATFORM.getEventPoster().onBlockPreviewPre(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
+    MultiBufferSource.BufferSource getBufferSource();
+
+
+    static IOnBlockPreviewEvent firePreEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
+       return Services.PLATFORM.getEventPoster().onBlockPreviewPre(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet,bufferSource);
     }
 
-    static void firePostEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet){
-        Services.PLATFORM.getEventPoster().onBlockPreviewPost(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
+    static void firePostEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource){
+        Services.PLATFORM.getEventPoster().onBlockPreviewPost(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet, bufferSource);
     }
 
 }
