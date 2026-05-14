@@ -2,7 +2,6 @@ package net.nikdo53.tinymultiblocklib.components;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -14,16 +13,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.nikdo53.tinymultiblocklib.Constants;
 import org.jspecify.annotations.Nullable;
 
-public class BlockLike {
+public class BlockLive {
     public BlockPos pos;
     public BlockState state;
     public @Nullable CompoundTag blockEntityTag;
 
-    public BlockLike(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntityTag) {
+    public BlockLive(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntityTag) {
         this.pos = pos;
         this.state = state;
         if (blockEntityTag == null) {
@@ -35,12 +33,12 @@ public class BlockLike {
         }
     }
 
-    public BlockLike(BlockPos pos, BlockState state) {
+    public BlockLive(BlockPos pos, BlockState state) {
         this(pos, state, null);
     }
 
-    public static BlockLike fromPos(BlockGetter level, BlockPos pos){
-        return new BlockLike(pos, level.getBlockState(pos), level.getBlockEntity(pos));
+    public static BlockLive fromPos(BlockGetter level, BlockPos pos){
+        return new BlockLive(pos, level.getBlockState(pos), level.getBlockEntity(pos));
     }
 
     public void move(Level level, BlockPos offset){

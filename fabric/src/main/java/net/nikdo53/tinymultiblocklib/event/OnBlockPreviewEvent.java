@@ -3,7 +3,6 @@ package net.nikdo53.tinymultiblocklib.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
@@ -11,11 +10,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
@@ -28,10 +26,10 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     BlockEntity blockEntity;
     float partialTicks;
     PoseStack poseStack;
-    Set<BlockLike> blockLikeSet;
+    Set<BlockLive> blockLiveSet;
     boolean cancelled;
 
-    public OnBlockPreviewEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
+    public OnBlockPreviewEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
         this.previewMode = previewMode;
         this.state = state;
         this.pos = pos;
@@ -40,7 +38,7 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
         this.blockEntity = blockEntity;
         this.partialTicks = partialTicks;
         this.poseStack = poseStack;
-        this.blockLikeSet = blockLikeSet;
+        this.blockLiveSet = blockLiveSet;
         this.cancelled = isCancelled;
     }
 
@@ -99,8 +97,8 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     }
 
     @Override
-    public Set<BlockLike> getBlocksForPreview() {
-        return blockLikeSet;
+    public Set<BlockLive> getBlocksForPreview() {
+        return blockLiveSet;
     }
 
     @FunctionalInterface

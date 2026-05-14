@@ -1,16 +1,11 @@
 package net.nikdo53.tinymultiblocklib.blockentities;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
 
 public class AbstractStructureMultiBlockEntity extends AbstractMultiBlockEntity implements IStructureMultiBlockEntity{
     private BlockState oldBlockState = Blocks.AIR.defaultBlockState();

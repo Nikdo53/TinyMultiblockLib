@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.NeoForge;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.event.OnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
@@ -19,12 +19,12 @@ public class NeoForgeEventPoster implements IEventPoster {
     public static final NeoForgeEventPoster INSTANCE = new NeoForgeEventPoster();
 
     @Override
-    public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
-        return NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Pre(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLikeSet));
+    public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+        return NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Pre(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet));
     }
 
     @Override
-    public void onBlockPreviewPost(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
-        NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Post(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLikeSet));
+    public void onBlockPreviewPost(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+        NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Post(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet));
     }
 }

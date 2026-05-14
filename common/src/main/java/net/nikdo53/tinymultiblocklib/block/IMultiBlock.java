@@ -1,6 +1,5 @@
 package net.nikdo53.tinymultiblocklib.block;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -15,7 +14,7 @@ import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 import org.jspecify.annotations.Nullable;
 
@@ -165,8 +164,8 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     /**
      * Prepares all blocks to be Placed
      * */
-    default List<BlockLike> prepareForPlace(List<BlockPos> shape, Level level, BlockPos centerPos, BlockState stateOriginal){
-        List<BlockLike> list = new ArrayList<>();
+    default List<BlockLive> prepareForPlace(List<BlockPos> shape, Level level, BlockPos centerPos, BlockState stateOriginal){
+        List<BlockLive> list = new ArrayList<>();
 
         shape.forEach(posNew -> {
             posNew = posNew.immutable();
@@ -174,7 +173,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
             BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));
             stateNew = getStateForEachBlock(stateNew, posNew, posNew.subtract(centerPos), level, getDirection(stateOriginal));
 
-            list.add(new BlockLike(posNew, stateNew));
+            list.add(new BlockLive(posNew, stateNew));
         });
 
         return list;

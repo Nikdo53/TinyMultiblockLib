@@ -3,14 +3,11 @@ package net.nikdo53.tinymultiblocklib.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -19,7 +16,7 @@ import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.mixin.ClientLevelAccessorMixin;
 import net.nikdo53.tinymultiblocklib.mixin.LevelAccessorMixin;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +28,7 @@ public class FakeClientLevel extends ClientLevel {
     public static @Nullable FakeClientLevel INSTANCE = null;
 
     ClientLevel originalLevel;
-    public Set<BlockLike> blockLikeSet = new HashSet<>();
+    public Set<BlockLive> blockLiveSet = new HashSet<>();
 
     public FakeClientLevel(ClientLevel level) {
         super(((ClientLevelAccessorMixin) level).getConnection(),
@@ -61,7 +58,7 @@ public class FakeClientLevel extends ClientLevel {
             throw new IllegalStateException("Tried accessing FakeClientLevel before any ClientLevel was initialized.");
         }
         instance.originalLevel = Minecraft.getInstance().level;
-        instance.blockLikeSet.clear();
+        instance.blockLiveSet.clear();
 
         return instance;
     }
@@ -70,7 +67,7 @@ public class FakeClientLevel extends ClientLevel {
     public BlockState getBlockState(BlockPos pos) {
         BlockState blockState = super.getBlockState(pos);
         if(!blockState.canOcclude()) {
-            Optional<BlockLike> previewed = blockLikeSet.stream().filter(like -> like.pos.equals(pos)).findAny();
+            Optional<BlockLive> previewed = blockLiveSet.stream().filter(like -> like.pos.equals(pos)).findAny();
 
             if (previewed.isPresent()){
                 return previewed.get().state;
@@ -81,7 +78,7 @@ public class FakeClientLevel extends ClientLevel {
 
     @Override
     public boolean setBlock(BlockPos pos, BlockState state, int flags, int recursionLeft) {
-        blockLikeSet.add(new BlockLike(pos, state));
+        blockLiveSet.add(new BlockLive(pos, state));
         return false;
     }
 
