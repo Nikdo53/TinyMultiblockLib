@@ -33,7 +33,7 @@ import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
@@ -110,26 +110,26 @@ public class MultiblockPreviewRenderer {
             poseStack.translate(pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ);
 
             FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
-            Set<BlockLike> blockLikeSet = gatherBlockLikes(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
+            Set<BlockLive> blockLiveSet = gatherBlockLikes(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
 
-            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
+            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet);
 
             if (!event.isCancelledInternal()) {
-                blockLikeSet = event.getBlocksForPreview();
-                fakeLevel.blockLikeSet = blockLikeSet;
+                blockLiveSet = event.getBlocksForPreview();
+                fakeLevel.blockLiveSet = blockLiveSet;
                 previewMode = event.getPreviewMode();
 
                 MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);
                 VertexConsumer vertexConsumer = tintedBuffer.getBuffer(RenderType.translucent());
 
-                for (BlockLike blockLike : blockLikeSet) {
-                    renderJsonModels(blockLike, pos, poseStack, vertexConsumer, minecraft, fakeLevel);
+                for (BlockLive blockLive : blockLiveSet) {
+                    renderJsonModels(blockLive, pos, poseStack, vertexConsumer, minecraft, fakeLevel);
                 }
 
                 tintedBuffer.endLastBatch();
 
-                for (BlockLike blockLike : blockLikeSet) {
-                    renderBlockEntity(blockLike, pos, poseStack, partialTick,  tintedBuffer, minecraft, fakeLevel);
+                for (BlockLive blockLive : blockLiveSet) {
+                    renderBlockEntity(blockLive, pos, poseStack, partialTick,  tintedBuffer, minecraft, fakeLevel);
                 }
 
                 FeatureRenderDispatcher featureRenderDispatcher = new FeatureRenderDispatcher(
@@ -145,7 +145,7 @@ public class MultiblockPreviewRenderer {
 
                 featureRenderDispatcher.renderAllFeatures();
 
-                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
+                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet);
 
             }
 
@@ -154,9 +154,9 @@ public class MultiblockPreviewRenderer {
         }
     }
 
-    private static void renderBlockEntity(BlockLike blockLike, BlockPos originalPos, PoseStack poseStack, float partialTick, MultiBufferSource.BufferSource buffer, Minecraft minecraft, FakeClientLevel fakeClientLevel) {
-        BlockState state = blockLike.state;
-        BlockPos pos = blockLike.pos;
+    private static void renderBlockEntity(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, float partialTick, MultiBufferSource.BufferSource buffer, Minecraft minecraft, FakeClientLevel fakeClientLevel) {
+        BlockState state = blockLive.state;
+        BlockPos pos = blockLive.pos;
 
         if (state.getBlock() instanceof EntityBlock entityBlock) {
 
@@ -174,7 +174,7 @@ public class MultiblockPreviewRenderer {
                 poseStack.pushPose();
                 poseStack.translate(0.0001, 0.0001, 0.0001);
 
-                BlockPos offset = blockLike.pos.subtract(originalPos).immutable();
+                BlockPos offset = blockLive.pos.subtract(originalPos).immutable();
                 poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
                 entityRender.render(entity, partialTick, poseStack, buffer, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
@@ -208,45 +208,35 @@ public class MultiblockPreviewRenderer {
         return state.canSurvive(level, pos);
     }
 
-    private static void renderJsonModels(BlockLike blockLike, BlockPos originalPos, PoseStack poseStack, VertexConsumer vertexConsumer, Minecraft minecraft, FakeClientLevel fakeLevel) {
+    private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, VertexConsumer vertexConsumer, Minecraft minecraft, FakeClientLevel fakeLevel) {
 
-        if (!blockLike.state.getRenderShape().equals(RenderShape.MODEL)) return;
+        if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
 
         BlockRenderDispatcher blockRenderer = minecraft.getBlockRenderer();
 
         poseStack.pushPose();
         poseStack.translate(0.0001, 0.0001, 0.0001);
 
-        BlockPos offset = blockLike.pos.subtract(originalPos).immutable();
+        BlockPos offset = blockLive.pos.subtract(originalPos).immutable();
         poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
-        ArrayList<BlockStateModelPart> parts = new ArrayList<>();
-        blockRenderer.getBlockStateModelSet().get(blockLike.state).collectParts(NOT_RANDOM, parts);
-
-        BlockModelRenderState renderState = new BlockModelRenderState();
-
-        ((MinecraftAccessor) minecraft).getBlockModelResolver().update(renderState, blockLike.state, BLOCK_DISPLAY_CONTEXT);
-        ((BlockModelRenderStateAccessor) renderState).setRenderType(Sheets.translucentBlockSheet());
-
-        renderState.submit(poseStack, NODE_STORAGE,
-                LightCoordsUtil.pack(level.getBrightness(LightLayer.BLOCK, blockLike.pos), level.getBrightness(LightLayer.SKY, blockLike.pos)),
-                OverlayTexture.NO_OVERLAY, 0);
+        blockRenderer.renderBatched(blockLike.state, blockLike.pos, fakeLevel, poseStack, vertexConsumer, true, minecraft.level.getRandom());
 
         poseStack.popPose();
     }
 
-    public static Set<BlockLike> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity mbEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-        Set<BlockLike> blockLikeSet = new HashSet<>();
+    public static Set<BlockLive> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity mbEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+        Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (state.getBlock() instanceof IMultiBlock multiBlock) {
-            blockLikeSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, mbEntity, pos, state), level, pos, state));
+            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, mbEntity, pos, state), level, pos, state));
         } else {
-            blockLikeSet.add(new BlockLike(pos, state));        }
+            blockLiveSet.add(new BlockLive(pos, state));        }
 
         state.getBlock().setPlacedBy(fakeLevel, pos, state, placer, stack);
 
-        blockLikeSet.addAll(fakeLevel.blockLikeSet);
+        blockLiveSet.addAll(fakeLevel.blockLiveSet);
 
-        return blockLikeSet;
+        return blockLiveSet;
     }
 }

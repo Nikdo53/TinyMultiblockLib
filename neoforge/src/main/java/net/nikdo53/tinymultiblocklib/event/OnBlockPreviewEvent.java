@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,9 +26,9 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     BlockEntity blockEntity;
     float partialTicks;
     PoseStack poseStack;
-    Set<BlockLike> blockLikeSet;
+    Set<BlockLive> blockLiveSet;
 
-    public OnBlockPreviewEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
+    public OnBlockPreviewEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
         this.previewMode = previewMode;
         this.state = state;
         this.pos = pos;
@@ -37,7 +37,7 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         this.blockEntity = blockEntity;
         this.partialTicks = partialTicks;
         this.poseStack = poseStack;
-        this.blockLikeSet = blockLikeSet;
+        this.blockLiveSet = blockLiveSet;
     }
 
     @Override
@@ -91,13 +91,13 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     @Override
-    public Set<BlockLike> getBlocksForPreview() {
-        return blockLikeSet;
+    public Set<BlockLive> getBlocksForPreview() {
+        return blockLiveSet;
     }
 
     public static class Pre extends OnBlockPreviewEvent implements ICancellableEvent{
-        public Pre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity, float partialTicks, PoseStack poseStack,  Set<BlockLike> blockLikeSet) {
-            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLikeSet);
+        public Pre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity, float partialTicks, PoseStack poseStack,  Set<BlockLive> blockLiveSet) {
+            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
 
             if (isCancelled){
                 setCanceled(true);
@@ -116,13 +116,13 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     public static class Post extends OnBlockPreviewEvent{
-        public Post(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
-            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLikeSet);
+        public Post(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
         }
 
         @Override
-        public Set<BlockLike> getBlocksForPreview() {
-            return new HashSet<>(blockLikeSet);
+        public Set<BlockLive> getBlocksForPreview() {
+            return new HashSet<>(blockLiveSet);
         }
     }
 }

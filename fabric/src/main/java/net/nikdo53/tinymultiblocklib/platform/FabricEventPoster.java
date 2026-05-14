@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.event.OnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
@@ -18,12 +18,12 @@ public class FabricEventPoster implements IEventPoster {
     public static final FabricEventPoster INSTANCE = new FabricEventPoster();
 
     @Override
-    public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
-        return OnBlockPreviewEvent.Pre.EVENT.invoker().onBlockPreview(new OnBlockPreviewEvent(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLikeSet));
+    public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+        return OnBlockPreviewEvent.Pre.EVENT.invoker().onBlockPreview(new OnBlockPreviewEvent(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet));
     }
 
     @Override
-    public void onBlockPreviewPost(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLike> blockLikeSet) {
-        OnBlockPreviewEvent.Post.EVENT.invoker().postBlockPreview(new OnBlockPreviewEvent(previewMode, false, state, pos, player, blockEntity, partialTicks, poseStack, blockLikeSet));
+    public void onBlockPreviewPost(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+        OnBlockPreviewEvent.Post.EVENT.invoker().postBlockPreview(new OnBlockPreviewEvent(previewMode, false, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet));
     }
 }
