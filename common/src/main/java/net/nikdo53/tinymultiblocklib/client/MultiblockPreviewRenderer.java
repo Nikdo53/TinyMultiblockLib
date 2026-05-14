@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -33,9 +34,9 @@ import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
 import net.nikdo53.tinymultiblocklib.components.BlockLike;
-import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
+import net.nikdo53.tinymultiblocklib.platform.Services;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -44,18 +45,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MultiblockPreviewRenderer {
-    public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, Camera camera, PoseStack poseStack, IPlatformHelper platformHelper) {
+    public static void renderMultiblockPreviews(float partialTick, Camera camera, PoseStack poseStack) {
+        Minecraft minecraft = Minecraft.getInstance();
         MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
         LocalPlayer player = minecraft.player;
         assert player != null;
         ItemStack stack = player.getMainHandItem();
         Item item = stack.getItem();
 
-        double camX = camera.getPosition().x;
-        double camY = camera.getPosition().y;
-        double camZ = camera.getPosition().z;
+        double camX = camera.position().x;
+        double camY = camera.position().y;
+        double camZ = camera.position().z;
 
-        if (platformHelper.isModLoaded("carryon") && CarryOnPreviewHelper.isValidMultiblock(player)) {
+        if (Services.PLATFORM.isModLoaded("carryon") && CarryOnPreviewHelper.isValidMultiblock(player)) {
             item = CarryOnPreviewHelper.getMultiblockItem(player);
         }
 
@@ -129,6 +131,19 @@ public class MultiblockPreviewRenderer {
                 for (BlockLike blockLike : blockLikeSet) {
                     renderBlockEntity(blockLike, pos, poseStack, partialTick,  tintedBuffer, minecraft, fakeLevel);
                 }
+
+                FeatureRenderDispatcher featureRenderDispatcher = new FeatureRenderDispatcher(
+                        NODE_STORAGE,
+                        minecraft.getModelManager(),
+                        tintedBuffer,
+                        minecraft.getAtlasManager(),
+                        minecraft.renderBuffers().outlineBufferSource(),
+                        minecraft.renderBuffers().crumblingBufferSource(),
+                        minecraft.font,
+                        minecraft.gameRenderer.getGameRenderState()
+                );
+
+                featureRenderDispatcher.renderAllFeatures();
 
                 IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLikeSet);
 
@@ -205,7 +220,17 @@ public class MultiblockPreviewRenderer {
         BlockPos offset = blockLike.pos.subtract(originalPos).immutable();
         poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
-        blockRenderer.renderBatched(blockLike.state, blockLike.pos, fakeLevel, poseStack, vertexConsumer, true, minecraft.level.getRandom());
+        ArrayList<BlockStateModelPart> parts = new ArrayList<>();
+        blockRenderer.getBlockStateModelSet().get(blockLike.state).collectParts(NOT_RANDOM, parts);
+
+        BlockModelRenderState renderState = new BlockModelRenderState();
+
+        ((MinecraftAccessor) minecraft).getBlockModelResolver().update(renderState, blockLike.state, BLOCK_DISPLAY_CONTEXT);
+        ((BlockModelRenderStateAccessor) renderState).setRenderType(Sheets.translucentBlockSheet());
+
+        renderState.submit(poseStack, NODE_STORAGE,
+                LightCoordsUtil.pack(level.getBrightness(LightLayer.BLOCK, blockLike.pos), level.getBrightness(LightLayer.SKY, blockLike.pos)),
+                OverlayTexture.NO_OVERLAY, 0);
 
         poseStack.popPose();
     }

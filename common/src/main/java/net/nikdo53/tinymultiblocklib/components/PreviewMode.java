@@ -1,8 +1,9 @@
 package net.nikdo53.tinymultiblocklib.components;
 
 import net.minecraft.util.FastColor;
+import net.nikdo53.tinymultiblocklib.client.IColorSupplier;
 
-public enum PreviewMode {
+public enum PreviewMode implements IColorSupplier {
     /**
      * PLACED - Regular multiblock placed in the world
      * <p>
@@ -29,28 +30,24 @@ public enum PreviewMode {
         this.blue = blue;
     }
 
-    public int applyColors(int originalColor){
-        float r = FastColor.ARGB32.red(originalColor);
-        float g = FastColor.ARGB32.green(originalColor);
-        float b = FastColor.ARGB32.blue(originalColor);
-        float a = FastColor.ARGB32.alpha(originalColor);
-
-        r = r * red;
-        g = g * green;
-        b = b * blue;
-        a = a * alpha;
-
-        return FastColor.ARGB32.color((int) a, (int) r, (int) g, (int) b);
+    @Override
+    public float getRed() {
+        return red;
     }
 
-    public float[] applyColorsFloat(float r, float g, float b, float a){
-        float[] rgba = new float[4];
-        rgba[0] = r * red;
-        rgba[1] = g * green;
-        rgba[2] = b * blue;
-        rgba[3] = a * alpha;
+    @Override
+    public float getGreen() {
+        return green;
+    }
 
-        return  rgba;
+    @Override
+    public float getBlue() {
+        return blue;
+    }
+
+    @Override
+    public float getAlpha() {
+        return alpha;
     }
 }
 

@@ -5,8 +5,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.nikdo53.tinymultiblocklib.Constants;
+import net.nikdo53.tinymultiblocklib.client.ghost.GhostRenderer;
 import net.nikdo53.tinymultiblocklib.platform.NeoForgePlatformHelper;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
@@ -17,6 +19,19 @@ public class TMBLClientEvents {
         if (event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) && !TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
             MultiblockPreviewRenderer.renderMultiblockPreviews(event.getPartialTick().getGameTimeDeltaPartialTick(true), Minecraft.getInstance(), Minecraft.getInstance().level, event.getCamera(), event.getPoseStack(), new NeoForgePlatformHelper());
         }
+
+        GhostRenderer.renderAll(
+                DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
+                event.getLevelRenderState().cameraRenderState,
+                Minecraft.getInstance().level,
+                event.getPoseStack()
+        );
     }
+
+    @SubscribeEvent
+    public static void clientTick(ClientTickEvent.Post event){
+        CommonClientEvents.onClientTick();
+    }
+
 
 }
