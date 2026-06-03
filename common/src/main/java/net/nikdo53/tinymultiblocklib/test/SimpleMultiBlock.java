@@ -10,6 +10,7 @@ import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class SimpleMultiBlock extends AbstractMultiBlock implements IPreviewable
     }
 
     @Override
-    public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+    public List<BlockPos> makeFullBlockShape(@NonNull Level level, @NonNull BlockPos center, @NonNull BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
         int height = 2;
         return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center.east().north().above(height), center.west().south()));
     }

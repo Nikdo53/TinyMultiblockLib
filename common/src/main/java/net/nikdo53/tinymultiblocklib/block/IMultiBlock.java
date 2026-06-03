@@ -89,19 +89,24 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         BlockEntity blockEntity = level.getBlockEntity(center);
         Level betterLevel = level instanceof Level ? (Level) level : null;
 
+        assert betterLevel != null;
         if (!(blockEntity instanceof IMultiBlockEntity mbEntity)){
             return getFullBlockShapeNoCache(betterLevel, blockEntity ,center, state);
         }
 
         if (mbEntity.getFullBlockShapeCache().isEmpty()){
-            List<BlockPos> blockPosList = getFullBlockShapeNoCache(betterLevel, blockEntity, center, state);
-            blockPosList.forEach(BlockPos::immutable);
-
-            mbEntity.setFullBlockShapeCache(blockPosList);
-            return blockPosList;
+            return getAndUpdateShapeCache(state, mbEntity, betterLevel, blockEntity, center);
         }
 
         return mbEntity.getFullBlockShapeCache();
+    }
+
+    default List<BlockPos> getAndUpdateShapeCache(BlockState state, IMultiBlockEntity mbEntity, Level betterLevel, BlockEntity blockEntity, BlockPos center) {
+        List<BlockPos> blockPosList = getFullBlockShapeNoCache(betterLevel, blockEntity, center, state);
+        blockPosList.forEach(BlockPos::immutable);
+
+        mbEntity.setFullBlockShapeCache(blockPosList);
+        return blockPosList;
     }
 
     static List<BlockPos> getFullShape(BlockGetter level, BlockPos pos){
@@ -237,6 +242,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         });
     }
 
+    //todo: check if this is fine
     default List<BlockPos> getIsolatedBlocks(BlockPos center, LevelAccessor level, BlockState state) {
         Set<BlockPos> posSet = new HashSet<>(getFullBlockShape(level, center, state));
 

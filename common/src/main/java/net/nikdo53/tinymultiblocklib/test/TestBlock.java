@@ -7,7 +7,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -16,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -27,6 +25,7 @@ import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.client.ghost.GhostBlockRenderer;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -49,7 +48,7 @@ public class TestBlock extends SimpleMultiBlock implements IPreviewableMultibloc
     }
 
     @Override
-    public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @org.jetbrains.annotations.Nullable BlockEntity blockEntity, @org.jetbrains.annotations.Nullable Direction direction) {
+    public List<BlockPos> makeFullBlockShape(@NotNull Level level, @NotNull BlockPos center, @NotNull BlockState state, @org.jetbrains.annotations.Nullable BlockEntity blockEntity, @org.jetbrains.annotations.Nullable Direction direction) {
         int size = 1;
 
         List<BlockPos> list = IMultiBlock.posStreamToList(

@@ -17,6 +17,7 @@ import net.nikdo53.tinymultiblocklib.block.AbstractStructureMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class DiamondStructureBlock extends AbstractStructureMultiBlock implement
     }
 
     @Override
-    public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+    public List<BlockPos> makeFullBlockShape(@NonNull Level level, @NonNull BlockPos center, @NonNull BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
         return IMultiBlock.posStreamToList(BlockPos.betweenClosedStream(center, center.above().north().east()));
     }
 
