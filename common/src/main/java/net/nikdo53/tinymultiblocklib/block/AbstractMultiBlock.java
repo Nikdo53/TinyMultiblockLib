@@ -67,7 +67,9 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * If your block has a BlockEntity renderer, return {@link RenderShape#INVISIBLE} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
      * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction) The method for setting a different BlockState to each block
      * */
-    public abstract RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter);
+    public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter){
+        return RenderShape.MODEL;
+    };
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {

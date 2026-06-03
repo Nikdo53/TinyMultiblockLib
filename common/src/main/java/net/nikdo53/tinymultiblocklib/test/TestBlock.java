@@ -7,7 +7,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -27,6 +26,7 @@ import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.client.ghost.GhostBlockRenderer;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class TestBlock extends SimpleMultiBlock implements IPreviewableMultibloc
     }
 
     @Override
-    public List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
+    public List<BlockPos> makeFullBlockShape(@NonNull Level level, @NonNull BlockPos center, @NonNull BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
         int size = 1;
 
         List<BlockPos> list = IMultiBlock.posStreamToList(

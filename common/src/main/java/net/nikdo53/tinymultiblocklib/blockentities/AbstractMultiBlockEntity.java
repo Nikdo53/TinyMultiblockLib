@@ -3,7 +3,6 @@ package net.nikdo53.tinymultiblocklib.blockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -11,13 +10,10 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.nikdo53.tinymultiblocklib.Constants;
-import net.nikdo53.tinymultiblocklib.components.PreviewMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +21,7 @@ import java.util.List;
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     private BlockPos offset;
     private boolean isPlaced;
-    private List<BlockPos> BLOCK_SHAPE_CACHE = new ArrayList<>();
+    private List<BlockPos> blockShapeCache = new ArrayList<>();
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -41,7 +37,7 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(Constants.LOGGER), registries);
         saveAdditional(output);
         return output.buildResult();
@@ -82,16 +78,16 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
 
     @Override
     public List<BlockPos> getFullBlockShapeCache() {
-        return BLOCK_SHAPE_CACHE;
+        return blockShapeCache;
     }
 
     @Override
     public void setFullBlockShapeCache(List<BlockPos> blockPosList) {
-        BLOCK_SHAPE_CACHE = blockPosList;
+        blockShapeCache = blockPosList;
     }
 
     @Override
     public void invalidateCaches() {
-        BLOCK_SHAPE_CACHE.clear();
+        blockShapeCache.clear();
     }
 }
