@@ -117,7 +117,7 @@ public class MultiblockPreviewRenderer {
             poseStack.translate(pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ);
 
             FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
-            Set<BlockLive> blockLiveSet = gatherBlockLikes(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
+            Set<BlockLive> blockLiveSet = gatherBlockLives(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
 
             TintedBufferSource tintedBuffer = new TintedBufferSource(buffer, previewMode);
 
@@ -215,18 +215,12 @@ public class MultiblockPreviewRenderer {
     private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, VertexConsumer vertexConsumer, Minecraft minecraft, FakeClientLevel fakeLevel) {
 
         if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
-
-        var blockRenderer = minecraft.getModelManager();
-        Level level = minecraft.level;
-
+        
         poseStack.pushPose();
         poseStack.translate(0.0001, 0.0001, 0.0001);
 
         BlockPos offset = blockLive.pos.subtract(originalPos).immutable();
         poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
-
-        ArrayList<BlockStateModelPart> parts = new ArrayList<>();
-        blockRenderer.getBlockStateModelSet().get(blockLive.state).collectParts(NOT_RANDOM, parts);
 
         NODE_STORAGE.submitMovingBlock(poseStack,
                 RenderUtils.createMovingBlockRenderState(fakeLevel, blockLive.pos, blockLive.state, true, Sheets.translucentBlockSheet(), null, null));
@@ -234,7 +228,7 @@ public class MultiblockPreviewRenderer {
         poseStack.popPose();
     }
 
-    public static Set<BlockLive> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public static Set<BlockLive> gatherBlockLives(FakeClientLevel fakeLevel, Level level, BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (state.getBlock() instanceof IMultiBlock multiBlock) {

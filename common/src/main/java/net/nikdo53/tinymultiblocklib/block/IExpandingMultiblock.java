@@ -12,6 +12,7 @@ import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IExpandingMultiblock extends IMultiBlock {
 
@@ -61,12 +62,13 @@ public interface IExpandingMultiblock extends IMultiBlock {
     }
 
 
+    //TODO: should the builder state change while placed?
     default boolean hasShapeChanged(BlockState state, @Nullable Level level, BlockPos pos, BlockState oldState) {
         if (level == null) return false;
 
         BlockPos center = IMultiBlock.getCenter(level, pos);
-        List<BlockPos> fullBlockShape = getFullBlockShape(level, center, oldState);
-        List<BlockPos> fullBlockShapeNoCache = getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state);
+        Set<BlockPos> fullBlockShape = getFullBlockShape(level, center, oldState).getPositions();
+        Set<BlockPos> fullBlockShapeNoCache = getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state).getPositions();
         return !fullBlockShape.equals(fullBlockShapeNoCache);
     }
 
@@ -74,11 +76,11 @@ public interface IExpandingMultiblock extends IMultiBlock {
         if (level.isClientSide()) return;
         BlockPos center = IMultiBlock.getCenter(level, pos);
 
-        List<BlockPos> oldShape = getFullBlockShape(level, pos, oldState);
+        Set<BlockPos> oldShape = getFullBlockShape(level, pos, oldState).getPositions();
 
         IMultiBlock.invalidateCaches(level, pos);
 
-        List<BlockPos> shapeNew = getFullBlockShape(level, pos, state);
+        Set<BlockPos> shapeNew = getFullBlockShape(level, pos, state).getPositions();
 
 
         oldShape.forEach(posOld -> {
@@ -97,7 +99,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
     default boolean canChangeShape(BlockState state, Level level, BlockPos pos) {
         BlockPos center = IMultiBlock.getCenter(level, pos);
 
-        return getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state).stream().allMatch(posNew -> {
+        return getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state).getPositions().stream().allMatch(posNew -> {
             BlockState stateNew = level.getBlockState(posNew);
 
             return (stateNew.canBeReplaced() || IMultiBlock.isSameMultiblock(level, state, stateNew, center, posNew ))
@@ -107,7 +109,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
     }
 
     default void postChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        getFullBlockShape(level, pos, state).forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
+        getFullBlockShape(level, pos, state).getPositions().forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
     }
 
     default void cancelChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState){

@@ -21,6 +21,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IExpandingMultiblock;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
@@ -31,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class TestBlock extends SimpleMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
+public class TestBlock extends AbstractMultiBlock implements IPreviewableMultiblock, IExpandingMultiblock {
     public TestBlock(Properties properties) {
         super(properties);
     }

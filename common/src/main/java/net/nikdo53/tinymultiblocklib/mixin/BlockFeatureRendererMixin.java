@@ -1,17 +1,20 @@
 package net.nikdo53.tinymultiblocklib.mixin;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.client.renderer.block.BlockQuadOutput;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollection;
+import net.minecraft.client.renderer.block.*;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.feature.BlockFeatureRenderer;
+import net.minecraft.client.renderer.state.OptionsRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,21 +22,33 @@ import net.nikdo53.tinymultiblocklib.client.MovingBlockRenderStateAdvanced;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BlockFeatureRenderer.class)
 public class BlockFeatureRendererMixin {
 
-    @WrapOperation(method = "renderMovingBlockSubmits", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;tesselateBlock(Lnet/minecraft/client/renderer/block/BlockQuadOutput;FFFLnet/minecraft/client/renderer/block/BlockAndTintGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/renderer/block/dispatch/BlockStateModel;J)V"))
-    private static void renderMovingBlockSubmits(ModelBlockRenderer instance, BlockQuadOutput output, float x, float y, float z,
-                                                 BlockAndTintGetter level, BlockPos pos, BlockState blockState, BlockStateModel model, long seed,
-                                                 Operation<Void> original, @Local(name = "poseStack") PoseStack poseStack, @Local(argsOnly = true) MultiBufferSource.BufferSource bufferSource) {
+    @Inject(method = "renderMovingBlockSubmits", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSeed(Lnet/minecraft/core/BlockPos;)J"))
+    private void renderMovingBlockSubmits(SubmitNodeCollection nodeCollection,
+                                          MultiBufferSource.BufferSource bufferSource, BlockStateModelSet blockStateModelSet, OptionsRenderState optionsState, boolean translucent, CallbackInfo ci,
+                                          @Local(name = "movingBlockRenderState") MovingBlockRenderState state, @Local(name = "poseStack") PoseStack poseStack, @Local(name = "blockOutput") LocalRef<BlockQuadOutput> output) {
 
-        if (level instanceof MovingBlockRenderStateAdvanced renderStateCull){
-            output = (x1, y1, z1, quad, inst) -> tinyMultiblockLib$putBakedQuadCustomRenderType(poseStack, bufferSource, x1, y1, z1, quad, inst, renderStateCull);
+        if (state instanceof MovingBlockRenderStateAdvanced renderStateCull){
+            output.set((x1, y1, z1, quad, inst) -> tinyMultiblockLib$putBakedQuadCustomRenderType(poseStack, bufferSource, x1, y1, z1, quad, inst, renderStateCull));
         }
-        original.call(instance, output, x, y, z, level, pos, blockState, model, seed);
 
     }
+
+    @Definition(id = "flag", local = @Local(type = boolean.class, name = "translucent"))
+    @Expression("? == flag")
+    @WrapOperation(method = "renderMovingBlockSubmits", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
+    private static boolean renderMovingBlockSubmits(boolean left, boolean right, Operation<Boolean> original, @Local(name = "model") BlockStateModel model, @Local(name = "movingBlockRenderState") MovingBlockRenderState movingBlockRenderState) {
+        if (movingBlockRenderState instanceof MovingBlockRenderStateAdvanced renderState) {
+            return renderState.hasMaterialFlagWrap(model, right);
+        }
+        return original.call(left, right);
+    }
+
 
     @Unique
     private static void tinyMultiblockLib$putBakedQuadCustomRenderType(

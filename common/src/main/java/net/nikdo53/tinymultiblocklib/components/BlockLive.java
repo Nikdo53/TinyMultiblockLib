@@ -23,9 +23,6 @@ public class BlockLive {
     public BlockPos pos;
     public BlockState state;
 
-    /**
-     * A Blocklike that saves a block entity tag. Can be saved and moved around. Entity cannot be rendered in a preview
-     */
     public BlockLive(BlockPos pos, BlockState state) {
         this.pos = pos;
         this.state = state;

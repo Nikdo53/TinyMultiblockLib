@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.platform;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.nikdo53.tinymultiblocklib.platform.services.IUtils;
 
 import java.util.Optional;

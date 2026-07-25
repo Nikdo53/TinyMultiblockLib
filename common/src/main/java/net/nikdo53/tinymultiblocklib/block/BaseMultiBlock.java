@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,18 +14,11 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.Constants;
-import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock {
+public abstract class BaseMultiBlock extends Block implements IMovableMultiblock {
     /**
      * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
      * <p>
@@ -35,10 +27,10 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * @see #isCenter(BlockState)
      * @see #getCenter(BlockGetter, BlockPos)
      * */
-    public static final BooleanProperty CENTER = BooleanProperty.create("center");
+    public static final BooleanProperty CENTER = AbstractMultiBlock.CENTER;
     private final SharedStatePropertiesBuilder SHARED_STATE_BUILDER = new SharedStatePropertiesBuilder();
 
-    public AbstractMultiBlock(Properties properties) {
+    public BaseMultiBlock(Properties properties) {
         super(properties);
         if (getDirectionProperty() != null){
             this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false).setValue(getDirectionProperty(), Direction.NORTH));
@@ -49,29 +41,7 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
         if (!hasCustomBE())
             addToValidBEBlocks();
     }
-
-    public abstract List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction);
-
-    @Override
-    public void makeMultiblockShape(MultiblockShape.Builder builder, Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
-        List<BlockPos> list = makeFullBlockShape(level, center, state, blockEntity, direction);
-        Set<BlockPos> set = new HashSet<>(list);
-        if (set.size() < list.size()) {
-            Constants.LOGGER.error("Multiblock {} at {} has overlapping blocks in it's shape,"
-                            + " this is likely caused by the BlockPos being mutable."
-                            + " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
-                    state.toString(), center);
-        }
-
-        list.forEach(pos -> builder.addGlobal(pos, getCenterLogic()));
-
-    }
-
-    @Override
-    public MultiblockLogic getCenterLogic() {
-        return MultiblockLogic.EMPTY;
-    }
-
+    
     @Override
     public SharedStatePropertiesBuilder getSharedStatePropertiesBuilder() {
         return SHARED_STATE_BUILDER;

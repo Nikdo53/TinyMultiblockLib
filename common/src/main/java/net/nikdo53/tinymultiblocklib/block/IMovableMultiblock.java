@@ -9,7 +9,9 @@ import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public interface IMovableMultiblock extends IExpandingMultiblock {
 
@@ -17,25 +19,18 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
         BlockPos center = IMultiBlock.getCenter(level, pos);
         BlockPos centerMoved = center.relative(direction);
 
-        List<BlockPos> fullBlockShape = getFullBlockShape(level, center, state);
+        Set<BlockPos> fullBlockShape = getFullBlockShape(level, center, state).getPositions();
         fullBlockShape.forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, false));
 
-        List<BlockLive> originalBlocks = gatherStates(level, center, state);
+        Set<BlockLive> originalBlocks = new HashSet<>();
+        fullBlockShape.forEach(pos1 -> originalBlocks.add(new BlockLive.Tag(level, pos1)));
 
         fullBlockShape.forEach(pos1 -> level.setBlock(pos1, Blocks.AIR.defaultBlockState(), 66));
 
         originalBlocks.forEach(blockLike -> blockLike.move(level, BlockPos.ZERO.relative(direction)));
 
 
-        getFullBlockShape(level, centerMoved, state).forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
-    }
-
-    default List<BlockLive> gatherStates(Level level, BlockPos center, BlockState state){
-        List<BlockLive> list = new ArrayList<>();
-
-        getFullBlockShape(level, center, state).forEach(pos -> list.add(new BlockLive.Tag(level, pos)));
-
-        return list;
+        getFullBlockShape(level, centerMoved, state).getPositions().forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
     }
 
 }

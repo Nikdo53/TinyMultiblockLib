@@ -3,7 +3,7 @@ package net.nikdo53.tinymultiblocklib.blockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.nikdo53.tinymultiblocklib.block.MultiBlockLogic;
+import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ public class AbstractLogicMultiBlockEntity extends AbstractMultiBlockEntity{
     public AbstractLogicMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
-    private Map<BlockPos, MultiBlockLogic> logicShapeCache = Map.of();
+    private Map<BlockPos, MultiblockLogic> logicShapeCache = Map.of();
 
     @Override
     public void invalidateCaches() {
@@ -19,11 +19,11 @@ public class AbstractLogicMultiBlockEntity extends AbstractMultiBlockEntity{
         logicShapeCache.clear();
     }
 
-    public Map<BlockPos, MultiBlockLogic> getLogicShapeCache() {
+    public Map<BlockPos, MultiblockLogic> getLogicShapeCache() {
         return logicShapeCache;
     }
 
-    public void setLogicShapeCache(Map<BlockPos, MultiBlockLogic> logicShapeCache) {
+    public void setLogicShapeCache(Map<BlockPos, MultiblockLogic> logicShapeCache) {
         this.logicShapeCache = logicShapeCache;
     }
 }

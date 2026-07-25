@@ -18,6 +18,7 @@ public class TestBlockItem extends BlockItem {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipAdder, TooltipFlag flag) {
         tooltipAdder.accept(Component.literal("This is an example block from TinyMultiblockLib").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
         tooltipAdder.accept(Component.literal("Some of its functions may be disabled outside dev env").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
