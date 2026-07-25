@@ -1,7 +1,9 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;
@@ -41,5 +43,9 @@ public class MovingBlockRenderStateAdvanced extends MovingBlockRenderState {
             return LightCoordsUtil.block(packedLight);
 
         return LightCoordsUtil.sky(packedLight);
+    }
+
+    public boolean hasMaterialFlagWrap(BlockStateModel model, boolean translucent){
+        return translucent;
     }
 }

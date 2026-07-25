@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.blockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public interface IMultiBlockEntity {
     boolean isPlaced();
     void setPlaced(boolean placed);
 
-    List<BlockPos> getFullBlockShapeCache();
-    void setFullBlockShapeCache(List<BlockPos> shapeCache);
+    MultiblockShape getFullBlockShapeCache();
+    void setFullBlockShapeCache(MultiblockShape shapeCache);
 
     void invalidateCaches();
 

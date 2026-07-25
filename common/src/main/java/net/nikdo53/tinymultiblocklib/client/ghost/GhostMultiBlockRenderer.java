@@ -12,8 +12,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 //TODO: Finish this
 public class GhostMultiBlockRenderer extends GhostRenderer{

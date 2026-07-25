@@ -97,7 +97,6 @@ public class MultiblockPreviewRenderer {
                 }
             }
 
-            @Nullable
             BlockEntity blockEntity = block instanceof EntityBlock entityBlock ? entityBlock.newBlockEntity(pos, state) : null;
             if (blockEntity != null) {
                 blockEntity.setLevel(level);
@@ -176,6 +175,7 @@ public class MultiblockPreviewRenderer {
                 entityRender.render(entity, partialTick, poseStack, buffer, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
 
                 poseStack.popPose();
+
             }
         }
     }
@@ -221,7 +221,7 @@ public class MultiblockPreviewRenderer {
         poseStack.popPose();
     }
 
-    public static Set<BlockLive> gatherBlockLikes(FakeClientLevel fakeLevel, Level level, BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public static Set<BlockLive> gatherBlockLives(FakeClientLevel fakeLevel, Level level, BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (state.getBlock() instanceof IMultiBlock multiBlock) {
