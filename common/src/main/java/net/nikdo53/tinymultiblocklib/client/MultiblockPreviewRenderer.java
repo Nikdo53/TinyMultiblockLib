@@ -4,10 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -55,7 +52,7 @@ public class MultiblockPreviewRenderer {
     public static final RandomSource NOT_RANDOM = new NotRandomSource();
 
     public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, CameraRenderState camera, PoseStack poseStack, LevelRenderer levelRenderer, LevelRenderState renderState) {
-        MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
+        RenderBuffers buffer = minecraft.gameRenderer.renderBuffers();
         LocalPlayer player = minecraft.player;
         assert player != null;
         ItemStack stack = player.getMainHandItem();
@@ -215,7 +212,7 @@ public class MultiblockPreviewRenderer {
     private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, VertexConsumer vertexConsumer, Minecraft minecraft, FakeClientLevel fakeLevel) {
 
         if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
-        
+
         poseStack.pushPose();
         poseStack.translate(0.0001, 0.0001, 0.0001);
 
