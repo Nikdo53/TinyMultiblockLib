@@ -9,63 +9,71 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollection;
 import net.minecraft.client.renderer.block.*;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-import net.minecraft.client.renderer.feature.BlockFeatureRenderer;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.feature.FeatureFrameContext;
+import net.minecraft.client.renderer.feature.MovingBlockFeatureRenderer;
+import net.minecraft.client.renderer.feature.RenderTypeFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.OptionsRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.client.MovingBlockRenderStateAdvanced;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BlockFeatureRenderer.class)
-public class BlockFeatureRendererMixin {
+import java.util.List;
 
-    @Inject(method = "renderMovingBlockSubmits", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSeed(Lnet/minecraft/core/BlockPos;)J"))
-    private void renderMovingBlockSubmits(SubmitNodeCollection nodeCollection,
-                                          MultiBufferSource.BufferSource bufferSource, BlockStateModelSet blockStateModelSet, OptionsRenderState optionsState, boolean translucent, CallbackInfo ci,
-                                          @Local(name = "movingBlockRenderState") MovingBlockRenderState state, @Local(name = "poseStack") PoseStack poseStack, @Local(name = "blockOutput") LocalRef<BlockQuadOutput> output) {
+@Mixin(MovingBlockFeatureRenderer.class)
+public abstract class BlockFeatureRendererMixin extends RenderTypeFeatureRenderer<MovingBlockFeatureRenderer.Submit> {
+
+    @Shadow
+    @Final
+    private PoseStack poseStack;
+
+    @Inject(method = "buildGroup", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getSeed(Lnet/minecraft/core/BlockPos;)J"))
+    private void renderMovingBlockSubmits(FeatureFrameContext context, List<MovingBlockFeatureRenderer.Submit> submits, CallbackInfo ci,
+                                          @Local(name = "movingBlockRenderState") MovingBlockRenderState state, @Local(name = "blockOutput") LocalRef<BlockQuadOutput> output, @Local(name = "submit") MovingBlockFeatureRenderer.Submit submit) {
 
         if (state instanceof MovingBlockRenderStateAdvanced renderStateCull){
-            output.set((x1, y1, z1, quad, inst) -> tinyMultiblockLib$putBakedQuadCustomRenderType(poseStack, bufferSource, x1, y1, z1, quad, inst, renderStateCull));
+            output.set((x1, y1, z1, quad, inst) -> tinyMultiblockLib$putBakedQuadCustomRenderType(poseStack, x1, y1, z1, quad, inst, submit.outlineColor(), renderStateCull));
         }
 
     }
-
-    @Definition(id = "flag", local = @Local(type = boolean.class, name = "translucent"))
-    @Expression("? == flag")
-    @WrapOperation(method = "renderMovingBlockSubmits", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
-    private static boolean renderMovingBlockSubmits(boolean left, boolean right, Operation<Boolean> original, @Local(name = "model") BlockStateModel model, @Local(name = "movingBlockRenderState") MovingBlockRenderState movingBlockRenderState) {
-        if (movingBlockRenderState instanceof MovingBlockRenderStateAdvanced renderState) {
-            return renderState.hasMaterialFlagWrap(model, right);
-        }
-        return original.call(left, right);
-    }
-
 
     @Unique
-    private static void tinyMultiblockLib$putBakedQuadCustomRenderType(
-            PoseStack poseStack,
-            MultiBufferSource.BufferSource bufferSource,
-            float x,
-            float y,
-            float z,
-            BakedQuad quad,
-            QuadInstance instance,
+    private void tinyMultiblockLib$putBakedQuadCustomRenderType(
+            final PoseStack poseStack,
+            final float x,
+            final float y,
+            final float z,
+            final BakedQuad quad,
+            final QuadInstance instance,
+            final int outlineColor,
             MovingBlockRenderStateAdvanced renderState
+
     ) {
         poseStack.pushPose();
         poseStack.translate(x, y, z);
 
-        VertexConsumer buffer = bufferSource.getBuffer(renderState.renderType);
+        RenderType renderType = renderState.renderType;
+        VertexConsumer buffer;
+        if (outlineColor != 0 && renderType.outline().isPresent()) {
+            instance.setColor(outlineColor);
+            buffer = this.getVertexBuilder(renderType.outline().get());
+        } else {
+            buffer = this.getVertexBuilder(renderType);
+        }
+
         buffer.putBakedQuad(poseStack.last(), quad, instance);
         poseStack.popPose();
     }
+
 }

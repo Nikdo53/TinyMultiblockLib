@@ -19,7 +19,7 @@ public class GhostBlockEntityRenderer extends GhostRenderer{
     }
 
     @Override
-    public void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer) {
+    public void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack) {
         var entityRender = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
 
         if (entityRender != null) {

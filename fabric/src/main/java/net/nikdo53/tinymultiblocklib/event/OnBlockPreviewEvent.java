@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,9 +28,8 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     PoseStack poseStack;
     Set<BlockLive> blockLiveSet;
     boolean cancelled;
-    MultiBufferSource.BufferSource bufferSource;
 
-    public OnBlockPreviewEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
+    public OnBlockPreviewEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
         this.previewMode = previewMode;
         this.state = state;
         this.pos = pos;
@@ -42,7 +40,6 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
         this.poseStack = poseStack;
         this.blockLiveSet = blockLiveSet;
         this.cancelled = isCancelled;
-        this.bufferSource = bufferSource;
     }
 
     @Override
@@ -102,11 +99,6 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     @Override
     public Set<BlockLive> getBlocksForPreview() {
         return blockLiveSet;
-    }
-
-    @Override
-    public MultiBufferSource.BufferSource getBufferSource() {
-        return bufferSource;
     }
 
     @FunctionalInterface

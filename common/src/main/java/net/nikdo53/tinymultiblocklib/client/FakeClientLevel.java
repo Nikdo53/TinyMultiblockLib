@@ -37,7 +37,7 @@ public class FakeClientLevel extends ClientLevel {
                 level.dimensionTypeRegistration(),
                 1,
                 1,
-                Minecraft.getInstance().levelRenderer,
+                Minecraft.getInstance().levelExtractor,
                 false,
                 67,
                 67

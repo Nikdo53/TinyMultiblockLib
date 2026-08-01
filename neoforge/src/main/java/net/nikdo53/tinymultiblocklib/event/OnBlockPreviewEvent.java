@@ -2,7 +2,6 @@ package net.nikdo53.tinymultiblocklib.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,10 +27,9 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     float partialTicks;
     PoseStack poseStack;
     Set<BlockLive> blockLiveSet;
-    MultiBufferSource.BufferSource bufferSource;
 
     public OnBlockPreviewEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity,
-                               float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
+                               float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
         this.previewMode = previewMode;
         this.state = state;
         this.pos = pos;
@@ -41,7 +39,6 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         this.partialTicks = partialTicks;
         this.poseStack = poseStack;
         this.blockLiveSet = blockLiveSet;
-        this.bufferSource = bufferSource;
     }
 
     @Override
@@ -99,15 +96,10 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         return blockLiveSet;
     }
 
-    @Override
-    public MultiBufferSource.BufferSource getBufferSource() {
-        return bufferSource;
-    }
-
     public static class Pre extends OnBlockPreviewEvent implements ICancellableEvent{
         public Pre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity,
-                   float partialTicks, PoseStack poseStack,  Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
-            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet, bufferSource);
+                   float partialTicks, PoseStack poseStack,  Set<BlockLive> blockLiveSet) {
+            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
 
             if (isCancelled){
                 setCanceled(true);
@@ -127,8 +119,8 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
 
     public static class Post extends OnBlockPreviewEvent{
         public Post(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity,
-                    float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
-            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet, bufferSource);
+                    float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
         }
 
         @Override

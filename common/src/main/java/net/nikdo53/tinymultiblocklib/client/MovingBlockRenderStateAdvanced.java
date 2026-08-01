@@ -10,13 +10,14 @@ import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import org.jspecify.annotations.Nullable;
 
 
 public class MovingBlockRenderStateAdvanced extends MovingBlockRenderState {
     public boolean cull;
     public BlockAndTintGetter level;
     public RenderType renderType;
-    public Integer packedLight = null;
+    public @Nullable Integer packedLight = null;
 
     public MovingBlockRenderStateAdvanced(BlockAndTintGetter level, boolean cull, RenderType renderType) {
         this.level = level;

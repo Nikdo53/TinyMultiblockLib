@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -7,7 +8,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.ghost.GhostRenderer;
 import net.nikdo53.tinymultiblocklib.platform.NeoForgePlatformHelper;
@@ -16,16 +19,15 @@ import net.nikdo53.tinymultiblocklib.platform.NeoForgePlatformHelper;
 public class TMBLClientEvents {
 
     @SubscribeEvent
-    public static void renderLevelStage(RenderLevelStageEvent.AfterTranslucentBlocks event){
+    public static void renderLevelStage(SubmitCustomGeometryEvent event){
         if (!TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
             MultiblockPreviewRenderer.renderMultiblockPreviews(
                     DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
                     Minecraft.getInstance(),
                     Minecraft.getInstance().level,
                     event.getLevelRenderState().cameraRenderState,
-                    event.getPoseStack(),
-                    event.getLevelRenderer(),
-                    event.getLevelRenderState()
+                    new PoseStack(),
+                    event.getSubmitNodeCollector()
             );
         }
 
@@ -33,7 +35,8 @@ public class TMBLClientEvents {
                 DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
                 event.getLevelRenderState().cameraRenderState,
                 Minecraft.getInstance().level,
-                event.getPoseStack()
+                new PoseStack(),
+                event.getSubmitNodeCollector()
         );
     }
 

@@ -14,12 +14,13 @@
   "client": [
     "BlockFeatureRendererMixin",
     "BlockModelRenderStateAccessor",
-    "BufferSourceAccessor",
     "ClientLevelAccessorMixin",
     "ClientLevelMixin",
-    "MinecraftAccessor",
+    "FeatureRenderDispatcherMixin",
     "ModelBlockRendererMixin",
-    "RenderTypeAccessor"
+    "RenderTypeAccessor",
+    "RenderTypeFeatureRendererMixin",
+    "StagedVertexBufferMixin"
   ],
   "server": [
   ],

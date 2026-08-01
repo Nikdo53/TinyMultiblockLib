@@ -1,88 +1,25 @@
 package net.nikdo53.tinymultiblocklib.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.QuadInstance;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.resources.Identifier;
-import net.nikdo53.tinymultiblocklib.mixin.BufferSourceAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.RenderTypeAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class TintedBufferSource extends MultiBufferSource.BufferSource{
-    public IColorSupplier color;
-    BufferSource originalBuffer;
-
-    public TintedBufferSource(BufferSource bufferSource, IColorSupplier color) {
-        super(((BufferSourceAccessor)bufferSource).getSharedBuffer(), ((BufferSourceAccessor)bufferSource).getFixedBuffers());
-        this.color = color;
-        this.originalBuffer = bufferSource;
-    }
-
-    @Override
-    public void endLastBatch() {
-        originalBuffer.endLastBatch();
-    }
-
-    @Override
-    public void endBatch() {
-        originalBuffer.endBatch();
-    }
-
-    @Override
-    public void endBatch(RenderType renderType) {
-        originalBuffer.endBatch(renderType);
-    }
-
-    @Override
-    public VertexConsumer getBuffer(RenderType renderType) {
-        VertexConsumer original = originalBuffer.getBuffer(getTranslucent(renderType));
-
-        return new VertexConsumerWrapper(original) {
-
-            @Override
-            public void putBakedQuad(PoseStack.Pose pose, BakedQuad quad, QuadInstance instance) {
-                instance.multiplyColor(color.packedARGB());
-                super.putBakedQuad(pose, quad, instance);
-            }
-
-            @Override
-            public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight, float normalX, float normalY, float normalZ) {
-                original.addVertex(x, y, z, TintedBufferSource.this.color.applyColors(color), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
-            }
-
-            @Override
-            public VertexConsumer setColor(int r, int g, int b, int a) {
-                return original.setColor(r * color.getRed(), g * color.getGreen(), b * color.getBlue(), a * color.getAlpha());
-            }
-
-            @Override
-            public VertexConsumer setColor(float red, float green, float blue, float alpha) {
-                return original.setColor(red * color.getRed(), green * color.getGreen(), blue * color.getBlue(), alpha * color.getAlpha());
-            }
-
-            @Override
-            public VertexConsumer setColor(int color) {
-                return original.setColor(TintedBufferSource.this.color.applyColors(color));
-            }
-
-        };
-    }
+// past 26.2 just contains util methods im too lazy to clean up
+public class TintedBufferSource {
 
     public static final List<Pair<String, Function<Optional<Identifier>, RenderType>>> VALID_TYPES = getValidTypes();
 
-    private static @NotNull List<Pair<String, Function<Optional<Identifier>, RenderType>>> getValidTypes() {
-        List<Pair<String, Function<Optional<Identifier>, RenderType>>> list = new ArrayList<>();
+    private static List<Pair<String, Function<Optional<Identifier>, @Nullable RenderType>>> getValidTypes() {
+        List<Pair<String, Function<Optional<Identifier>, @Nullable RenderType>>> list = new ArrayList<>();
         list.add(new Pair<>("entity_solid",
                 loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
         list.add(new Pair<>("entity_cutout",
@@ -104,7 +41,7 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
     }
 
     public static RenderType getTranslucent(RenderType renderType) {
-        Optional<Pair<String, Function<Optional<Identifier>, RenderType>>> any = VALID_TYPES.stream()
+        Optional<Pair<String, Function<Optional<Identifier>, @Nullable RenderType>>> any = VALID_TYPES.stream()
                 .filter(pair -> pair.getFirst().equals(getName(renderType)))
                 .findAny();
 
@@ -120,7 +57,7 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
         return renderType;
     }
 
-    public static RenderType renderTypeOrNull(Optional<Identifier> location, Function<Identifier, RenderType> function){
+    public static @Nullable RenderType renderTypeOrNull(Optional<Identifier> location, Function<Identifier, RenderType> function){
         return location.map(function).orElse(null);
     }
 
