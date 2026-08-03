@@ -1,6 +1,4 @@
-package net.nikdo53.tinymultiblocklib.client;
-
-import net.minecraft.util.ARGB;
+package net.nikdo53.tinymultiblocklib.color;
 
 public interface IColorSupplier {
     float getRed();
@@ -9,17 +7,17 @@ public interface IColorSupplier {
     float getAlpha();
 
     default int applyColors(int originalColor){
-        float r = ARGB.red(originalColor);
-        float g = ARGB.green(originalColor);
-        float b = ARGB.blue(originalColor);
-        float a = ARGB.alpha(originalColor);
+        float r = originalColor >> 16 & 0xFF;
+        float g = originalColor >> 8 & 0xFF;
+        float b = originalColor & 0xFF;
+        float a = originalColor >> 24 & 0xFF;
 
         r = r * getRed();
         g = g * getGreen();
         b = b * getBlue();
         a = a * getAlpha();
 
-        return ARGB.color((int) a, (int) r, (int) g, (int) b);
+        return ((int) a & 0xFF) << 24 | ((int)r & 0xFF) << 16 | ((int)g & 0xFF) << 8 | (int)b & 0xFF;
     }
 
     default float[] applyColorsFloat(float r, float g, float b, float a){
@@ -33,7 +31,31 @@ public interface IColorSupplier {
     }
 
     default int packedARGB(){
-        return ARGB.color((int) (getAlpha() * 255), (int) (getRed() * 255), (int) (getGreen() * 255), (int) (getBlue() * 255));
+        return (getAlphaInt() & 0xFF) << 24 | (getRedInt() & 0xFF) << 16 | (getGreenInt() & 0xFF) << 8 | getBlueInt() & 0xFF;
+    }
+
+    default Simple immutable(){
+        return new Simple(getRed(), getGreen(), getBlue(), getAlpha());
+    }
+
+    default Mutable mutable(){
+        return new Mutable(getRed(), getGreen(), getBlue(), getAlpha());
+    }
+
+    default int getRedInt(){
+        return (int) (getRed() * 255);
+    }
+
+    default int getGreenInt(){
+        return (int) (getGreen() * 255);
+    }
+
+    default int getBlueInt(){
+        return (int) (getBlue() * 255);
+    }
+
+    default int getAlphaInt(){
+        return (int) (getAlpha() * 255);
     }
 
     record Simple(float red, float green, float blue, float alpha) implements IColorSupplier{
@@ -56,6 +78,10 @@ public interface IColorSupplier {
         @Override
         public float getAlpha() {
             return alpha;
+        }
+
+        public Simple copy(){
+            return new Simple(red, green, blue, alpha);
         }
     }
 

@@ -11,9 +11,9 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.Constants;
-import net.nikdo53.tinymultiblocklib.client.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 import net.nikdo53.tinymultiblocklib.client.TintedBufferSource;
+import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.components.RenderOffsetType;
 import org.jspecify.annotations.Nullable;
 
