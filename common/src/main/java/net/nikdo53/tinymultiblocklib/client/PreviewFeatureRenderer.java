@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.feature.*;
 import net.minecraft.client.renderer.feature.submit.TranslucentSubmit;
 import net.nikdo53.tinymultiblocklib.client.extensions.IFeatureRenderDispatcherExtension;
 import net.nikdo53.tinymultiblocklib.client.extensions.IStagedVertexBufferWrapExtension;
+import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.jspecify.annotations.Nullable;

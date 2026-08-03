@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 
 public class TintedVertexConsumer extends VertexConsumerWrapper {
     public IColorSupplier colorSupplier;
