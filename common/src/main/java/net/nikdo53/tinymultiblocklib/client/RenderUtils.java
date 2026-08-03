@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
+import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.mixin.BlockModelRenderStateAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.MinecraftAccessor;
 import org.jspecify.annotations.NonNull;
@@ -57,18 +58,6 @@ public class RenderUtils {
 
         featureRenderDispatcher.renderAllFeatures();
 
-    }
-
-    // this is bullshit
-    public static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
-
-    public static @NonNull BlockModelRenderState getBlockModelRenderState(BlockState state, RenderType renderType) {
-        BlockModelRenderState renderState = new BlockModelRenderState();
-
-        MinecraftAccessor minecraft = (MinecraftAccessor) Minecraft.getInstance();
-        minecraft.getBlockModelResolver().update(renderState, state, BLOCK_DISPLAY_CONTEXT);
-        ((BlockModelRenderStateAccessor) renderState).setRenderType(renderType);
-        return renderState;
     }
 
     public static @NonNull MovingBlockRenderState createMovingBlockRenderState(BlockAndTintGetter level, BlockPos pos, BlockState state, boolean cull, RenderType renderType, @Nullable Integer packedLight, @Nullable Holder<Biome> biome) {

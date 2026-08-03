@@ -1,7 +1,7 @@
 package net.nikdo53.tinymultiblocklib.components;
 
-import net.minecraft.util.FastColor;
-import net.nikdo53.tinymultiblocklib.client.IColorSupplier;
+
+import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 
 public enum PreviewMode implements IColorSupplier {
     /**
