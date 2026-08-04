@@ -2,6 +2,7 @@ package net.nikdo53.tinymultiblocklib.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,27 +19,13 @@ import java.util.Set;
 
 public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     private PreviewMode previewMode;
-    BlockState state;
-    BlockPos pos;
-    Block block;
-    LocalPlayer player;
-    @Nullable
-    BlockEntity blockEntity;
-    float partialTicks;
-    PoseStack poseStack;
+    BlockLive center;
     Set<BlockLive> blockLiveSet;
 
-    public OnBlockPreviewEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity,
-                               float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+    public OnBlockPreviewEvent(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet) {
         this.previewMode = previewMode;
-        this.state = state;
-        this.pos = pos;
-        this.block = state.getBlock();
-        this.player = player;
-        this.blockEntity = blockEntity;
-        this.partialTicks = partialTicks;
-        this.poseStack = poseStack;
         this.blockLiveSet = blockLiveSet;
+        this.center = center;
     }
 
     @Override
@@ -57,38 +44,11 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     @Override
-    public void setCancelledInternal(boolean canceled) {
-
-    }
+    public void setCancelledInternal(boolean canceled) {}
 
     @Override
-    public BlockState getBlockState() {
-        return state;
-    }
-
-    @Override
-    public BlockPos getCenter() {
-        return pos;
-    }
-
-    @Override
-    public LocalPlayer getPlayer() {
-        return player;
-    }
-
-    @Override
-    public @Nullable BlockEntity getBlockEntity() {
-        return blockEntity;
-    }
-
-    @Override
-    public float getPartialTick() {
-        return partialTicks;
-    }
-
-    @Override
-    public PoseStack getPoseStack() {
-        return poseStack;
+    public BlockLive getCenterBlockLive() {
+        return center;
     }
 
     @Override
@@ -97,9 +57,8 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     public static class Pre extends OnBlockPreviewEvent implements ICancellableEvent{
-        public Pre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity,
-                   float partialTicks, PoseStack poseStack,  Set<BlockLive> blockLiveSet) {
-            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
+        public Pre(PreviewMode previewMode, boolean isCancelled, BlockLive center, Set<BlockLive> blockLiveSet) {
+            super(previewMode, center, blockLiveSet);
 
             if (isCancelled){
                 setCanceled(true);
@@ -118,14 +77,34 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     public static class Post extends OnBlockPreviewEvent{
-        public Post(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, BlockEntity blockEntity,
-                    float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
-            super(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet);
+        PoseStack poseStack;
+        float partialTicks;
+        SubmitNodeStorage submitNodeStorage;
+
+        public Post(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage) {
+            super(previewMode, center, blockLiveSet);
+
+            this.poseStack = poseStack;
+            this.partialTicks = partialTicks;
+            this.submitNodeStorage = submitNodeStorage;
         }
 
         @Override
         public Set<BlockLive> getBlocksForPreview() {
             return new HashSet<>(blockLiveSet);
         }
+
+        public float getPartialTick() {
+            return partialTicks;
+        }
+
+        public PoseStack getPoseStack() {
+            return poseStack;
+        }
+
+        public SubmitNodeStorage getSubmitNodeStorage() {
+            return submitNodeStorage;
+        }
+
     }
 }

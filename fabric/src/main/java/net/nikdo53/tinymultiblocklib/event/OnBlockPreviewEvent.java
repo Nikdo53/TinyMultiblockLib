@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,32 +15,18 @@ import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     private PreviewMode previewMode;
-    BlockState state;
-    BlockPos pos;
-    Block block;
-    LocalPlayer player;
-    @Nullable
-    BlockEntity blockEntity;
-    float partialTicks;
-    PoseStack poseStack;
+    BlockLive center;
     Set<BlockLive> blockLiveSet;
-    boolean cancelled;
 
-    public OnBlockPreviewEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet) {
+    public OnBlockPreviewEvent(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet) {
         this.previewMode = previewMode;
-        this.state = state;
-        this.pos = pos;
-        this.block = state.getBlock();
-        this.player = player;
-        this.blockEntity = blockEntity;
-        this.partialTicks = partialTicks;
-        this.poseStack = poseStack;
         this.blockLiveSet = blockLiveSet;
-        this.cancelled = isCancelled;
+        this.center = center;
     }
 
     @Override
@@ -54,46 +41,15 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
 
     @Override
     public boolean isCancelledInternal() {
-        return cancelled;
+        return false;
     }
 
     @Override
-    public void setCancelledInternal(boolean canceled) {
-        this.cancelled = canceled;
-    }
-
-    public void cancel(){
-        this.cancelled = true;
-    }
+    public void setCancelledInternal(boolean canceled) {}
 
     @Override
-    public BlockState getBlockState() {
-        return state;
-    }
-
-    @Override
-    public BlockPos getCenter() {
-        return pos;
-    }
-
-    @Override
-    public LocalPlayer getPlayer() {
-        return player;
-    }
-
-    @Override
-    public @Nullable BlockEntity getBlockEntity() {
-        return blockEntity;
-    }
-
-    @Override
-    public float getPartialTick() {
-        return partialTicks;
-    }
-
-    @Override
-    public PoseStack getPoseStack() {
-        return poseStack;
+    public BlockLive getCenterBlockLive() {
+        return center;
     }
 
     @Override
@@ -101,10 +57,69 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
         return blockLiveSet;
     }
 
-    @FunctionalInterface
-    public interface Pre {
+    public static class Pre extends OnBlockPreviewEvent{
+        boolean isCanceled;
 
-        Event<OnBlockPreviewEvent.Pre> EVENT = EventFactory.createArrayBacked(OnBlockPreviewEvent.Pre.class,
+        public Pre(PreviewMode previewMode, boolean isCancelled, BlockLive center, Set<BlockLive> blockLiveSet) {
+            super(previewMode, center, blockLiveSet);
+            this.isCanceled = isCancelled;
+        }
+
+        @Override
+        public boolean isCancelledInternal() {
+            return isCanceled;
+        }
+
+        @Override
+        public void setCancelledInternal(boolean canceled) {
+            this.isCanceled = canceled;
+        }
+
+        public boolean isCanceled() {
+            return isCanceled;
+        }
+
+        public void cancel() {
+            this.isCanceled = true;
+        }
+
+    }
+
+    public static class Post extends OnBlockPreviewEvent{
+        PoseStack poseStack;
+        float partialTicks;
+        SubmitNodeStorage submitNodeStorage;
+
+        public Post(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage) {
+            super(previewMode, center, blockLiveSet);
+
+            this.poseStack = poseStack;
+            this.partialTicks = partialTicks;
+            this.submitNodeStorage = submitNodeStorage;
+        }
+
+        @Override
+        public Set<BlockLive> getBlocksForPreview() {
+            return new HashSet<>(blockLiveSet);
+        }
+
+        public float getPartialTick() {
+            return partialTicks;
+        }
+
+        public PoseStack getPoseStack() {
+            return poseStack;
+        }
+
+        public SubmitNodeStorage getSubmitNodeStorage() {
+            return submitNodeStorage;
+        }
+
+    }
+    @FunctionalInterface
+    public interface PreEvent {
+
+        Event<PreEvent> EVENT = EventFactory.createArrayBacked(PreEvent.class,
                 (listeners) -> (event) -> {
                     for (var listener : listeners) {
                         event = listener.onBlockPreview(event);
@@ -118,17 +133,17 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
                 }
         );
 
-        OnBlockPreviewEvent onBlockPreview(OnBlockPreviewEvent event);
+        OnBlockPreviewEvent.Pre onBlockPreview(OnBlockPreviewEvent.Pre event);
 
     }
 
     @FunctionalInterface
-    public interface Post {
+    public interface PostEvent {
 
-        Event<OnBlockPreviewEvent.Post> EVENT = EventFactory.createArrayBacked(OnBlockPreviewEvent.Post.class,
+        Event<PostEvent> EVENT = EventFactory.createArrayBacked(PostEvent.class,
                 (listeners) -> (event) -> {
                     for (var listener : listeners) {
-                        OnBlockPreviewEvent onBlockPreviewEvent = listener.postBlockPreview(event);
+                        OnBlockPreviewEvent.Post onBlockPreviewEvent = listener.postBlockPreview(event);
 
                         if (onBlockPreviewEvent.isCancelledInternal()) {
 
@@ -141,7 +156,7 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
                 }
         );
 
-        OnBlockPreviewEvent postBlockPreview(OnBlockPreviewEvent event);
+        OnBlockPreviewEvent.Post postBlockPreview(OnBlockPreviewEvent.Post event);
 
     }
 }

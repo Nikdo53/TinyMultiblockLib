@@ -37,6 +37,7 @@ import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,7 +48,6 @@ public class MultiblockPreviewRenderer {
     public static final RandomSource NOT_RANDOM = new NotRandomSource();
 
     public static void renderMultiblockPreviews(float partialTick, Minecraft minecraft, Level level, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
-        RenderBuffers buffer = minecraft.gameRenderer.renderBuffers();
         LocalPlayer player = minecraft.player;
         assert player != null;
         ItemStack stack = player.getMainHandItem();
@@ -111,7 +111,8 @@ public class MultiblockPreviewRenderer {
             FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
             Set<BlockLive> blockLiveSet = gatherBlockLives(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
 
-            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet);
+            BlockLive centerLive = BlockLive.Live.optionalBE(pos, state, blockEntity);
+            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, centerLive, blockLiveSet);
 
             if (!event.isCancelledInternal()) {
                 blockLiveSet = event.getBlocksForPreview();
@@ -127,7 +128,7 @@ public class MultiblockPreviewRenderer {
                 }
 
                 RenderUtils.renderFromStorage(submitNodeCollector, NODE_STORAGE, previewMode, poseStack);
-                IOnBlockPreviewEvent.firePostEvent(previewMode, state, pos, player, blockEntity, partialTick, poseStack, blockLiveSet);
+                IOnBlockPreviewEvent.firePostEvent(previewMode, centerLive, blockLiveSet, poseStack, partialTick, NODE_STORAGE);
 
             }
 
@@ -172,7 +173,7 @@ public class MultiblockPreviewRenderer {
         }
     }
 
-    private static @NotNull PreviewMode getPreviewMode(Level level, BlockPos pos, BlockState state, LocalPlayer player, boolean hasNullState) {
+    private static PreviewMode getPreviewMode(Level level, BlockPos pos, BlockState state, LocalPlayer player, boolean hasNullState) {
         if (hasNullState) return PreviewMode.INVALID;
 
         boolean multiBlockCanPlace = canPlace(level, pos, state, player);
@@ -212,13 +213,13 @@ public class MultiblockPreviewRenderer {
         poseStack.popPose();
     }
 
-    public static Set<BlockLive> gatherBlockLives(FakeClientLevel fakeLevel, Level level, BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+    public static Set<BlockLive> gatherBlockLives(FakeClientLevel fakeLevel, Level level, @Nullable BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (state.getBlock() instanceof IMultiBlock multiBlock) {
             blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, blockEntity, pos, state), level, pos, state));
         } else {
-            blockLiveSet.add(new BlockLive.Live(pos, state, blockEntity));
+            blockLiveSet.add(BlockLive.Live.optionalBE(pos, state, blockEntity));
         }
 
         state.getBlock().setPlacedBy(fakeLevel, pos, state, placer, stack);
