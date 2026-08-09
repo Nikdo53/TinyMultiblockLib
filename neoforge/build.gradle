@@ -63,7 +63,7 @@ sourceSets.configureEach {
 
 dependencies {
   //  compileOnly("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
-    compileOnly "curse.maven:carry-on-274259:7386188"
+    implementation "curse.maven:carry-on-274259:8562912"
 
 
 }
