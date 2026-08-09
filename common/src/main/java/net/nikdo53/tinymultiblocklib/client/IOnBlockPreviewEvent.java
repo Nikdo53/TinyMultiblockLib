@@ -1,7 +1,7 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,28 +20,29 @@ public interface IOnBlockPreviewEvent {
     boolean isCancelledInternal();
     void setCancelledInternal(boolean canceled);
 
-    BlockState getBlockState();
-    BlockPos getCenter();
-
-    LocalPlayer getPlayer();
-
-    @Nullable
-    BlockEntity getBlockEntity();
-
-    float getPartialTick();
-    PoseStack getPoseStack();
-
+    BlockLive getCenterBlockLive();
     Set<BlockLive> getBlocksForPreview();
 
-    MultiBufferSource.BufferSource getBufferSource();
-
-
-    static IOnBlockPreviewEvent firePreEvent(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
-       return Services.PLATFORM.getEventPoster().onBlockPreviewPre(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet,bufferSource);
+    default BlockState getCenterBlockState() {
+        return getCenterBlockLive().state;
     }
 
-    static void firePostEvent(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource){
-        Services.PLATFORM.getEventPoster().onBlockPreviewPost(previewMode, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet, bufferSource);
+    default BlockPos getCenter() {
+        return getCenterBlockLive().pos;
+    }
+
+    @Nullable
+    default BlockEntity getCenterBlockEntity() {
+        return getCenterBlockLive() instanceof BlockLive.Live live ? live.blockEntity : null;
+    }
+
+
+    static IOnBlockPreviewEvent firePreEvent(PreviewMode previewMode, boolean isCancelled, BlockLive center, Set<BlockLive> blockLiveSet) {
+       return Services.PLATFORM.getEventPoster().onBlockPreviewPre(previewMode, isCancelled, center, blockLiveSet);
+    }
+
+    static void firePostEvent(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage){
+        Services.PLATFORM.getEventPoster().onBlockPreviewPost(previewMode, center, blockLiveSet, poseStack, partialTicks, submitNodeStorage);
     }
 
 }

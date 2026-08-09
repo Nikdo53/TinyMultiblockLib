@@ -2,7 +2,7 @@ package net.nikdo53.tinymultiblocklib.platform;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,12 +19,13 @@ public class FabricEventPoster implements IEventPoster {
     public static final FabricEventPoster INSTANCE = new FabricEventPoster();
 
     @Override
-    public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
-        return OnBlockPreviewEvent.Pre.EVENT.invoker().onBlockPreview(new OnBlockPreviewEvent(previewMode, isCancelled, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet, bufferSource));
+    public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockLive center, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
+        return OnBlockPreviewEvent.PreEvent.EVENT.invoker().onBlockPreview(new OnBlockPreviewEvent.Pre(previewMode, isCancelled, center, blockLiveSet, bufferSource));
     }
 
     @Override
-    public void onBlockPreviewPost(PreviewMode previewMode, BlockState state, BlockPos pos, LocalPlayer player, @Nullable BlockEntity blockEntity, float partialTicks, PoseStack poseStack, Set<BlockLive> blockLiveSet, MultiBufferSource.BufferSource bufferSource) {
-        OnBlockPreviewEvent.Post.EVENT.invoker().postBlockPreview(new OnBlockPreviewEvent(previewMode, false, state, pos, player, blockEntity, partialTicks, poseStack, blockLiveSet, bufferSource));
+    public void onBlockPreviewPost(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage) {
+        OnBlockPreviewEvent.PostEvent.EVENT.invoker().postBlockPreview(new OnBlockPreviewEvent.Post(previewMode, center, blockLiveSet, poseStack, partialTicks, submitNodeStorage));
     }
+
 }
