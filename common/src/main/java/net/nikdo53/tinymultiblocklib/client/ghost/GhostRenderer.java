@@ -3,11 +3,10 @@ package net.nikdo53.tinymultiblocklib.client.ghost;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.Constants;
@@ -15,7 +14,7 @@ import net.nikdo53.tinymultiblocklib.client.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 import net.nikdo53.tinymultiblocklib.client.TintedBufferSource;
 import net.nikdo53.tinymultiblocklib.components.RenderOffsetType;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.function.Consumer;
 
 public abstract class GhostRenderer {
     public static List<GhostRenderer> RENDERERS = new ArrayList<>();
-    protected SubmitNodeStorage submitNodeCollector = RenderUtils.createTranslucentNodeStorage();
 
     protected Either<Vec3, BlockPos> posEither;
     protected int ticksRemaining;
@@ -36,7 +34,7 @@ public abstract class GhostRenderer {
     protected float maxAlpha = 1;
     protected Integer fadeOutTicks = null;
     protected Pair<Double, Double> fadeDistanceAndStart = null;
-    protected Consumer<PoseStack> poseStackConsumer = _ -> {};
+    protected Consumer<PoseStack> poseStackConsumer = p -> {};
 
     public GhostRenderer(Vec3 position, int ticksRemaining) {
         this.posEither = Either.left(position);
@@ -68,12 +66,12 @@ public abstract class GhostRenderer {
         RENDERERS.add(this);
     }
 
-    public static void renderAll(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack){
+    public static void renderAll(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack){
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
 
-        double camX = camera.pos.x;
-        double camY = camera.pos.y;
-        double camZ = camera.pos.z;
+        double camX = camera.getPosition().x;
+        double camY = camera.getPosition().y;
+        double camZ = camera.getPosition().z;
 
         poseStack.pushPose();
         poseStack.translate(-camX, -camY, -camZ);
@@ -94,12 +92,12 @@ public abstract class GhostRenderer {
         });
     }
 
-    protected void prepareAndRender(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer, IColorSupplier.Mutable currentColor){
+    protected void prepareAndRender(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer, IColorSupplier.Mutable currentColor){
         shouldRender = true;
         currentColor.copy(this.color);
 
         if (fadeOutTicks != null) doTimeFade(partialTick, currentColor);
-        if (fadeDistanceAndStart != null) doDistanceFade(fadeDistanceAndStart.getFirst(), fadeDistanceAndStart.getSecond(), camera.pos, currentColor);
+        if (fadeDistanceAndStart != null) doDistanceFade(fadeDistanceAndStart.getFirst(), fadeDistanceAndStart.getSecond(), camera.getPosition(), currentColor);
 
         if (!shouldRender)
             return;
@@ -111,8 +109,6 @@ public abstract class GhostRenderer {
         poseStackConsumer.accept(poseStack);
 
         render(partialTick, camera, level, poseStack, buffer);
-
-        RenderUtils.renderFromStorage(submitNodeCollector, buffer);
 
         buffer.endLastBatch();
         poseStack.popPose();
@@ -142,7 +138,7 @@ public abstract class GhostRenderer {
         }
     }
 
-    protected abstract void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer);
+    protected abstract void render(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer);
 
     public GhostRenderer setRenderOffsetType(RenderOffsetType renderOffsetType) {
         this.renderOffsetType = renderOffsetType;
