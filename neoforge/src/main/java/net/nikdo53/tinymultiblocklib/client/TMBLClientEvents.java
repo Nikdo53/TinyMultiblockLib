@@ -21,10 +21,8 @@ public class TMBLClientEvents {
     @SubscribeEvent
     public static void renderLevelStage(SubmitCustomGeometryEvent event){
         if (!TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
-            MultiblockPreviewRenderer.renderMultiblockPreviews(
+            MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
                     DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
-                    Minecraft.getInstance(),
-                    Minecraft.getInstance().level,
                     event.getLevelRenderState().cameraRenderState,
                     new PoseStack(),
                     event.getSubmitNodeCollector()
@@ -34,7 +32,6 @@ public class TMBLClientEvents {
         GhostRenderer.renderAll(
                 DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
                 event.getLevelRenderState().cameraRenderState,
-                Minecraft.getInstance().level,
                 new PoseStack(),
                 event.getSubmitNodeCollector()
         );

@@ -18,10 +18,8 @@ public class TMBLClientEvents {
     }
 
     private static void renderLevelStageEvent(LevelExtractionContext event) {
-        MultiblockPreviewRenderer.renderMultiblockPreviews(
+        MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
                 DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
-                Minecraft.getInstance(),
-                Minecraft.getInstance().level,
                 event.levelState().cameraRenderState,
                 new PoseStack(),
                 event.levelRenderer().submitNodeStorage
@@ -30,7 +28,6 @@ public class TMBLClientEvents {
         GhostRenderer.renderAll(
                 DeltaTracker.ONE.getGameTimeDeltaPartialTick(false),
                 event.levelState().cameraRenderState,
-                Minecraft.getInstance().level,
                 new PoseStack(),
                 event.levelRenderer().submitNodeStorage
         );

@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.client.ghost;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -65,7 +66,10 @@ public abstract class GhostRenderer {
         RENDERERS.add(this);
     }
 
-    public static void renderAll(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
+    public static void renderAll(float partialTick, CameraRenderState camera, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+
         double camX = camera.pos.x;
         double camY = camera.pos.y;
         double camZ = camera.pos.z;
