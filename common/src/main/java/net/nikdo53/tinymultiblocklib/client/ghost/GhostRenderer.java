@@ -6,13 +6,13 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.Constants;
-import net.nikdo53.tinymultiblocklib.client.RenderUtils;
-import net.nikdo53.tinymultiblocklib.client.TintedBufferSource;
+import net.nikdo53.tinymultiblocklib.client.*;
 import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.components.RenderOffsetType;
 import org.jspecify.annotations.Nullable;
@@ -29,7 +29,7 @@ public abstract class GhostRenderer {
     protected int ticksRemaining;
     protected final int maxTicksRemaining;
     protected RenderOffsetType renderOffsetType = RenderOffsetType.SCALED;
-    protected IColorSupplier color = new IColorSupplier.Simple(1, 1, 1, 1);
+    protected IColorSupplier colorStatic = new IColorSupplier.Simple(1, 1, 1, 1);
     protected @Nullable Integer packedLight = null;
     protected boolean shouldRender = true;
 
@@ -68,8 +68,12 @@ public abstract class GhostRenderer {
         RENDERERS.add(this);
     }
 
-    public static void renderAll(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack){
+    public static void renderAll(float partialTick, CameraRenderState camera, PoseStack poseStack) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+
 
         double camX = camera.pos.x;
         double camY = camera.pos.y;
@@ -96,7 +100,7 @@ public abstract class GhostRenderer {
 
     protected void prepareAndRender(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer, IColorSupplier.Mutable currentColor){
         shouldRender = true;
-        currentColor.copy(this.color);
+        currentColor.copy(this.colorStatic);
 
         if (fadeOutTicks != null) doTimeFade(partialTick, currentColor);
         if (fadeDistanceAndStart != null) doDistanceFade(fadeDistanceAndStart.getFirst(), fadeDistanceAndStart.getSecond(), camera.pos, currentColor);
@@ -150,7 +154,7 @@ public abstract class GhostRenderer {
     }
 
     public GhostRenderer setARGB(float red, float green, float blue, float alpha) {
-        color = new IColorSupplier.Simple(red, green, blue, alpha);
+        colorStatic = new IColorSupplier.Simple(red, green, blue, alpha);
         return this;
     }
 

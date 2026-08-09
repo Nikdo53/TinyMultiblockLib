@@ -9,19 +9,16 @@ import tschipp.carryon.common.carry.CarryOnDataManager;
 
 public class CarryOnPreviewHelper {
 
-    // i have to wait until the port comes out
     public static boolean isValidMultiblock(Player player){
-/*        CarryOnData carry = CarryOnDataManager.getCarryData(player);
+        CarryOnData carry = CarryOnDataManager.getCarryData(player);
         if (carry.isCarrying(CarryOnData.CarryType.BLOCK)){
            return IMultiBlock.isMultiblock(carry.getBlock());
-        };*/
+        }
         return false;
     }
 
     public static Item getMultiblockItem(Player player){
-/*        CarryOnData carry = CarryOnDataManager.getCarryData(player);
-        return carry.getBlock().getBlock().asItem();*/
-
-        return Items.AIR;
+        CarryOnData carry = CarryOnDataManager.getCarryData(player);
+        return carry.getBlock().getBlock().asItem();
     }
 }

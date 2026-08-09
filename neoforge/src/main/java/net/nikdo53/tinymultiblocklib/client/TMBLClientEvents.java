@@ -18,21 +18,16 @@ public class TMBLClientEvents {
     @SubscribeEvent
     public static void renderLevelStage(RenderLevelStageEvent.AfterTranslucentBlocks event){
         if (!TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
-            MultiblockPreviewRenderer.renderMultiblockPreviews(
+            MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
                     DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
-                    Minecraft.getInstance(),
-                    Minecraft.getInstance().level,
                     event.getLevelRenderState().cameraRenderState,
-                    event.getPoseStack(),
-                    event.getLevelRenderer(),
-                    event.getLevelRenderState()
+                    event.getPoseStack()
             );
         }
 
         GhostRenderer.renderAll(
                 DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
                 event.getLevelRenderState().cameraRenderState,
-                Minecraft.getInstance().level,
                 event.getPoseStack()
         );
     }
