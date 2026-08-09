@@ -14,16 +14,14 @@ import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.nikdo53.tinymultiblocklib.Constants;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     private BlockPos offset;
     private boolean isPlaced;
-    private MultiblockShape blockShapeCache = new MultiblockShape(new HashMap<>());
+    private MultiblockShape blockShapeCache = new MultiblockShape(new HashMap<>(), BlockPos.ZERO);
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -90,6 +88,6 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
 
     @Override
     public void invalidateCaches() {
-        blockShapeCache.getPositions().clear();
+        blockShapeCache.getGlobalPositions().clear();
     }
 }

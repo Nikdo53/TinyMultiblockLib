@@ -9,7 +9,7 @@ import net.nikdo53.tinymultiblocklib.blockentities.SimpleStructureMultiBlockEnti
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
-import net.nikdo53.tinymultiblocklib.test.SimpleMultiBlock;
+import net.nikdo53.tinymultiblocklib.test.SimpleMultiblock;
 import net.nikdo53.tinymultiblocklib.test.TestBlock;
 
 import java.util.HashSet;
@@ -32,7 +32,7 @@ public interface CommonRegistration {
                 REGISTRATION.registerBlockWithItem("diamond_structure", DiamondStructureBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK));
 
          Supplier<Block> SIMPLE_MULTIBLOCK =
-                REGISTRATION.registerBlockWithItem("simple_multiblock", SimpleMultiBlock::new,() -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
+                REGISTRATION.registerBlockWithItem("simple_multiblock", SimpleMultiblock::new,() -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
 
         static void init(){
 

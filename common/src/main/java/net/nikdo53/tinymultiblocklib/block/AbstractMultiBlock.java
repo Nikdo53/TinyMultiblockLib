@@ -2,31 +2,31 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
-import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
+import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
-public abstract class AbstractMultiBlock extends Block implements IMovableMultiblock {
+
+/**
+ * @deprecated Use {@link LogicMultiblock} instead
+ */
+@Deprecated
+public abstract class AbstractMultiBlock extends BaseMultiblock implements IMovableMultiblock, EntityBlock {
     /**
      * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
      * <p>
@@ -35,35 +35,28 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
      * @see #isCenter(BlockState)
      * @see #getCenter(BlockGetter, BlockPos)
      * */
-    public static final BooleanProperty CENTER = BooleanProperty.create("center");
-    private final SharedStatePropertiesBuilder SHARED_STATE_BUILDER = new SharedStatePropertiesBuilder();
+    public static final BooleanProperty CENTER = BaseMultiblock.CENTER;
 
     public AbstractMultiBlock(Properties properties) {
         super(properties);
-        if (getDirectionProperty() != null){
-            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false).setValue(getDirectionProperty(), Direction.NORTH));
-        } else {
-            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false));
-        }
-
-        if (!hasCustomBE())
-            addToValidBEBlocks();
     }
 
     public abstract List<BlockPos> makeFullBlockShape(Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction);
 
     @Override
-    public void makeMultiblockShape(MultiblockShape.Builder builder, Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
-        List<BlockPos> list = makeFullBlockShape(level, center, state, blockEntity, direction);
+    public void makeMultiblockShape(MultiblockShape.Builder builder, ShapeContext context) {
+        BlockState state = context.getBlockState();
+        EnumProperty<Direction> directionProperty = getDirectionProperty();
+        List<BlockPos> list = makeFullBlockShape(context.getLevel(), context.getCenterPos(), state, context.getBlockEntity(), directionProperty != null ? state.getValue(directionProperty) : null);
         Set<BlockPos> set = new HashSet<>(list);
         if (set.size() < list.size()) {
             Constants.LOGGER.error("Multiblock {} at {} has overlapping blocks in it's shape,"
                             + " this is likely caused by the BlockPos being mutable."
                             + " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
-                    state.toString(), center);
+                    state.toString(), context.getCenterPos());
         }
 
-        list.forEach(pos -> builder.addGlobal(pos, getCenterLogic()));
+        list.forEach(pos -> builder.addGlobal(pos, getCenterLogic(), UnaryOperator.identity()));
 
     }
 
@@ -71,83 +64,4 @@ public abstract class AbstractMultiBlock extends Block implements IMovableMultib
     public MultiblockLogic getCenterLogic() {
         return MultiblockLogic.EMPTY;
     }
-
-    @Override
-    public SharedStatePropertiesBuilder getSharedStatePropertiesBuilder() {
-        return SHARED_STATE_BUILDER;
-    }
-
-    @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return getStateForPlacementHelper(context);
-    }
-
-    @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return getMultiblockRenderShape(state, IMultiBlock.isCenter(state));
-    }
-
-    /**
-     * Sorry for forcing everyone to override this, but its kinda important for performance and fixing visual glitches
-     * <p>
-     * If your block is a JSON model, return {@link RenderShape#MODEL}
-     * <p>
-     * If your block has a BlockEntity renderer, return {@link RenderShape#INVISIBLE} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
-     * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction) The method for setting a different BlockState to each block
-     * */
-    public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter){
-        return RenderShape.MODEL;
-    };
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(CENTER);
-        if (getDirectionProperty() != null) builder.add(getDirectionProperty());
-    }
-
-    @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
-
-        onPlaceHelper(state, level, pos, oldState);
-    }
-
-    @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        if (!(level instanceof  LevelAccessor levelAccessor)){
-            Constants.LOGGER.error("level goofed up oh no");
-            return state;
-        }
-        return updateShapeHelper(state, direction, neighborState, levelAccessor, pos, neighborPos);
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return canSurviveHelper(state, level, pos);
-    }
-
-    @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        preventCreativeDrops(player, level, pos);
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    /**
-     * Remember to override {@link #hasCustomBE()} when overriding, so the block doesn't get added to valid blocks for no reason
-     * */
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get().create(pos, state);
-    }
-
-    public boolean hasCustomBE(){
-        return false;
-    }
-
-    protected void addToValidBEBlocks(){
-        CommonRegistration.BlockEntities.VALID_BLOCKS_SIMPLE.add(this);
-        Services.PLATFORM.getRegistration().addSupportedBEBlock(CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY, this);
-    }
-
 }

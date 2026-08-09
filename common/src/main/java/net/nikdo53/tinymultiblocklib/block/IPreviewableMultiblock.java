@@ -30,7 +30,7 @@ public interface IPreviewableMultiblock extends IMultiBlock {
      * Returns the default BlockState that will be used for previews
      * */
     default BlockState getDefaultStateForPreviews(Direction direction) {
-        BlockState blockState = self().defaultBlockState().setValue(AbstractMultiBlock.CENTER, true);
+        BlockState blockState = self().defaultBlockState().setValue(BaseMultiblock.CENTER, true);
 
         if (getDirectionProperty() == null) return blockState;
         return blockState.trySetValue(getDirectionProperty(), direction);

@@ -3,10 +3,8 @@ package net.nikdo53.tinymultiblocklib.blockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
-
-import java.util.List;
 
 public interface IMultiBlockEntity {
     BlockPos getOffset();

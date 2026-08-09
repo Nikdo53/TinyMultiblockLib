@@ -8,9 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public interface IMovableMultiblock extends IExpandingMultiblock {
@@ -19,7 +17,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
         BlockPos center = IMultiBlock.getCenter(level, pos);
         BlockPos centerMoved = center.relative(direction);
 
-        Set<BlockPos> fullBlockShape = getFullBlockShape(level, center, state).getPositions();
+        Set<BlockPos> fullBlockShape = getFullBlockShape(level, center, state).getGlobalPositions();
         fullBlockShape.forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, false));
 
         Set<BlockLive> originalBlocks = new HashSet<>();
@@ -30,7 +28,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
         originalBlocks.forEach(blockLike -> blockLike.move(level, BlockPos.ZERO.relative(direction)));
 
 
-        getFullBlockShape(level, centerMoved, state).getPositions().forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
+        getFullBlockShape(level, centerMoved, state).getGlobalPositions().forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
     }
 
 }
