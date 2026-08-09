@@ -158,8 +158,9 @@ public class MultiblockPreviewRenderer {
                     renderBlockEntity(blockLive, pos, poseStack, partialTick, minecraft, fakeLevel, camera);
                 }
 
-                RenderUtils.renderFromStorage(NODE_STORAGE, bufferSource);
                 IOnBlockPreviewEvent.firePostEvent(previewMode, centerLive, blockLiveSet, poseStack, partialTick, NODE_STORAGE);
+
+                RenderUtils.renderFromStorage(NODE_STORAGE, bufferSource);
 
             }
 
