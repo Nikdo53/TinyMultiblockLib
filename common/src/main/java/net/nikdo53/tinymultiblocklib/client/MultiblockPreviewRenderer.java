@@ -158,6 +158,7 @@ public class MultiblockPreviewRenderer {
                 }
 
                 RenderUtils.renderFromStorage(submitNodeCollector, NODE_STORAGE, previewMode, poseStack);
+
                 IOnBlockPreviewEvent.firePostEvent(previewMode, centerLive, blockLiveSet, poseStack, partialTick, NODE_STORAGE);
 
             }
