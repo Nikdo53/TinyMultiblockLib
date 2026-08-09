@@ -15,10 +15,11 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
+import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
-public abstract class BaseMultiBlock extends Block implements IMovableMultiblock {
+public abstract class BaseMultiblock extends Block implements IMovableMultiblock {
     /**
      * The BlockState of the multiblocks center block, ideally you should forward all logic to this block
      * <p>
@@ -27,21 +28,32 @@ public abstract class BaseMultiBlock extends Block implements IMovableMultiblock
      * @see #isCenter(BlockState)
      * @see #getCenter(BlockGetter, BlockPos)
      * */
-    public static final BooleanProperty CENTER = AbstractMultiBlock.CENTER;
+    public static final BooleanProperty CENTER = BooleanProperty.create("center");
     private final SharedStatePropertiesBuilder SHARED_STATE_BUILDER = new SharedStatePropertiesBuilder();
+    protected ShapeContext.@Nullable Properties shapeProperties = null;
 
-    public BaseMultiBlock(Properties properties) {
+    public BaseMultiblock(Properties properties) {
         super(properties);
         if (getDirectionProperty() != null){
-            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false).setValue(getDirectionProperty(), Direction.NORTH));
+            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, true).setValue(getDirectionProperty(), Direction.NORTH));
         } else {
-            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, false));
+            this.registerDefaultState(this.getStateDefinition().any().setValue(CENTER, true));
         }
 
         if (!hasCustomBE())
             addToValidBEBlocks();
     }
-    
+
+    @Override
+    public ShapeContext.@Nullable Properties getShapeProperties() {
+        return shapeProperties;
+    }
+
+    @Override
+    public void setShapeProperties(ShapeContext.Properties properties) {
+        this.shapeProperties = properties;
+    }
+
     @Override
     public SharedStatePropertiesBuilder getSharedStatePropertiesBuilder() {
         return SHARED_STATE_BUILDER;
@@ -58,12 +70,9 @@ public abstract class BaseMultiBlock extends Block implements IMovableMultiblock
     }
 
     /**
-     * Sorry for forcing everyone to override this, but its kinda important for performance and fixing visual glitches
-     * <p>
      * If your block is a JSON model, return {@link RenderShape#MODEL}
      * <p>
      * If your block has a BlockEntity renderer, return {@link RenderShape#INVISIBLE} for that specific block and  {@link RenderShape#INVISIBLE} everywhere else
-     * @see #getStateForEachBlock(BlockState, BlockPos, BlockPos, Level, Direction) The method for setting a different BlockState to each block
      * */
     public RenderShape getMultiblockRenderShape(BlockState state, boolean isCenter){
         return RenderShape.MODEL;

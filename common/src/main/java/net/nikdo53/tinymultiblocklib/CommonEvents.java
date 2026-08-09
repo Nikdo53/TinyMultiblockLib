@@ -1,17 +1,10 @@
 package net.nikdo53.tinymultiblocklib;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.Vec3;
-import net.nikdo53.tinymultiblocklib.block.AbstractStructureMultiBlock;
-import net.nikdo53.tinymultiblocklib.components.BlockPatternUtils;
+import net.nikdo53.tinymultiblocklib.util.BlockPatternUtils;
 import net.nikdo53.tinymultiblocklib.components.Corner;
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
 

@@ -40,8 +40,10 @@ public class DiamondStructureBlock extends AbstractStructureMultiBlock implement
 
     public static BlockPattern getBlockPattern() {
         return BlockPatternBuilder.start()
-                .aisle("xx", "xx")
-                .aisle("xx", "xx")
+                .aisle("xx",
+                        "xx")
+                .aisle("xx",
+                        "xx")
                 .where('x', blockInWorld -> blockInWorld.getState().is(Blocks.DIAMOND_BLOCK))
                 .build();
     }

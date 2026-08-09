@@ -6,29 +6,33 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.nikdo53.tinymultiblocklib.block.logic.MultiblockBehaviour;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock.CENTER;
+import static net.nikdo53.tinymultiblocklib.block.BaseMultiblock.CENTER;
 
-public interface IMultiBlock extends IMBStateSharer, EntityBlock {
+public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, EntityBlock {
 
     /** Returns a BlockPos Stream of every block in this multiblock.
      * <p>
@@ -38,9 +42,16 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
      * @param direction present only when {@link #getDirectionProperty()} is overridden with a valid property
      * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
      * */
-    void makeMultiblockShape(MultiblockShape.Builder builder, Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction);
+    void makeMultiblockShape(MultiblockShape.Builder builder, ShapeContext context);
 
     MultiblockLogic getCenterLogic();
+
+    @ApiStatus.Internal
+    ShapeContext.@Nullable Properties getShapeProperties();
+
+    @ApiStatus.Internal
+    void setShapeProperties(ShapeContext.Properties properties);
+
 
     /**
      * Mojangs BetweenClosed methods return a mutable BlockPos, which breaks everything.
@@ -54,9 +65,37 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
      * Returns the multiblocks DirectionProperty.
      * <p>
      * Only used for multiblocks that can be rotated, otherwise returns null
+     * @apiNote Use {@link #makeDirectional()} instead.
      * */
     default @Nullable EnumProperty<Direction> getDirectionProperty(){
+        DirectionContext directionContext = makeDirectional();
+        return directionContext != null ? directionContext.property() : null; // null if block doesn't have directions
+    }
+
+    /**
+     * Returns the multiblocks DirectionProperty and extractor function. Automatically registers the block state property, no additional setup necessary.
+     * <p>
+     * Only used for multiblocks that can be rotated, otherwise returns null
+     * */
+    default @Nullable DirectionContext makeDirectional(){
         return null; // null if block doesn't have directions
+    }
+
+    /**
+     * Context for directional multiblocks.
+     * <p>
+     * @param property The DirectionProperty of the multiblock
+     * @param directionExtractor The function to extract the direction from a block place context, returns null if the block cannot be placed
+     * */
+    record DirectionContext(EnumProperty<Direction> property, Function<BlockPlaceContext, @Nullable Direction> directionExtractor){
+        public static DirectionContext horizontal(){
+            return new DirectionContext(HorizontalDirectionalBlock.FACING, UseOnContext::getHorizontalDirection);
+        }
+
+        public static DirectionContext allAxis(){
+            return new DirectionContext(BlockStateProperties.FACING, UseOnContext::getClickedFace);
+        }
+
     }
 
     default @Nullable Direction getDirection(BlockState state){
@@ -66,15 +105,24 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         return null;
     }
 
-    default MultiblockShape getFullBlockShapeNoCache(Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
-        //TODO: Level can be null here on launch due to voxelshape caching, maybe logic should not affect voxelshape? but that kinda sucks
+    default MultiblockShape getFullBlockShapeNoCache(@Nullable Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
         if (blockEntity == null && level != null){
             blockEntity = level.getBlockEntity(center);
         }
 
         MultiblockShape.Builder builder = new MultiblockShape.Builder(center);
         builder.add(BlockPos.ZERO, getCenterLogic());
-        makeMultiblockShape(builder, level, center, state, blockEntity, getDirection(state));
+
+        ShapeContext context = new ShapeContext(level, center, state, blockEntity, this);
+        makeMultiblockShape(builder, context);
+
+        ShapeContext.Properties properties = context.getProperties();
+        if (getShapeProperties() == null){
+            setShapeProperties(properties);
+        } else if (!getShapeProperties().equals(properties)){
+            throw new IllegalStateException("Shape properties changed unexpectedly, please include any getters from the context at the top of the makeMultiblockShape method.");
+        }
+
 
         return builder.build();
     }
@@ -97,11 +145,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         return mbEntity.getFullBlockShapeCache();
     }
 
-    default MultiblockLogic getLogicForPos(BlockGetter level, BlockPos pos, BlockState state){
-        return getFullBlockShape(level, pos, state).getShape().get(pos).logic();
-    }
-
-    default MultiblockShape getAndUpdateShapeCache(BlockState state, IMultiBlockEntity mbEntity, Level betterLevel, BlockEntity blockEntity, BlockPos center) {
+    private MultiblockShape getAndUpdateShapeCache(BlockState state, IMultiBlockEntity mbEntity, Level betterLevel, BlockEntity blockEntity, BlockPos center) {
         MultiblockShape blockPosList = getFullBlockShapeNoCache(betterLevel, blockEntity, center, state);
 
         mbEntity.setFullBlockShapeCache(blockPosList);
@@ -112,7 +156,7 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         BlockState state = level.getBlockState(pos);
 
         if (state.getBlock() instanceof IMultiBlock multiBlock){
-            return multiBlock.getFullBlockShape(level, pos, state).getShape().keySet().stream().toList();
+            return multiBlock.getFullBlockShape(level, pos, state).getGlobalPositions().stream().toList();
         }
 
         return List.of(pos);
@@ -128,7 +172,9 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
      * Changes the BlockState for each Block in this multiblock.
      * Works like GetStateForPlacement does in regular blocks
      * @see IBlockPosOffsetEnum#fromOffset(Class, BlockPos, Direction, Enum)
+     * @deprecated use the shape builder instead.
      * */
+    @Deprecated
     default BlockState getStateForEachBlock(BlockState state, BlockPos pos, BlockPos centerOffset, Level level, @Nullable Direction direction){
         return state;
     }
@@ -171,10 +217,10 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     default List<BlockLive> prepareForPlace(MultiblockShape shape, Level level, BlockPos centerPos, BlockState stateOriginal){
         List<BlockLive> list = new ArrayList<>();
 
-        shape.getShape().keySet().forEach(posNew -> {
+        shape.getGlobalPositions().forEach(posNew -> {
             posNew = posNew.immutable();
 
-            BlockState stateNew = stateOriginal.setValue(AbstractMultiBlock.CENTER, centerPos.equals(posNew));
+            BlockState stateNew = stateOriginal.setValue(BaseMultiblock.CENTER, centerPos.equals(posNew));
             stateNew = getStateForEachBlock(stateNew, posNew, posNew.subtract(centerPos), level, getDirection(stateOriginal));
 
             list.add(new BlockLive(posNew, stateNew));
@@ -184,18 +230,22 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     }
 
 
-    default BlockState getStateForPlacementHelper(BlockPlaceContext context) {
-        return getStateForPlacementHelper(context, context.getHorizontalDirection());
+    default @Nullable BlockState getStateForPlacementHelper(BlockPlaceContext context) {
+        DirectionContext directionContext = makeDirectional();
+        Direction direction = directionContext == null ? context.getHorizontalDirection() : directionContext.directionExtractor().apply(context);
+        if (direction == null)
+            return null;
+        return getStateForPlacementHelper(context, direction);
     }
 
     /**
      * Helper for {@link Block#getStateForPlacement(BlockPlaceContext)}
      * @param direction The direction the block will have when placed, ignored when {@link #getDirectionProperty()} is null
      * */
-    default BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
+    default @Nullable BlockState getStateForPlacementHelper(BlockPlaceContext context, Direction direction) {
         LevelReader level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        BlockState state = self().defaultBlockState().setValue(CENTER, true);
+        BlockState state = self().defaultBlockState().setValue(BaseMultiblock.CENTER, true);
 
         if (getDirectionProperty() != null){
             state = state.setValue(getDirectionProperty(), direction);
@@ -205,35 +255,28 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     }
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {
-        return getFullBlockShape(level, center, state).getPositions().stream().allMatch(blockPos ->
-                canReplaceBlock(level, blockPos, level.getBlockState(blockPos))
-                        && extraSurviveRequirements(level, blockPos, state, blockPos.subtract(center))
-                        && (entityUnobstructed(level, blockPos, state, player) || ignoreEntities)
-                        && blockPos.getY() < level.getMaxY() && blockPos.getY() > level.getMinY());
+        MultiblockShape shape = getFullBlockShape(level, center, state);
+        return shape.getGlobalPositions().stream().allMatch(pos -> canPlaceBlock(pos, level, center, state, player, ignoreEntities, shape));
     }
 
-    /**
-     * Returns true if multiblock can replace this original block, runs for the whole multiblock shape
-     * */
-    default boolean canReplaceBlock(LevelReader level, BlockPos blockPos, BlockState state) {
-        return state.canBeReplaced();
-    }
-
-    default boolean entityUnobstructed(CollisionGetter level, BlockPos pos, BlockState state, @Nullable Entity player) {
-        CollisionContext context = player == null ? CollisionContext.empty() : CollisionContext.of(player);
-
-        return getFullBlockShape(level, pos, state).getPosStream().allMatch(blockPos -> level.isUnobstructed(state, blockPos, context));
+    default boolean canPlaceBlock(BlockPos pos, LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities, MultiblockShape shape) {
+        return canReplaceBlock(level, pos, level.getBlockState(pos), shape)
+                && extraSurviveRequirements(level, pos, state, pos.subtract(center), shape)
+                && (entityUnobstructed(level, pos, state, player, shape) || ignoreEntities)
+                && pos.getY() < level.getMaxY() && pos.getY() > level.getMinY();
     }
 
     default void destroy(BlockPos center, LevelAccessor level, BlockState state, boolean dropBlock){
         if (level.isClientSide()) return;
-        Set<BlockPos> blocks = getFullBlockShape(level, center, state).getPositions();
+        Set<BlockPos> blocks = getFullBlockShape(level, center, state).getGlobalPositions();
 
         if (level.getBlockState(center).is(state.getBlock())) {
             level.destroyBlock(center, dropBlock);
         }
 
-        getIsolatedBlocks(center, level, state).forEach(pos ->{
+        blocks.forEach(pos ->{
+            if (pos.equals(center)) return;
+
             BlockState blockState = level.getBlockState(pos);
             if (blockState.is(state.getBlock())) {
                 level.destroyBlock(pos, dropBlock);
@@ -241,39 +284,15 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
         });
     }
 
-    //todo: check if this is fine
-    default List<BlockPos> getIsolatedBlocks(BlockPos center, LevelAccessor level, BlockState state) {
-        Set<BlockPos> posSet = new HashSet<>(getFullBlockShape(level, center, state).getPositions());
-
-        List<BlockPos> isolated = new ArrayList<>();
-
-        for (BlockPos pos : posSet) {
-            boolean hasNeighbor =
-                    posSet.contains(pos.above()) ||
-                            posSet.contains(pos.below()) ||
-                            posSet.contains(pos.north()) ||
-                            posSet.contains(pos.south()) ||
-                            posSet.contains(pos.east())  ||
-                            posSet.contains(pos.west());
-
-            if (!hasNeighbor) {
-                isolated.add(pos);
-            }
-        }
-
-        return isolated;
-    }
-
-
     default boolean allBlocksPresent(LevelReader level, BlockPos pos, BlockState state){
         if (level.isClientSide()) return true;
         BlockPos center = getCenter(level, pos);
 
-        boolean ret = getFullBlockShape(level, center, state).getPositions().stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
+        boolean ret = getFullBlockShape(level, center, state).getGlobalPositions().stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
 
         boolean isMultiblock = isMultiblock(level, pos);
         if (ret && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity && !entity.isPlaced() && isMultiblock) {
-            getFullBlockShape(level, center, state).getPositions().forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
+            getFullBlockShape(level, center, state).getGlobalPositions().forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
         }
 
         return ret;
@@ -303,19 +322,13 @@ public interface IMultiBlock extends IMBStateSharer, EntityBlock {
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             //survive logic
-            boolean extraSurvive = getFullBlockShape(level, pos, state).getPosStream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state, entity.getOffset()));
+            MultiblockShape shape = getFullBlockShape(level, pos, state);
+            boolean extraSurvive = shape.getGlobalPositions().stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state, entity.getOffset(), shape));
             return (allBlocksPresent(level, pos, state) || !entity.isPlaced()) && extraSurvive;
         } else {
             //placement logic
             return canPlace(level, pos, state, null, false);
         }
-    }
-
-    /**
-     * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
-     * */
-    default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state, BlockPos centerOffset){
-        return true;
     }
 
     /**
