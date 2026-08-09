@@ -29,6 +29,14 @@ public class BlockLive {
         this(pos, level.getBlockState(pos));
     }
 
+    public BlockLive fromLevel(BlockGetter level, BlockPos pos) {
+        BlockLive blockLive = new BlockLive(level, pos);
+        if (level.getBlockEntity(pos) != null) {
+           return blockLive.addBlockEntity(level.getBlockEntity(pos));
+        }
+        return blockLive;
+    }
+
     public void move(Level level, BlockPos offset){
         BlockPos posNew = pos.offset(offset);
         level.setBlockAndUpdate(posNew, state);
@@ -99,6 +107,13 @@ public class BlockLive {
 
         public Live(BlockGetter level, BlockPos pos) {
             this(pos, level.getBlockState(pos), Objects.requireNonNull(level.getBlockEntity(pos)));
+        }
+
+        public static BlockLive optionalBE(BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity) {
+            if (blockEntity != null) {
+                return new Live(pos, state, blockEntity);
+            }
+            return new BlockLive(pos, state);
         }
 
         @Override
