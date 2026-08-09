@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.nikdo53.tinymultiblocklib.components.BlockPatternUtils;
+import net.nikdo53.tinymultiblocklib.util.BlockPatternUtils;
 import net.nikdo53.tinymultiblocklib.components.Corner;
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
 

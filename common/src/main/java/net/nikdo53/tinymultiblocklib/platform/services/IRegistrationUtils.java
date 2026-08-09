@@ -1,13 +1,11 @@
 package net.nikdo53.tinymultiblocklib.platform.services;
 
-import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
 import java.util.Set;
 import java.util.function.BiFunction;

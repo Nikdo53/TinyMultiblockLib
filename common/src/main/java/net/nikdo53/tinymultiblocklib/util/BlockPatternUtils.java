@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.components;
+package net.nikdo53.tinymultiblocklib.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -6,10 +6,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
-import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.Constants;
-import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
-import org.jetbrains.annotations.Nullable;
+import net.nikdo53.tinymultiblocklib.block.BaseMultiblock;
+import net.nikdo53.tinymultiblocklib.components.Corner;
 
 public class BlockPatternUtils {
 
@@ -19,7 +18,7 @@ public class BlockPatternUtils {
 
        // Direction.WEST, Direction.DOWN, Direction.SOUTH
         BlockPos center = BlockPatternUtils.getCorner(blockPatternMatch, corner);
-        level.setBlock(center.offset(placementOffset), stateToPlace.trySetValue(AbstractMultiBlock.CENTER, true), 3);
+        level.setBlock(center.offset(placementOffset), stateToPlace.trySetValue(BaseMultiblock.CENTER, true), 3);
 
         return true;
     }

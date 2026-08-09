@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-public class MultiblockLogic extends BlockBehaviour {
+public class MultiblockLogic extends BlockBehaviour implements MultiblockBehaviour {
     public static final MultiblockLogic EMPTY = new MultiblockLogic();
 
     public MultiblockLogic() {

@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.blockentities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -13,14 +14,12 @@ import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import org.jetbrains.annotations.NotNull;
 import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     private BlockPos offset;
     private boolean isPlaced;
-    private MultiblockShape blockShapeCache = new MultiblockShape(new HashMap<>());
+    private MultiblockShape blockShapeCache = new MultiblockShape(new HashMap<>(), BlockPos.ZERO);
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -89,6 +88,6 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
 
     @Override
     public void invalidateCaches() {
-        blockShapeCache.getPositions().clear();
+        blockShapeCache.getGlobalPositions().clear();
     }
 }

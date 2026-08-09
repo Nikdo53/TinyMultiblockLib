@@ -2,7 +2,6 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -15,49 +14,64 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.nikdo53.tinymultiblocklib.block.logic.DelegatingMultiblockLogic;
+import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
-import net.nikdo53.tinymultiblocklib.components.BlockLive;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
+import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
+import java.util.function.UnaryOperator;
 
-public class LogicMultiBlock extends BaseMultiBlock implements IMovableMultiblock {
-    public LogicMultiBlock(Properties properties) {
+public abstract class LogicMultiblock extends BaseMultiblock implements IMovableMultiblock {
+    public LogicMultiblock(Properties properties) {
         super(properties);
     }
 
-    @Override
-    public void makeMultiblockShape(MultiblockShape.Builder builder, Level level, BlockPos center, BlockState state, @Nullable BlockEntity blockEntity, @Nullable Direction direction) {
-        builder.add(new Vec3i(0, 1, 0), DelegatingMultiblockLogic.INSTANCE, s -> s);
-        builder.add(0, 2, 0, DelegatingMultiblockLogic.INSTANCE);
+    public MultiblockLogic getLogicForPos(BlockGetter level, BlockPos pos, BlockState state, @Nullable MultiblockShape shape){
+        if (shape == null) {
+            shape = getFullBlockShape(level, pos, state);
+        }
+        MultiblockShape.Entry entry = shape.getEntryForGlobalPos(pos);
+        if (entry == null) {
+            return MultiblockLogic.EMPTY;
+        }
+        return entry.logic();
+    }
+
+    public MultiblockLogic getLogicForPos(BlockGetter level, BlockPos pos, BlockState state){
+        return getLogicForPos(level, pos, state, null);
     }
 
     @Override
-    public MultiblockLogic getCenterLogic() {
-        return new MultiblockLogic(){
-            @Override
-            public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-                return InteractionResult.SUCCESS;
-            }
-        };
+    public @Nullable AbstractMultiBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get().create(pos, state);
+    }
+
+    //TMBL delegations (these do not use super since that's already a part of the logic)
+    @Override
+    public boolean canReplaceBlock(LevelReader level, BlockPos blockPos, BlockState state, MultiblockShape shape) {
+        return getLogicForPos(level, blockPos, state, shape).canReplaceBlock(level, blockPos, state, shape);
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
+    public boolean entityUnobstructed(CollisionGetter level, BlockPos pos, BlockState state, @Nullable Entity player, MultiblockShape shape) {
+        return getLogicForPos(level, pos, state, shape).entityUnobstructed(level, pos, state, player, shape);
     }
 
-    //Logic delegations:
+    @Override
+    public boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state, BlockPos centerOffset, MultiblockShape shape) {
+        return getLogicForPos(level, pos, state, shape).extraSurviveRequirements(level, pos, state, centerOffset, shape);
+    }
 
+
+    //vanilla logic delegations:
     @Override
     protected void updateIndirectNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos, @Block.UpdateFlags int updateFlags, int updateLimit) {
         getLogicForPos(level, pos, state).updateIndirectNeighbourShapes(state, level, pos, updateFlags, updateLimit);
@@ -106,36 +120,6 @@ public class LogicMultiBlock extends BaseMultiBlock implements IMovableMultibloc
     }
 
     @Override
-    protected VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return getLogicForPos(level, pos, state).getBlockSupportShape(state, level, pos);
-    }
-
-    @Override
-    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return getLogicForPos(level, pos, state).getInteractionShape(state, level, pos);
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getLogicForPos(level, pos, state).getShape(state, level, pos, context);
-    }
-
-    @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getLogicForPos(level, pos, state).getCollisionShape(state, level, pos, context);
-    }
-
-    @Override
-    protected VoxelShape getEntityInsideCollisionShape(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
-        return getLogicForPos(level, pos, state).getEntityInsideCollisionShape(state, level, pos, entity);
-    }
-
-    @Override
-    protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getLogicForPos(level, pos, state).getVisualShape(state, level, pos, context);
-    }
-
-    @Override
     protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return getLogicForPos(level, pos, state).getMenuProvider(state, level, pos);
     }
@@ -145,10 +129,6 @@ public class LogicMultiBlock extends BaseMultiBlock implements IMovableMultibloc
         return super.canSurvive(state, level, pos) && getLogicForPos(level, pos, state).canSurvive(state, level, pos);
     }
 
-    @Override
-    protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
-        return getLogicForPos(level, pos, state).getShadeBrightness(state, level, pos);
-    }
 
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {

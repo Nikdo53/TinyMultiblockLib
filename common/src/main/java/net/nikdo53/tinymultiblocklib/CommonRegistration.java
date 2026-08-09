@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib;
 
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.nikdo53.tinymultiblocklib.blockentities.SimpleMultiBlockEntity;
@@ -8,7 +9,7 @@ import net.nikdo53.tinymultiblocklib.blockentities.SimpleStructureMultiBlockEnti
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
-import net.nikdo53.tinymultiblocklib.test.SimpleMultiBlock;
+import net.nikdo53.tinymultiblocklib.test.SimpleMultiblock;
 import net.nikdo53.tinymultiblocklib.test.TestBlock;
 
 import java.util.HashSet;
@@ -19,24 +20,25 @@ public interface CommonRegistration {
     IRegistrationUtils REGISTRATION = Services.PLATFORM.getRegistration();
 
     static void init(){
-        Blocks.init();
+        BlockReg.init();
         BlockEntities.init();
     }
 
-    interface Blocks{
+    interface BlockReg {
         Supplier<Block> TEST_BLOCK =
-                REGISTRATION.registerBlockWithItem("test_block", () -> new TestBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
+                REGISTRATION.registerBlockWithItem("test_block", TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
 
-         Supplier<Block> DIAMOND_STRUCTURE_BLOCK =
-                REGISTRATION.registerBlockWithItem("diamond_structure", () -> new DiamondStructureBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.IRON_BLOCK)));
+        Supplier<Block> DIAMOND_STRUCTURE_BLOCK =
+                REGISTRATION.registerBlockWithItem("diamond_structure", DiamondStructureBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK));
 
-         Supplier<Block> SIMPLE_MULTIBLOCK =
-                REGISTRATION.registerBlockWithItem("simple_multiblock", () -> new SimpleMultiBlock(BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.DIRT)));
+        Supplier<Block> SIMPLE_MULTIBLOCK =
+                REGISTRATION.registerBlockWithItem("simple_multiblock", SimpleMultiblock::new,() -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
 
         static void init(){
 
         }
     }
+
 
     interface BlockEntities{
          Set<Block> VALID_BLOCKS_SIMPLE = new HashSet<>();
