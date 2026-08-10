@@ -49,6 +49,11 @@ public interface IExpandingMultiblock extends IMultiBlock {
 
                 // fakes the update shape even though the neighbors haven't updated
                 BlockPos center = IMultiBlock.getCenter(level, pos);
+                if (center.equals(pos)){
+                    destroy(center, level, state, true);
+                    return Blocks.AIR.defaultBlockState(); // The block has a broken state
+                }
+
                 BlockPos relative = center.relative(Direction.NORTH);
                 level.getBlockState(center).updateShape(Direction.NORTH, Blocks.AIR.defaultBlockState() ,level, center, relative);
             } else {
