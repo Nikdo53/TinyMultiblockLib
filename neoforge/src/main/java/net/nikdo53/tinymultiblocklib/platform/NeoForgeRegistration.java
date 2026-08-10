@@ -1,11 +1,13 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
+import com.mojang.datafixers.types.Type;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,6 +17,7 @@ import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class NeoForgeRegistration implements IRegistrationUtils {
@@ -24,23 +27,22 @@ public class NeoForgeRegistration implements IRegistrationUtils {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, Constants.MOD_ID);
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
 
+
     @Override
     public <T extends BlockEntity> Supplier<BlockEntityType<T>> registerBlockEntity(String name, BiFunction<BlockPos, BlockState, T> function, Set<Block> blocks) {
-        Block[] array = blocks.toArray(new Block[0]);
-        return BLOCK_ENTITIES.register(name, () -> BlockEntityType.Builder.of(function::apply, array).build(null));
+        return BLOCK_ENTITIES.register(name, () -> new BlockEntityType<>(function::apply, Set.of(), null));
     }
 
     @Override
-    public <T extends Block> Supplier<T> registerBlockWithItem(String name, Supplier<T> block) {
-        DeferredBlock<T> toReturn = BLOCKS.register(name, block);
+    public <T extends Block> Supplier<T> registerBlockWithItem(String name, Function<BlockBehaviour.Properties, ? extends T> func, Supplier<BlockBehaviour.Properties> properties) {
+        DeferredBlock<T> toReturn = BLOCKS.register(name, () -> func.apply(properties.get()));
         registerBlockItem(name, toReturn);
         return toReturn;
-
     }
 
     @Override
     public <T extends Block> Supplier<Item> registerBlockItem(String name, Supplier<T> block) {
-        return ITEMS.register(name, () -> new TestBlockItem(block.get(), new Item.Properties()));
+        return ITEMS.registerItem(name, (props) -> new TestBlockItem(block.get(), props));
     }
 
     @Override

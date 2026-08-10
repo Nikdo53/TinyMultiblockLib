@@ -1,8 +1,8 @@
 package net.nikdo53.tinymultiblocklib.color;
 
 import com.mojang.datafixers.util.Function5;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.util.Mth;
-import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
-@NullMarked
+@MethodsReturnNonnullByDefault
 public abstract class NikdoColor implements FourChannelColor{
     protected List<Channel> channels = new ArrayList<>(4);
     protected NikdoColor.ChannelFormat<? extends NikdoColor> currentFormat;
@@ -54,7 +54,7 @@ public abstract class NikdoColor implements FourChannelColor{
         try {
             int i = Integer.parseInt(channel);
             return getChannel(i);
-        } catch (NumberFormatException _) {
+        } catch (NumberFormatException e) {
            //ignore
         }
         return channels.stream().filter(c -> c.matchesName(channel)).findFirst()

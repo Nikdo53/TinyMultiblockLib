@@ -22,7 +22,7 @@ public class CommonEvents {
                 DiamondStructureBlock.getBlockPattern(),
                 level,
                 pos,
-                CommonRegistration.Blocks.DIAMOND_STRUCTURE_BLOCK.get().defaultBlockState(),
+                CommonRegistration.BlockReg.DIAMOND_STRUCTURE_BLOCK.get().defaultBlockState(),
                 BlockPos.ZERO,
                 Corner.FORWARD_LOWER_LEFT);
     }

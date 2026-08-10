@@ -3,17 +3,11 @@ package net.nikdo53.tinymultiblocklib.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -88,14 +82,14 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     public static class Post extends OnBlockPreviewEvent{
         PoseStack poseStack;
         float partialTicks;
-        SubmitNodeStorage submitNodeStorage;
+        MultiBufferSource.BufferSource bufferSource;
 
-        public Post(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage) {
+        public Post(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, MultiBufferSource.BufferSource bufferSource) {
             super(previewMode, center, blockLiveSet);
 
             this.poseStack = poseStack;
             this.partialTicks = partialTicks;
-            this.submitNodeStorage = submitNodeStorage;
+            this.bufferSource = bufferSource;
         }
 
         @Override
@@ -111,8 +105,8 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
             return poseStack;
         }
 
-        public SubmitNodeStorage getSubmitNodeStorage() {
-            return submitNodeStorage;
+        public MultiBufferSource.BufferSource getBufferSource() {
+            return bufferSource;
         }
 
     }

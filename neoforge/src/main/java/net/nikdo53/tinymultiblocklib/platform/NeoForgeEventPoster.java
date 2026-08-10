@@ -1,19 +1,15 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.neoforged.neoforge.common.NeoForge;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.event.OnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
-import org.jetbrains.annotations.Nullable;
 
+import java.nio.Buffer;
 import java.util.Set;
 
 public class NeoForgeEventPoster implements IEventPoster {
@@ -25,8 +21,8 @@ public class NeoForgeEventPoster implements IEventPoster {
     }
 
     @Override
-    public void onBlockPreviewPost(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage) {
-        NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Post(previewMode, center, blockLiveSet, poseStack, partialTicks, submitNodeStorage));
+    public void onBlockPreviewPost(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, MultiBufferSource.BufferSource bufferSource) {
+        NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Post(previewMode, center, blockLiveSet, poseStack, partialTicks, bufferSource));
     }
 
 }

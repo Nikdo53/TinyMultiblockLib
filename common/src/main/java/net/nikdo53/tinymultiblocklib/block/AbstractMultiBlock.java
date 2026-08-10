@@ -14,7 +14,7 @@ import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;

@@ -1,14 +1,10 @@
 package net.nikdo53.tinymultiblocklib.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.mixin.BufferSourceAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.RenderTypeAccessor;
@@ -52,38 +48,38 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
         return new TintedVertexConsumer(original, color);
     }
 
-    public static final List<Pair<String, Function<Optional<Identifier>, RenderType>>> VALID_TYPES = getValidTypes();
+    public static final List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> VALID_TYPES = getValidTypes();
 
-    private static @NotNull List<Pair<String, Function<Optional<Identifier>, RenderType>>> getValidTypes() {
-        List<Pair<String, Function<Optional<Identifier>, RenderType>>> list = new ArrayList<>();
+    private static @NotNull List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> getValidTypes() {
+        List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> list = new ArrayList<>();
         list.add(new Pair<>("entity_solid",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
+                loc -> renderTypeOrNull(loc, RenderType::entityTranslucentCull)));
         list.add(new Pair<>("entity_cutout",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
+                loc -> renderTypeOrNull(loc, RenderType::entityTranslucentCull)));
         list.add(new Pair<>("entity_cutout_no_cull",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
+                loc -> renderTypeOrNull(loc, RenderType::entityTranslucent)));
         list.add(new Pair<>("entity_cutout_no_cull_z_offset",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
+                loc -> renderTypeOrNull(loc, RenderType::entityTranslucent)));
         list.add(new Pair<>("entity_smooth_cutout",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
+                loc -> renderTypeOrNull(loc, RenderType::entityTranslucentCull)));
         list.add(new Pair<>("solid",
-                loc -> RenderTypes.translucentMovingBlock()));
+                loc -> RenderType.translucentMovingBlock()));
         list.add(new Pair<>("cutout_mipped",
-                loc -> RenderTypes.translucentMovingBlock()));
+                loc -> RenderType.translucentMovingBlock()));
         list.add(new Pair<>("cutout",
-                loc -> RenderTypes.translucentMovingBlock()));
+                loc -> RenderType.translucentMovingBlock()));
 
         return list;
     }
 
     public static RenderType getTranslucent(RenderType renderType) {
-        Optional<Pair<String, Function<Optional<Identifier>, RenderType>>> any = VALID_TYPES.stream()
+        Optional<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> any = VALID_TYPES.stream()
                 .filter(pair -> pair.getFirst().equals(getName(renderType)))
                 .findAny();
 
         if (any.isPresent()) {
-            Optional<Identifier> Identifier = Services.PLATFORM.getUtils().locFromRenderType(renderType);
-            RenderType translucent = any.get().getSecond().apply(Identifier);
+            Optional<ResourceLocation> ResourceLocation = Services.PLATFORM.getUtils().locFromRenderType(renderType);
+            RenderType translucent = any.get().getSecond().apply(ResourceLocation);
 
             if (translucent != null) {
                 return translucent;
@@ -93,7 +89,7 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
         return renderType;
     }
 
-    public static RenderType renderTypeOrNull(Optional<Identifier> location, Function<Identifier, RenderType> function){
+    public static RenderType renderTypeOrNull(Optional<ResourceLocation> location, Function<ResourceLocation, RenderType> function){
         return location.map(function).orElse(null);
     }
 

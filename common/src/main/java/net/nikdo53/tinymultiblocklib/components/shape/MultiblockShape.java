@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.block.logic.DelegatingMultiblockLogic;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
@@ -180,7 +180,7 @@ public class MultiblockShape {
             return pushDirectionalOperation(direction, Vec3i.ZERO);
         }
 
-        private static @NonNull Vec3i rotateVector(Direction direction, Vec3i offset) {
+        private static @NotNull Vec3i rotateVector(Direction direction, Vec3i offset) {
             return switch (direction) {
                 case NORTH -> new Vec3i(offset.getX(), offset.getY(), offset.getZ());
                 case SOUTH -> new Vec3i(-offset.getX(), offset.getY(), -offset.getZ());

@@ -11,7 +11,7 @@ import net.nikdo53.tinymultiblocklib.block.*;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class SimpleMultiblock extends LogicMultiblock implements IPreviewableMultiblock {
     public SimpleMultiblock(Properties properties) {

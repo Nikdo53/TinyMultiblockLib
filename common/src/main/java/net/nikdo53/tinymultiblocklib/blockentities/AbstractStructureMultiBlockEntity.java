@@ -1,10 +1,13 @@
 package net.nikdo53.tinymultiblocklib.blockentities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.nikdo53.tinymultiblocklib.components.BlockLike;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 
 public class AbstractStructureMultiBlockEntity extends AbstractMultiBlockEntity implements IStructureMultiBlockEntity{
     private BlockState oldBlockState = Blocks.AIR.defaultBlockState();
@@ -32,6 +35,6 @@ public class AbstractStructureMultiBlockEntity extends AbstractMultiBlockEntity 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        oldBlockState = NbtUtils.readBlockState(BlockLike.getBlockGetter(getLevel()), tag.getCompound("blockState"));
+        oldBlockState = NbtUtils.readBlockState(BlockLive.getBlockGetter(getLevel()), tag.getCompound("blockState"));
     }
 }

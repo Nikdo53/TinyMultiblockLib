@@ -9,7 +9,7 @@ import net.minecraft.core.Vec3i;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -28,8 +28,8 @@ public class SymbolShapeBuilder {
     public SymbolShapeBuilder(Direction direction) {
         this.direction = direction;
 
-        this.lookup.put(' ', (_, _) -> {});
-        this.lookup.put(CENTER_CHAR, (_, _) -> {});
+        this.lookup.put(' ', (a, b) -> {});
+        this.lookup.put(CENTER_CHAR, (a, b) -> {});
     }
 
     public SymbolShapeBuilder nextAisle(String... aisle) {

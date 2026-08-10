@@ -63,8 +63,8 @@ public class BlockLive {
         public Tag(BlockPos pos, BlockState state, @NotNull BlockEntity blockEntity) {
             super(pos, state);
 
-            blockEntity.saveWithId(output);
-            this.blockEntityTag = output.buildResult();
+
+            this.blockEntityTag = blockEntity.saveWithId(blockEntity.getLevel().registryAccess());
         }
 
         public Tag(BlockPos pos, BlockState state, @NotNull CompoundTag tag) {

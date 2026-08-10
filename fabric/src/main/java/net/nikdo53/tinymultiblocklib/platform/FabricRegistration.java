@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
@@ -14,6 +15,7 @@ import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class FabricRegistration implements IRegistrationUtils {
@@ -26,8 +28,8 @@ public class FabricRegistration implements IRegistrationUtils {
     }
 
     @Override
-    public <T extends Block> Supplier<T> registerBlockWithItem(String name, Supplier<T> block) {
-        T register = Registry.register(BuiltInRegistries.BLOCK, Constants.loc(name), block.get());
+    public <T extends Block> Supplier<T> registerBlockWithItem(String name, Function<BlockBehaviour.Properties, ? extends T> func, Supplier<BlockBehaviour.Properties> properties) {
+        T register = Registry.register(BuiltInRegistries.BLOCK, Constants.loc(name), func.apply(properties.get()));
         registerBlockItem(name, () -> register);
         return () -> register;
     }

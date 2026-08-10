@@ -18,7 +18,8 @@ import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
-import net.nikdo53.tinymultiblocklib.components.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -46,7 +47,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     MultiblockLogic getCenterLogic();
 
     @ApiStatus.Internal
-    ShapeContext.@Nullable Properties getShapeProperties();
+    @Nullable ShapeContext.Properties getShapeProperties();
 
     @ApiStatus.Internal
     void setShapeProperties(ShapeContext.Properties properties);
@@ -86,7 +87,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * @param property The DirectionProperty of the multiblock
      * @param directionExtractor The function to extract the direction from a block place context, returns null if the block cannot be placed
      * */
-    record DirectionContext(EnumProperty<Direction> property, Function<BlockPlaceContext, @Nullable Direction> directionExtractor){
+    record DirectionContext(EnumProperty<Direction> property, Function<BlockPlaceContext, Direction> directionExtractor){
         public static DirectionContext horizontal(){
             return new DirectionContext(HorizontalDirectionalBlock.FACING, UseOnContext::getHorizontalDirection);
         }
@@ -262,7 +263,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
         return canReplaceBlock(level, pos, level.getBlockState(pos), shape)
                 && extraSurviveRequirements(level, pos, state, pos.subtract(center), shape)
                 && (entityUnobstructed(level, pos, state, player, shape) || ignoreEntities)
-                && pos.getY() < level.getMaxY() && pos.getY() > level.getMinY();
+                && pos.getY() < level.getMaxBuildHeight() && pos.getY() > level.getMinBuildHeight();
     }
 
     default void destroy(BlockPos center, LevelAccessor level, BlockState state, boolean dropBlock){

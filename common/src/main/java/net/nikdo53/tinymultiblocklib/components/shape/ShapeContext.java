@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.components.shape;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -7,13 +8,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
 
-@NullMarked
+@MethodsReturnNonnullByDefault
 public class ShapeContext {
     protected final Level level;
     protected final @Nullable BlockEntity blockEntity;

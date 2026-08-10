@@ -1,9 +1,8 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 
 public class TintedVertexConsumer extends VertexConsumerWrapper {
@@ -16,9 +15,8 @@ public class TintedVertexConsumer extends VertexConsumerWrapper {
 
 
     @Override
-    public void putBakedQuad(PoseStack.Pose pose, BakedQuad quad, QuadInstance instance) {
-        instance.multiplyColor(colorSupplier.packedARGB());
-        super.putBakedQuad(pose, quad, instance);
+    public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int packedOverlay, boolean readAlpha) {
+        parent.putBulkData(pose, quad, brightness, red * colorSupplier.getRed(), green * colorSupplier.getGreen(), blue * colorSupplier.getBlue(), alpha * colorSupplier.getAlpha(), lightmap, packedOverlay, readAlpha);
     }
 
     @Override

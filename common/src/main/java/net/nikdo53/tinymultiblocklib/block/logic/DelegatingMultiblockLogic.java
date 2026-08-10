@@ -6,22 +6,21 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 
@@ -34,21 +33,21 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
     }
 
     @Override
-    public void updateIndirectNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos, @Block.UpdateFlags int updateFlags, int updateLimit) {
+    public void updateIndirectNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos, int updateFlags, int updateLimit) {
         BlockLive centerBlock = getCenterBlock(level, pos);
         centerBlock.state.updateIndirectNeighbourShapes(level, centerBlock.pos, updateFlags, updateLimit);
     }
 
     @Override
-    public void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         BlockLive centerBlock = getCenterBlock(level, pos);
-        centerBlock.state.affectNeighborsAfterRemoval(level, centerBlock.pos, movedByPiston);
+        centerBlock.state.onRemove(level, centerBlock.pos, newState, movedByPiston);
     }
 
     @Override
-    public void onExplosionHit(BlockState state, ServerLevel level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> onHit) {
+    public void onExplosionHit(BlockState state, Level level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> dropConsumer) {
         BlockLive centerBlock = getCenterBlock(level, pos);
-        centerBlock.state.onExplosionHit(level, centerBlock.pos, explosion, onHit);
+        centerBlock.state.onExplosionHit(level, centerBlock.pos, explosion, dropConsumer);
     }
 
     @Override
@@ -58,7 +57,7 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
     }
 
     @Override
-    public InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public ItemInteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockLive centerBlock = getCenterBlock(level, pos);
         return centerBlock.state.useItemOn(itemStack, level, player, hand, hitResult.withPosition(centerBlock.pos));
     }
@@ -96,9 +95,9 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
     }
 
     @Override
-    public VoxelShape getEntityInsideCollisionShape(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
         BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getEntityInsideCollisionShape(level, centerBlock.pos, entity);
+        return centerBlock.state.getOcclusionShape(level, centerBlock.pos);
     }
 
     @Override
@@ -126,9 +125,9 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getAnalogOutputSignal(level, centerBlock.pos, direction);
+        return centerBlock.state.getAnalogOutputSignal(level, centerBlock.pos);
     }
 
     @Override
@@ -150,9 +149,9 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
     }
 
     @Override
-    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         BlockLive centerBlock = getCenterBlock(level, pos);
-        centerBlock.state.entityInside(level, centerBlock.pos, entity, effectApplier, isPrecise);
+        centerBlock.state.entityInside(level, centerBlock.pos, entity);
     }
 
     @Override

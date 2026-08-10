@@ -1,7 +1,6 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,8 +40,8 @@ public interface IOnBlockPreviewEvent {
        return Services.PLATFORM.getEventPoster().onBlockPreviewPre(previewMode, isCancelled, center, blockLiveSet);
     }
 
-    static void firePostEvent(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, SubmitNodeStorage submitNodeStorage){
-        Services.PLATFORM.getEventPoster().onBlockPreviewPost(previewMode, center, blockLiveSet, poseStack, partialTicks, submitNodeStorage);
+    static void firePostEvent(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, MultiBufferSource.BufferSource bufferSource){
+        Services.PLATFORM.getEventPoster().onBlockPreviewPost(previewMode, center, blockLiveSet, poseStack, partialTicks, bufferSource);
     }
 
 }

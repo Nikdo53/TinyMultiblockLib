@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -65,8 +66,11 @@ public abstract class GhostRenderer {
         RENDERERS.add(this);
     }
 
-    public static void renderAll(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack){
-        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+    public static void renderAll(float partialTick, Camera camera, PoseStack poseStack){
+        Minecraft minecraft = Minecraft.getInstance();
+        MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
+        ClientLevel level = minecraft.level;
+        if (level == null) return;
 
         double camX = camera.getPosition().x;
         double camY = camera.getPosition().y;
@@ -139,6 +143,10 @@ public abstract class GhostRenderer {
 
     protected abstract void render(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer);
 
+    protected int getLight(){
+        Minecraft minecraft = Minecraft.getInstance();
+        return packedLight != null ? packedLight : minecraft.levelRenderer.getLightColor(minecraft.level, getBlockPos());
+    }
     public GhostRenderer setRenderOffsetType(RenderOffsetType renderOffsetType) {
         this.renderOffsetType = renderOffsetType;
         return this;

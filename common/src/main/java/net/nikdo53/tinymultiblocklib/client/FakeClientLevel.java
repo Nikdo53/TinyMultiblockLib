@@ -175,10 +175,6 @@ public class FakeClientLevel extends ClientLevel {
     }
 
     @Override
-    public void levelEvent(@Nullable Player player, int type, BlockPos pos, int data) {
-    }
-
-    @Override
     public void setSkyFlashTime(int timeFlash) {
     }
 

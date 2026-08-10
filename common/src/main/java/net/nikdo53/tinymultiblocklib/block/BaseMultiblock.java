@@ -17,7 +17,7 @@ import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class BaseMultiblock extends Block implements IMovableMultiblock {
     /**
@@ -30,7 +30,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
      * */
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
     private final SharedStatePropertiesBuilder SHARED_STATE_BUILDER = new SharedStatePropertiesBuilder();
-    protected ShapeContext.@Nullable Properties shapeProperties = null;
+    protected @Nullable ShapeContext.Properties shapeProperties = null;
 
     public BaseMultiblock(Properties properties) {
         super(properties);
@@ -93,12 +93,8 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        if (!(level instanceof  LevelAccessor levelAccessor)){
-            Constants.LOGGER.error("level goofed up oh no");
-            return state;
-        }
-        return updateShapeHelper(state, direction, neighborState, levelAccessor, pos, neighborPos);
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        return updateShapeHelper(state, direction, neighborState, level, pos, neighborPos);
     }
 
     @Override
