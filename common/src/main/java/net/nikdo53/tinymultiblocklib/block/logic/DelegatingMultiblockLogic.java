@@ -69,44 +69,6 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
         return centerBlock.state.triggerEvent(level, centerBlock.pos, b0, b1);
     }
 
-    //TODO: multiblock properties
-    //TODO: cache and move voxelshapes
-    @Override
-    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getBlockSupportShape(level, centerBlock.pos);
-    }
-
-    @Override
-    public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getInteractionShape(level, centerBlock.pos);
-    }
-
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getShape(level, centerBlock.pos, context);
-    }
-
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getCollisionShape(level, centerBlock.pos, context);
-    }
-
-    @Override
-    public VoxelShape getEntityInsideCollisionShape(BlockState state, BlockGetter level, BlockPos pos, Entity entity) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getEntityInsideCollisionShape(level, centerBlock.pos, entity);
-    }
-
-    @Override
-    public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.getVisualShape(level, centerBlock.pos, context);
-    }
-
     @Override
     public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         BlockLive centerBlock = getCenterBlock(level, pos);
@@ -166,10 +128,4 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
         BlockLive centerBlock = getCenterBlock(level, blockHit.getBlockPos());
         centerBlock.state.onProjectileHit(level, state, blockHit.withPosition(centerBlock.pos), projectile);
     }
-
-    //TODO: this
-    /*@Override
-    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
-        return super.getCloneItemStack(level, pos, state, includeData);
-    }*/
 }

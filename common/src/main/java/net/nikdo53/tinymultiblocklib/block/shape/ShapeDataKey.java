@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.components.shape;
+package net.nikdo53.tinymultiblocklib.block.shape;
 
 import net.minecraft.world.level.block.state.BlockState;
 

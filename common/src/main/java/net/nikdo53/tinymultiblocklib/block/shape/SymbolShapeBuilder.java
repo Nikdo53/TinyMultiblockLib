@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.components.shape;
+package net.nikdo53.tinymultiblocklib.block.shape;
 
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
