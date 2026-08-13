@@ -21,10 +21,8 @@ dependencies {
     compileOnly ("io.github.llamalad7:mixinextras-common:0.5.4")
     annotationProcessor ("io.github.llamalad7:mixinextras-common:0.5.4")
 
-    implementation("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
-    implementation "curse.maven:carry-on-274259:7393892"
-
-    implementation "curse.maven:irisshaders-455508:6661598"
+    compileOnly("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
+    compileOnly("curse.maven:carry-on-274259:7393892"){transitive = false}
 
 }
 

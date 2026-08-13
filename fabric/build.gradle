@@ -16,10 +16,12 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    modImplementation "com.google.code.findbugs:jsr305:3.0.2"
+    modCompileOnly("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
+    modCompileOnly "curse.maven:carry-on-274259:5649345"
 
-    modImplementation("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
-    modImplementation "curse.maven:carry-on-274259:5649345"
+    modLocalRuntime("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
+    modLocalRuntime "curse.maven:carry-on-274259:5649345"
+
 }
 
 loom {

@@ -47,12 +47,20 @@ neoForge {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-dependencies {
-    implementation("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
-    implementation "curse.maven:carry-on-274259:5649344"
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
 
-    runtimeOnly "curse.maven:sodium-394468:6382651"
-    runtimeOnly"curse.maven:irisshaders-455508:6661598"
+dependencies {
+
+    localRuntime("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
+    localRuntime("curse.maven:carry-on-274259:5649344"){transitive = false}
+
+    compileOnly("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
+    compileOnly("curse.maven:carry-on-274259:5649344"){transitive = false}
+
+    localRuntime( "curse.maven:sodium-394468:6382651"){transitive = false}
+    localRuntime("curse.maven:irisshaders-455508:6661598"){transitive = false}
 
 
 }

@@ -20,6 +20,11 @@ public class TintedVertexConsumer extends VertexConsumerWrapper {
     }
 
     @Override
+    public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, float alpha, int packedLight, int packedOverlay) {
+        parent.putBulkData(pose, quad, red * colorSupplier.getRed(), green * colorSupplier.getGreen(), blue * colorSupplier.getBlue(), alpha * colorSupplier.getAlpha(), packedLight, packedOverlay);
+    }
+
+    @Override
     public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight, float normalX, float normalY, float normalZ) {
         parent.addVertex(x, y, z, colorSupplier.applyColors(color), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
     }
