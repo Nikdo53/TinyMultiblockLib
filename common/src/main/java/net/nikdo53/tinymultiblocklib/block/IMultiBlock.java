@@ -18,13 +18,14 @@ import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
-import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
+import net.nikdo53.tinymultiblocklib.util.TMBLUtils;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,10 +38,8 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     /** Returns a BlockPos Stream of every block in this multiblock.
      * <p>
      * Should only be used for overriding
-     * @param center The center posEither of the multiblock, aka the 1st block placed
-     * @param blockEntity null when being placed
-     * @param direction present only when {@link #getDirectionProperty()} is overridden with a valid property
      * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
+     * @see #getFullBlockShapeNoCache(Level, BlockEntity, BlockPos, BlockState)
      * */
     void makeMultiblockShape(MultiblockShape.Builder builder, ShapeContext context);
 
@@ -65,7 +64,8 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * Returns the multiblocks DirectionProperty.
      * <p>
      * Only used for multiblocks that can be rotated, otherwise returns null
-     * @apiNote Use {@link #makeDirectional()} instead.
+     * <p>
+     * Use {@link #makeDirectional()} instead.
      * */
     default @Nullable EnumProperty<Direction> getDirectionProperty(){
         DirectionContext directionContext = makeDirectional();
@@ -83,7 +83,6 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
 
     /**
      * Context for directional multiblocks.
-     * <p>
      * @param property The DirectionProperty of the multiblock
      * @param directionExtractor The function to extract the direction from a block place context, returns null if the block cannot be placed
      * */
@@ -98,11 +97,11 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
 
     }
 
-    default @Nullable Direction getDirection(BlockState state){
+    default Direction getDirection(BlockState state){
         if (getDirectionProperty() != null){
             return state.getValue(getDirectionProperty());
         }
-        return null;
+        return Direction.NORTH;
     }
 
     default MultiblockShape getFullBlockShapeNoCache(@Nullable Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
@@ -172,7 +171,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * Changes the BlockState for each Block in this multiblock.
      * Works like GetStateForPlacement does in regular blocks
      * @see IBlockPosOffsetEnum#fromOffset(Class, BlockPos, Direction, Enum)
-     * @deprecated use the shape builder instead.
+     * @deprecated : use the shape builder instead.
      * */
     @Deprecated
     default BlockState getStateForEachBlock(BlockState state, BlockPos pos, BlockPos centerOffset, Level level, @Nullable Direction direction){
@@ -217,11 +216,12 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     default List<BlockLive> prepareForPlace(MultiblockShape shape, Level level, BlockPos centerPos, BlockState stateOriginal){
         List<BlockLive> list = new ArrayList<>();
 
-        shape.getGlobalPositions().forEach(posNew -> {
+        shape.getShape().forEach((posNew, entry) -> {
             posNew = posNew.immutable();
 
             BlockState stateNew = stateOriginal.setValue(BaseMultiblock.CENTER, centerPos.equals(posNew));
             stateNew = getStateForEachBlock(stateNew, posNew, posNew.subtract(centerPos), level, getDirection(stateOriginal));
+            stateNew = entry.stateModifier().apply(stateNew);
 
             list.add(new BlockLive(posNew, stateNew));
         });
@@ -385,9 +385,9 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * */
     default VoxelShape voxelShapeHelper(BlockState state, BlockGetter level, BlockPos pos, VoxelShape shape, float xOffset, float yOffset, float zOffset, boolean hasDirectionOffsets){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
-            var x = (-entity.getOffset().getX()) + xOffset;
-            var y = (-entity.getOffset().getY()) + yOffset;
-            var z = (-entity.getOffset().getZ()) + zOffset;
+            double x = (-entity.getOffset().getX()) + xOffset;
+            double y = (-entity.getOffset().getY()) + yOffset;
+            double z = (-entity.getOffset().getZ()) + zOffset;
 
             if (getDirectionProperty() != null && hasDirectionOffsets) {
                 switch (state.getValue(getDirectionProperty())) {
@@ -399,7 +399,8 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
                     case WEST -> z -= 1;
                 }
             }
-            return shape.move(x,y,z);
+            TriFunction<Double, Double, Double, VoxelShape> memoize = TMBLUtils.memoize(shape::move);
+            return memoize.apply(x, y, z);
         }
         return shape;
     }

@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.blockentities.IMultiBlockEntity;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;

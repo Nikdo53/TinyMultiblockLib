@@ -113,21 +113,6 @@ public class MultiblockLogic extends BlockBehaviour implements MultiblockBehavio
     }
 
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.getOcclusionShape(state, level, pos);
-    }
-
-    @Override
-    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.getBlockSupportShape(state, level, pos);
-    }
-
-    @Override
-    public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.getInteractionShape(state, level, pos);
-    }
-
-    @Override
     public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return super.getMenuProvider(state, level, pos);
     }

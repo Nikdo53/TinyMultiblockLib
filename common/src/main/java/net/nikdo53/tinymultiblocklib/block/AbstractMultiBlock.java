@@ -8,12 +8,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
-import net.nikdo53.tinymultiblocklib.components.shape.ShapeContext;
-import net.nikdo53.tinymultiblocklib.platform.Services;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;

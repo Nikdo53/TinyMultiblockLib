@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.components.shape;
+package net.nikdo53.tinymultiblocklib.block.shape;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MultiblockShape {
     final Map<BlockPos, Entry> shape;

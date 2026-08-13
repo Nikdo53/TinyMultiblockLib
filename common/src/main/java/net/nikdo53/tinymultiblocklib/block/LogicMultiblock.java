@@ -3,7 +3,6 @@ package net.nikdo53.tinymultiblocklib.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -19,7 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
@@ -75,7 +74,7 @@ public abstract class LogicMultiblock extends BaseMultiblock implements IMovable
     @Override
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         BlockState logicState = getLogicForPos(level, pos, state).updateShape(state, direction, neighborState, level, pos, neighborPos);
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(logicState, direction, neighborState, level, pos, neighborPos);
     }
 
     @Override
