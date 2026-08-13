@@ -22,7 +22,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jspecify.annotations.Nullable;
 

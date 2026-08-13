@@ -34,7 +34,7 @@ import net.nikdo53.tinymultiblocklib.block.IPreviewableMultiblock;
 import net.nikdo53.tinymultiblocklib.compat.carryon.CarryOnPreviewHelper;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
-import net.nikdo53.tinymultiblocklib.components.NotRandomSource;
+import net.nikdo53.tinymultiblocklib.block.NotRandomSource;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
@@ -50,8 +50,6 @@ public class MultiblockPreviewRenderer {
 
     public static final Set<Block> PREVIEW_BLACKLIST = new HashSet<>();
     public static final Set<Block> SET_PLACED_BY_BLACKLIST = new HashSet<>();
-
-    public static final RandomSource NOT_RANDOM = new NotRandomSource();
 
     public static void tryRenderMultiblockPreviews(float partialTick, CameraRenderState camera, PoseStack poseStack) {
         //funny passthrough cuz im not restructuring this whole thing

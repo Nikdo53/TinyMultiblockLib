@@ -178,41 +178,6 @@ public class MultiblockLogic extends BlockBehaviour implements MultiblockBehavio
     }
 
     @Override
-    public boolean canBeReplaced(BlockState state, Fluid fluid) {
-        return super.canBeReplaced(state, fluid);
-    }
-
-    @Override
-    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        return super.getDrops(state, params);
-    }
-
-    @Override
-    public long getSeed(BlockState state, BlockPos pos) {
-        return super.getSeed(state, pos);
-    }
-
-    @Override
-    public VoxelShape getOcclusionShape(BlockState state) {
-        return super.getOcclusionShape(state);
-    }
-
-    @Override
-    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.getBlockSupportShape(state, level, pos);
-    }
-
-    @Override
-    public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.getInteractionShape(state, level, pos);
-    }
-
-    @Override
-    public int getLightDampening(BlockState state) {
-        return super.getLightDampening(state);
-    }
-
-    @Override
     public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return super.getMenuProvider(state, level, pos);
     }

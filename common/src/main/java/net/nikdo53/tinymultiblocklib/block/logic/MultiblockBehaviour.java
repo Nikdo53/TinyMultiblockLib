@@ -6,7 +6,7 @@ import net.minecraft.world.level.CollisionGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.nikdo53.tinymultiblocklib.components.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import org.jspecify.annotations.Nullable;
 
 public interface MultiblockBehaviour {
