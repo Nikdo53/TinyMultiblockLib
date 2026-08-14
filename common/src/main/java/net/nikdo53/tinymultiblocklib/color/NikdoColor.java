@@ -17,24 +17,24 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
 
     public static NikdoColor.RGB fromHex(int hex){
         return new NikdoColor.RGB(ChannelFormat.ARGB,
-                clamp((hex >> 24 & 0xFF) / 255f, 0, 1),
-                clamp((hex >> 16 & 0xFF) / 255f, 0, 1),
-                clamp((hex >> 8 & 0xFF) / 255f, 0, 1),
-                clamp((hex & 0xFF) / 255f, 0, 1)
+                clamp((hex >> 24 & 0xFF) / 255f),
+                clamp((hex >> 16 & 0xFF) / 255f),
+                clamp((hex >> 8 & 0xFF) / 255f),
+                clamp((hex & 0xFF) / 255f)
         );
     }
 
     public static NikdoColor.RGB fromHexNoAlpha(int hex){
         return new NikdoColor.RGB(ChannelFormat.RGB,
-                clamp((hex >> 16 & 0xFF) / 255f, 0, 1),
-                clamp((hex >> 8 & 0xFF) / 255f, 0, 1),
-                clamp((hex & 0xFF) / 255f, 0, 1)
+                clamp((hex >> 16 & 0xFF) / 255f),
+                clamp((hex >> 8 & 0xFF) / 255f),
+                clamp((hex & 0xFF) / 255f)
         );
     }
 
     // stops being dependent on mojang math class
-    private static float clamp(float value, float min, float max) {
-        return value < min ? min : Math.min(value, max);
+    private static float clamp(float value) {
+        return value < 0f ? 0f : Math.min(value, 1f);
     }
 
     public static RGB createRGB(ChannelFormat<NikdoColor.RGB> format, float... values) {
@@ -170,6 +170,12 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return setChannel(ColorChannel.match(channelName), value);
     }
 
+    /**
+     * Runs an operation on all / specific channels of the current color.
+     * @param operation the operation to be performed on the channels
+     * @param channelsForOperation channels to be operated on. If empty, all channels are operated on.
+     * @return this color for chaining
+     */
     public T operation(UnaryOperator<Float> operation, ColorChannel... channelsForOperation) {
         if (channelsForOperation.length == 0) {
             for (int i = 0; i < channels.length; i++) {
@@ -183,6 +189,13 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return cast();
     }
 
+    /**
+     * Runs an operation on all / specific channels of the current color. Slightly less performant
+     * @param operation the operation to be performed on the channels
+     * @param channelsForOperation1 channels to be operated on, but as a String (eg. "Red", "b" or "alpha")
+     * @param channelsForOperationRest additional channels to be operated on.
+     * @return this color for chaining
+     */
     public T operation(UnaryOperator<Float> operation, String channelsForOperation1, String... channelsForOperationRest) {
         ColorChannel[] channelsForOperation = new ColorChannel[channelsForOperationRest.length + 1];
         channelsForOperation[0] = ColorChannel.match(channelsForOperation1);
@@ -192,6 +205,13 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return operation(operation, channelsForOperation);
     }
 
+    /**
+     * Runs an operation on all / specific channels of the current color with the specified other color.
+     * @param otherColor other color to be operated on
+     * @param operation the operation to be performed on the channels
+     * @param channelPairs pairs of channels to be operated on, alternating 1st and 2nd color. If empty, all channels are operated on one by one
+     * @return this color for chaining
+     */
     public T operation(NikdoColor<?> otherColor,  BinaryOperator<Float> operation, ColorChannel... channelPairs) {
         if (channelPairs.length == 0) {
             for (int i = 0; i < channels.length; i++) {
@@ -210,6 +230,13 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return cast();
     }
 
+    /**
+     * Runs an operation on all / specific channels of the current color with the specified other color. Slightly less performant
+     * @param otherColor other color to be operated on
+     * @param operation the operation to be performed on the channels
+     * @param channelPairs1 pairs of channels to be operated on, alternating 1st and 2nd color. If empty, all channels are operated on one by one
+     * @return this color for chaining
+     */
     public T operation(NikdoColor<?> otherColor,  BinaryOperator<Float> operation, String channelPairs1, String... channelPairsRest) {
         ColorChannel[] channelsForOperation = new ColorChannel[channelPairsRest.length + 1];
         channelsForOperation[0] = ColorChannel.match(channelPairs1);
@@ -219,6 +246,12 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return operation(otherColor, operation, channelsForOperation);
     }
 
+    /**
+     * Swaps the values of two channels without changing the format.
+     * @param channel1 the first channel
+     * @param channel2 the second channel
+     * @return this color for chaining
+     */
     public T swirl(ColorChannel channel1, ColorChannel channel2) {
         float temp = getChannel(channel1);
         setChannel(channel1, getChannel(channel2));
@@ -226,6 +259,12 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return cast();
     }
 
+    /**
+     * Swaps the values of two channels without changing the format. Slightly less performant
+     * @param channel1 the first channel
+     * @param channel2 the second channel
+     * @return this color for chaining
+     */
     public T swirl(String channel1, String channel2) {
         float temp = getChannel(channel1);
         setChannel(channel1, getChannel(channel2));
@@ -239,6 +278,9 @@ public abstract class NikdoColor<T extends NikdoColor<T>>{
         return (T) this;
     }
 
+    /**
+     * @return a copy of the current color
+     */
     public abstract T copy();
 
     public abstract NikdoColor.RGB asRGBA();

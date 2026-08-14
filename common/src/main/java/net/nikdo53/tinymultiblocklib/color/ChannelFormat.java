@@ -12,8 +12,9 @@ public record ChannelFormat<T extends NikdoColor<?>>(ColorFormat colorFormat, Fa
     public static final ChannelFormat<NikdoColor.RGB> ARGB = new ChannelFormat<>(ColorFormat.RGB, NikdoColor.RGB::new, ColorChannel.ALPHA, ColorChannel.RED, ColorChannel.GREEN, ColorChannel.BLUE);
     public static final ChannelFormat<NikdoColor.RGB> RGBA = new ChannelFormat<>(ColorFormat.RGB, NikdoColor.RGB::new, ColorChannel.RED, ColorChannel.GREEN, ColorChannel.BLUE, ColorChannel.ALPHA);
 
-    public static final ChannelFormat<NikdoColor.HSV> HSV = new ChannelFormat<>(ColorFormat.HSV, NikdoColor.HSV::new, ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE, ColorChannel.ALPHA);
+    public static final ChannelFormat<NikdoColor.HSV> HSV = new ChannelFormat<>(ColorFormat.HSV, NikdoColor.HSV::new, ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE);
 
+    public static final ChannelFormat<NikdoColor.HSV> AHSV = new ChannelFormat<>(ColorFormat.HSV, NikdoColor.HSV::new, ColorChannel.ALPHA, ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE);
     public static final ChannelFormat<NikdoColor.HSV> HSVA = new ChannelFormat<>(ColorFormat.HSV, NikdoColor.HSV::new, ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE, ColorChannel.ALPHA);
 
     public ChannelFormat(ColorFormat colorFormat, Factory<T> factory, ColorChannel... channelLookup) {

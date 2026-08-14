@@ -6,7 +6,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -104,6 +106,24 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         preventCreativeDrops(player, level, pos);
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        if (getDirectionProperty() != null) {
+            Direction currentDirection = state.getValue(getDirectionProperty());
+            return state.setValue(getDirectionProperty(), rotation.rotate(currentDirection));
+        }
+        return super.rotate(state, rotation);
+    }
+
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        if (getDirectionProperty() != null) {
+            Direction currentDirection = state.getValue(getDirectionProperty());
+            return state.setValue(getDirectionProperty(), mirror.getRotation(currentDirection).rotate(currentDirection));
+        }
+        return super.mirror(state, mirror);
     }
 
     /**
