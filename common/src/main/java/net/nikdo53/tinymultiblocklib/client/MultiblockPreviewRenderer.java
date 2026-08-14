@@ -149,7 +149,7 @@ public class MultiblockPreviewRenderer {
                 VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.translucent());
 
                 for (BlockLive blockLive : blockLiveSet) {
-                    renderJsonModels(blockLive, pos, poseStack, fakeLevel, vertexConsumer, minecraft);
+                    renderJsonModels(blockLive, pos, poseStack, fakeLevel, vertexConsumer, minecraft, bufferSource);
                 }
 
                 for (BlockLive blockLive : blockLiveSet) {
@@ -227,7 +227,7 @@ public class MultiblockPreviewRenderer {
         return state.canSurvive(level, pos);
     }
 
-    private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, Level fakeLevel, VertexConsumer vertexConsumer, Minecraft minecraft) {
+    private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, Level fakeLevel, VertexConsumer vertexConsumer, Minecraft minecraft, TintedBufferSource bufferSource) {
 
         if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
 
@@ -238,7 +238,9 @@ public class MultiblockPreviewRenderer {
         BlockPos offset = blockLive.pos.subtract(originalPos).immutable();
         poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
-        blockRenderer.renderBatched(blockLive.state, blockLive.pos, fakeLevel, poseStack, vertexConsumer, true, minecraft.level.getRandom());
+        RenderUtils.CHECK_SIDES_CONTEXT = new RenderUtils.CheckSidesContext(fakeLevel, blockLive.state, blockLive.pos);
+        blockRenderer.renderSingleBlock(blockLive.state, poseStack, bufferSource, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
+        RenderUtils.CHECK_SIDES_CONTEXT = null;
 
         poseStack.popPose();
     }
