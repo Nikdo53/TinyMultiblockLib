@@ -1,64 +1,93 @@
 package net.nikdo53.tinymultiblocklib.color;
 
-import com.mojang.datafixers.util.Function5;
+import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public record ChannelFormat<T extends NikdoColor<?>>(String name, ColorFormat colorFormat,
-                                                     Function5<ChannelFormat<T>, Float, Float, Float, Float, T> factory,
-                                                     List<String> channelNames) {
+public record ChannelFormat<T extends NikdoColor<?>>(ColorFormat colorFormat, Factory<T> factory, ColorChannel... channelLookup) {
 
-    public static final ChannelFormat<NikdoColor.RGB> ARGB = new ChannelFormat<>("ARGB", ColorFormat.RGB, NikdoColor.RGB::new, "Alpha", "Red", "Green", "Blue");
-    public static final ChannelFormat<NikdoColor.RGB> RGBA = new ChannelFormat<>("RGBA", ColorFormat.RGB, NikdoColor.RGB::new, "Red", "Green", "Blue", "Alpha");
+    public static final ChannelFormat<NikdoColor.RGB> RGB = new ChannelFormat<>(ColorFormat.RGB, NikdoColor.RGB::new, ColorChannel.RED, ColorChannel.GREEN, ColorChannel.BLUE);
 
-    public static final ChannelFormat<NikdoColor.HSV> HSVA = new ChannelFormat<>("HSVA", ColorFormat.HSV, NikdoColor.HSV::new, "Hue", "Saturation", "Value", "Alpha");
+    public static final ChannelFormat<NikdoColor.RGB> ARGB = new ChannelFormat<>(ColorFormat.RGB, NikdoColor.RGB::new, ColorChannel.ALPHA, ColorChannel.RED, ColorChannel.GREEN, ColorChannel.BLUE);
+    public static final ChannelFormat<NikdoColor.RGB> RGBA = new ChannelFormat<>(ColorFormat.RGB, NikdoColor.RGB::new, ColorChannel.RED, ColorChannel.GREEN, ColorChannel.BLUE, ColorChannel.ALPHA);
 
-    public ChannelFormat(String name, ColorFormat format, Function5<ChannelFormat<T>, Float, Float, Float, Float, T> factory, String... channelNames) {
-        this(name, format, factory, List.of(channelNames));
-        verifyChannelsPresent(format, channelNames);
+    public static final ChannelFormat<NikdoColor.HSV> HSV = new ChannelFormat<>(ColorFormat.HSV, NikdoColor.HSV::new, ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE, ColorChannel.ALPHA);
+
+    public static final ChannelFormat<NikdoColor.HSV> HSVA = new ChannelFormat<>(ColorFormat.HSV, NikdoColor.HSV::new, ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE, ColorChannel.ALPHA);
+
+    public ChannelFormat(ColorFormat colorFormat, Factory<T> factory, ColorChannel... channelLookup) {
+        this.colorFormat = colorFormat;
+        this.factory = factory;
+        this.channelLookup = channelLookup;
+
+        verifyChannelsPresent(colorFormat, channelLookup);
     }
 
-    private static void verifyChannelsPresent(ColorFormat format, String[] channelNames) {
-        ArrayList<String> strings = new ArrayList<>(format.channelNames());
-        for (String channelName : channelNames) {
-            strings.remove(channelName);
+    public int getChannelIndex(ColorChannel channel){
+        for (int i = 0; i < channelLookup.length; i++) {
+            if (channelLookup[i] == channel) {
+                return i;
+            }
         }
-        if (!strings.isEmpty()){
-            throw new IllegalArgumentException("Channel colorFormat missing channels: " + strings);
+        throw new IllegalArgumentException("Channel " + channel + " not found in format " + this);
+    }
+
+    private static void verifyChannelsPresent(ColorFormat format, ColorChannel... channels) {
+        ArrayList<ColorChannel> channelsMissing = new ArrayList<>(List.of(format.requiredChannels()));
+        for (ColorChannel channel : channels) {
+            channelsMissing.remove(channel);
+        }
+
+        if (!channelsMissing.isEmpty()){
+            throw new IllegalArgumentException("Channel colorFormat missing channels: " + channelsMissing);
         }
     }
 
     public T reformatColor(NikdoColor<?> color){
-        ChannelFormat<?> currentFormat = color.currentFormat;
-        List<String> currentChannelNames = currentFormat.colorFormat.channelNames();
-        List<Float> converted = this.colorFormat.convertFrom(
-                List.of(
-                        color.getChannel(currentChannelNames.get(0)).get(),
-                        color.getChannel(currentChannelNames.get(1)).get(),
-                        color.getChannel(currentChannelNames.get(2)).get()
-                ), this.colorFormat
+        ChannelFormat<?> oldFormat = color.currentFormat;
+        ColorChannel[] oldFormatNames = oldFormat.colorFormat.requiredChannels();
+
+        float[] oldFormattedValues = new float[oldFormatNames.length];
+        for(int i = 0; i < oldFormatNames.length; i++){
+            oldFormattedValues[i] = color.getChannel(oldFormatNames[i]);
+        }
+
+        float[] converted = this.colorFormat.convertFrom(
+                this.colorFormat, oldFormattedValues
         );
 
-        Map<String, Float> channelValues = Map.of(
-                this.colorFormat.channelNames().get(0), converted.get(0),
-                this.colorFormat.channelNames().get(1), converted.get(1),
-                this.colorFormat.channelNames().get(2), converted.get(2),
-                "Alpha", color.getAlpha()
-        );
+        Object2FloatArrayMap<ColorChannel> channelValues = new Object2FloatArrayMap<>();
+        for(int i = 0; i < this.colorFormat.requiredChannels().length; i++){
+            channelValues.put(this.colorFormat.requiredChannels()[i], converted[i]);
+        }
 
-        return factory.apply(this,
-                channelValues.get(this.channelNames.get(0)),
-                channelValues.get(this.channelNames.get(1)),
-                channelValues.get(this.channelNames.get(2)),
-                channelValues.get(this.channelNames.get(3))
-        );
+        float[] newValues = new float[this.channelLookup.length];
+        int i = 0;
+        for (ColorChannel colorChannel : channelLookup) {
+            if (channelValues.containsKey(colorChannel)) {
+                newValues[i] = channelValues.getFloat(colorChannel);
+            } else {
+                newValues[i] = color.getChannel(colorChannel); // for cases like alpha where the channel is not present in the ColorFormat, just use the old value
+            }
+            i++;
+        }
+
+        return factory.apply(this, newValues);
     }
 
     @Override
     public String toString() {
-        return name;
+        return "ChannelFormat{" +
+                "colorFormat=" + colorFormat +
+                ",channelNames=" + List.of(channelLookup) +
+                '}';
     }
+
+    @FunctionalInterface
+    public interface Factory<C extends NikdoColor<?>> {
+        C apply(ChannelFormat<C> format, float... values);
+    }
+
 }
 

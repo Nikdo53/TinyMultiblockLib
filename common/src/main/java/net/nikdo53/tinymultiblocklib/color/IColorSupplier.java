@@ -34,6 +34,10 @@ public interface IColorSupplier {
         return (getAlphaInt() & 0xFF) << 24 | (getRedInt() & 0xFF) << 16 | (getGreenInt() & 0xFF) << 8 | getBlueInt() & 0xFF;
     }
 
+    default int packedRGB(){
+        return (getRedInt() & 0xFF) << 16 | (getGreenInt() & 0xFF) << 8 | getBlueInt() & 0xFF;
+    }
+
     default Simple immutable(){
         return new Simple(getRed(), getGreen(), getBlue(), getAlpha());
     }

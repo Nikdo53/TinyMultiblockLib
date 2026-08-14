@@ -1,13 +1,9 @@
 package net.nikdo53.tinymultiblocklib.color;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
 public abstract class ColorFormat {
-    public static final ColorFormat RGB = new ColorFormat(List.of("Red", "Green", "Blue")) {
+    public static final ColorFormat RGB = new ColorFormat(ColorChannel.RED, ColorChannel.GREEN, ColorChannel.BLUE) {
         @Override
-        public List<Float> convertFrom(List<Float> otherValues, ColorFormat other) {
+        public float[] convertFrom(ColorFormat other, float... otherValues) {
             if (other == this){
                 return otherValues;
             }
@@ -15,33 +11,31 @@ public abstract class ColorFormat {
             if (other != HSV)
                 throw new IllegalArgumentException("Not implemented yet: " + other + " -> RGB");
 
-            float[] floats = ColorUtils.hsbToRgb(otherValues.get(0), otherValues.get(1), otherValues.get(2));
-            return List.of(floats[0], floats[1], floats[2]);
+            return ColorUtils.hsbToRgb(otherValues[0], otherValues[1], otherValues[2]);
         }
     };
-    public static final ColorFormat HSV = new ColorFormat(List.of("Hue", "Saturation", "Value")) {
+    public static final ColorFormat HSV = new ColorFormat(ColorChannel.HUE, ColorChannel.SATURATION, ColorChannel.VALUE) {
         @Override
-        public List<Float> convertFrom(List<Float> otherValues, ColorFormat other) {
+        public float[] convertFrom(ColorFormat other, float... otherValues) {
             if (other == this){
                 return otherValues;
             }
             if (other != RGB)
                 throw new IllegalArgumentException("Not implemented yet: " + other + " -> HSV");
 
-            float[] floats = ColorUtils.rgbToHsb(otherValues.get(0), otherValues.get(1), otherValues.get(2));
-            return List.of(floats[0], floats[1], floats[2]);
+            return ColorUtils.rgbToHsv(otherValues[0], otherValues[1], otherValues[2]);
         }
     };
 
-    private final ImmutableList<String> channelNames;
+    private final ColorChannel[] channelNames;
 
-    public ColorFormat(List<String> channelNames) {
-        this.channelNames = ImmutableList.copyOf(channelNames);
+    public ColorFormat(ColorChannel... channelNames) {
+        this.channelNames = channelNames;
     }
 
-    public List<String> channelNames() {
+    public ColorChannel[] requiredChannels() {
         return channelNames;
     }
 
-    public abstract List<Float> convertFrom(List<Float> values, ColorFormat other);
+    public abstract float[] convertFrom(ColorFormat other, float... values);;
 }

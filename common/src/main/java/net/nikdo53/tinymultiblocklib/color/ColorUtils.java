@@ -2,7 +2,7 @@ package net.nikdo53.tinymultiblocklib.color;
 
 public class ColorUtils {
 
-    public static float[] rgbToHsb(float r, float g, float b) {
+    public static float[] rgbToHsv(float r, float g, float b) {
         float max = Math.max(r, Math.max(g, b));
         float min = Math.min(r, Math.min(g, b));
         float delta = max - min;

@@ -1,199 +1,351 @@
 package net.nikdo53.tinymultiblocklib.color;
 
-import com.mojang.datafixers.util.Function5;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.util.Mth;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.UnaryOperator;
 
-@MethodsReturnNonnullByDefault
-public abstract class NikdoColor implements FourChannelColor{
-    protected List<Channel> channels = new ArrayList<>(4);
-    protected NikdoColor.ChannelFormat<? extends NikdoColor> currentFormat;
+public abstract class NikdoColor<T extends NikdoColor<T>>{
+    protected float[] channels;
+    protected ChannelFormat<T> currentFormat;
 
-    protected NikdoColor(ChannelFormat<?> format) {
+    protected NikdoColor(ChannelFormat<T> format, float... values) {
         currentFormat = format;
+        if (values.length != format.channelLookup().length)
+            throw new IllegalArgumentException("Number of values does not match the number of channels in the format");
+
+        channels = values;
     }
 
     public static NikdoColor.RGB fromHex(int hex){
-        return new NikdoColor.RGB(ChannelFormat.ARGB, Mth.clamp((hex >> 24 & 0xFF) / 255f, 0, 1), Mth.clamp((hex >> 16 & 0xFF) / 255f, 0, 1), Mth.clamp((hex >> 8 & 0xFF) / 255f, 0, 1), Mth.clamp((hex & 0xFF) / 255f, 0, 1));
+        return new NikdoColor.RGB(ChannelFormat.ARGB,
+                clamp((hex >> 24 & 0xFF) / 255f, 0, 1),
+                clamp((hex >> 16 & 0xFF) / 255f, 0, 1),
+                clamp((hex >> 8 & 0xFF) / 255f, 0, 1),
+                clamp((hex & 0xFF) / 255f, 0, 1)
+        );
     }
 
-    public <T extends NikdoColor> T reformatColor(ChannelFormat<T> format){
+    public static NikdoColor.RGB fromHexNoAlpha(int hex){
+        return new NikdoColor.RGB(ChannelFormat.RGB,
+                clamp((hex >> 16 & 0xFF) / 255f, 0, 1),
+                clamp((hex >> 8 & 0xFF) / 255f, 0, 1),
+                clamp((hex & 0xFF) / 255f, 0, 1)
+        );
+    }
+
+    // stops being dependent on mojang math class
+    private static float clamp(float value, float min, float max) {
+        return value < min ? min : Math.min(value, max);
+    }
+
+    public static RGB createRGB(ChannelFormat<NikdoColor.RGB> format, float... values) {
+        return new NikdoColor.RGB(format, values);
+    }
+
+    public static HSV createHSV(ChannelFormat<NikdoColor.HSV> format, float... values) {
+        return new NikdoColor.HSV(format, values);
+    }
+
+
+    public int[] getIntArray(){
+        int[] result = new int[channels.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = (int) (channels[i] * 255);
+        }
+        return result;
+    }
+
+    public int packed(){
+        int[] intArray = getIntArray();
+        int result = 0;
+
+        for (int j : intArray) {
+            result = (result << 8) | j & 0xFF;
+        }
+
+        return result;
+    }
+
+    /**
+     * Creates a new color in the specified format, converting the values from the current format to the new format.
+     * !!Does not change the current color's format, it creates a new color in the new format!!
+     * @param format format of the new color
+     * @return a new color in the specified format
+     * @param <F> NikdoColor subclass type of the new color
+     */
+    public <F extends NikdoColor<?>> F reformatColor(ChannelFormat<F> format){
         return format.reformatColor(this);
     }
 
-    public void reorder(ChannelFormat<? extends NikdoColor> format){
-        if (currentFormat == format)
-            return;
+    /**
+     * Reorders the channels of the current color to match the specified format. If a channel is not present in the current color, it has to be provided as an additional channel with a value.
+     * @param formatNew format of the new color
+     * @param additionalChannels channels with values to be used if the channel is not present in the current color (like alpha channel for RGB)
+     */
+    public T reorder(ChannelFormat<T> formatNew, ColorChannel.WithValue... additionalChannels) {
+        if (currentFormat == formatNew)
+            return cast();
 
-        if (currentFormat.colorFormat != format.colorFormat){
-            throw new IllegalArgumentException("Cannot reorder colors as they are not of the same colorFormat: " + currentFormat + " and " + format);
+        float[] replace = new float[formatNew.channelLookup().length];
+        for (int i = 0; i < replace.length; i++) {
+            ColorChannel channel = formatNew.channelLookup()[i];
+            if (this.hasChannel(channel)) {
+                replace[i] = getChannel(channel);
+            } else {
+                boolean success = false;
+                for (ColorChannel.WithValue additionalChannel : additionalChannels) {
+                    if (additionalChannel.channel() == channel) {
+                        replace[i] = additionalChannel.value();
+                        success = true;
+                        break;
+                    }
+                }
+                if (!success) {
+                    throw new IllegalArgumentException("Channel " + channel + " is not present in the current color and no additional value was provided");
+                }
+            }
         }
-
-        List<Channel> replace = new ArrayList<>(4);
-
-        replace.add(getChannel(format.channelNames().get(0)));
-        replace.add(getChannel(format.channelNames().get(1)));
-        replace.add(getChannel(format.channelNames().get(2)));
-        replace.add(getChannel(format.channelNames().get(3)));
 
         channels = replace;
-        currentFormat = format;
+        currentFormat = formatNew;
+        return cast();
     }
 
-    public Channel getChannel(int channel) {
-        return channels.get(channel);
-    }
+    /**
+     * Reorders the channels of the current color to match the specified format. If a channel is not present in the current color, the default value is used.
+     * @param formatNew format of the new color
+     * @param defaultValue default value to be used if the channel is not present in the current color (like alpha channel for RGB)
+     */
+    public T reorder(ChannelFormat<T> formatNew, float defaultValue) {
+        if (currentFormat == formatNew)
+            return cast();
 
-    public Channel getChannel(String channel) {
-        try {
-            int i = Integer.parseInt(channel);
-            return getChannel(i);
-        } catch (NumberFormatException e) {
-           //ignore
+        float[] replace = new float[formatNew.channelLookup().length];
+        for (int i = 0; i < replace.length; i++) {
+            ColorChannel channel = formatNew.channelLookup()[i];
+            if (this.hasChannel(channel)) {
+                replace[i] = getChannel(channel);
+            } else {
+                replace[i] = defaultValue;
+            }
         }
-        return channels.stream().filter(c -> c.matchesName(channel)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Tried to get channel:[" + channel + "] which does not exist in: " + this));
+
+        channels = replace;
+        currentFormat = formatNew;
+        return cast();
     }
 
-    public void operation(UnaryOperator<Float> operation) {
-        for (Channel channel : channels) {
-            channel.set(operation.apply(channel.get()));
+
+    public boolean hasChannel(ColorChannel channel) {
+        for (ColorChannel c : currentFormat.channelLookup()) {
+            if (c == channel) {
+                return true;
+            }
         }
+        return false;
     }
 
-    public void operation(NikdoColor color,  BinaryOperator<Float> operation) {
-        for (int i = 0; i < channels.size(); i++) {
-            Channel channel = getChannel(i);
-            channel.set(operation.apply(channel.get(), color.getChannel(i).get()));
+    public float getChannel(int index) {
+        return channels[index];
+    }
+
+    public T setChannel(int index, float value) {
+        channels[index] = value;
+        return cast();
+    }
+
+    public float getChannel(ColorChannel channel) {
+        return channels[currentFormat.getChannelIndex(channel)];
+    }
+
+    public T setChannel(ColorChannel channel, float value) {
+        channels[currentFormat.getChannelIndex(channel)] = Math.clamp(value, 0.0f, 1.0f);
+        return cast();
+    }
+
+    public float getChannel(String channelName) {
+        return getChannel(ColorChannel.match(channelName));
+    }
+
+    public T setChannel(String channelName, float value) {
+        return setChannel(ColorChannel.match(channelName), value);
+    }
+
+    public T operation(UnaryOperator<Float> operation, ColorChannel... channelsForOperation) {
+        if (channelsForOperation.length == 0) {
+            for (int i = 0; i < channels.length; i++) {
+                channels[i] = operation.apply(channels[i]);
+            }
+        } else {
+            for (ColorChannel channel : channelsForOperation) {
+                setChannel(channel, operation.apply(getChannel(channel)));
+            }
         }
+        return cast();
+    }
+
+    public T operation(UnaryOperator<Float> operation, String channelsForOperation1, String... channelsForOperationRest) {
+        ColorChannel[] channelsForOperation = new ColorChannel[channelsForOperationRest.length + 1];
+        channelsForOperation[0] = ColorChannel.match(channelsForOperation1);
+        for (int i = 0; i < channelsForOperationRest.length; i++) {
+            channelsForOperation[i + 1] = ColorChannel.match(channelsForOperationRest[i]);
+        }
+        return operation(operation, channelsForOperation);
+    }
+
+    public T operation(NikdoColor<?> otherColor,  BinaryOperator<Float> operation, ColorChannel... channelPairs) {
+        if (channelPairs.length == 0) {
+            for (int i = 0; i < channels.length; i++) {
+                channels[i] = operation.apply(channels[i], otherColor.getChannel(i));
+            }
+        } else {
+            if (channelPairs.length % 2 != 0) {
+                throw new IllegalArgumentException("channelPairs must be in pairs, 1st of the 1st color, 2nd of the 2nd color");
+            }
+            for (int i = 0; i < channelPairs.length; i += 2) {
+                ColorChannel first =  channelPairs[i];
+                ColorChannel second = channelPairs[i + 1];
+                setChannel(first, operation.apply(getChannel(first), otherColor.getChannel(second)));
+            }
+        }
+        return cast();
+    }
+
+    public T operation(NikdoColor<?> otherColor,  BinaryOperator<Float> operation, String channelPairs1, String... channelPairsRest) {
+        ColorChannel[] channelsForOperation = new ColorChannel[channelPairsRest.length + 1];
+        channelsForOperation[0] = ColorChannel.match(channelPairs1);
+        for (int i = 0; i < channelPairsRest.length; i++) {
+            channelsForOperation[i + 1] = ColorChannel.match(channelPairsRest[i]);
+        }
+        return operation(otherColor, operation, channelsForOperation);
+    }
+
+    public T swirl(ColorChannel channel1, ColorChannel channel2) {
+        float temp = getChannel(channel1);
+        setChannel(channel1, getChannel(channel2));
+        setChannel(channel2, temp);
+        return cast();
+    }
+
+    public T swirl(String channel1, String channel2) {
+        float temp = getChannel(channel1);
+        setChannel(channel1, getChannel(channel2));
+        setChannel(channel2, temp);
+        return cast();
     }
 
 
-    @Override
+    @SuppressWarnings("unchecked")
+    private T cast(){
+        return (T) this;
+    }
+
+    public abstract T copy();
+
     public abstract NikdoColor.RGB asRGBA();
 
-    @Override
     public abstract NikdoColor.HSV asHSVA();
 
-    @Override
     public float getAlpha() {
-        return getChannel("alpha").get();
+        return getChannel(ColorChannel.ALPHA);
+    }
+
+    public T setAlpha(float alpha) {
+        return setChannel(ColorChannel.ALPHA, alpha);
     }
 
     @Override
-    public void setAlpha(float alpha) {
-        getChannel("alpha").set(alpha);
-    }
-
-    @Override
-    public String toString() {
-        return "Color:" + channels;
-    }
-
-    public static class RGB extends NikdoColor implements FourChannelColor.RGB {
-        public RGB(ChannelFormat<NikdoColor.RGB> format, float one, float two, float three, float four) {
-            super(format);
-
-            if (format.colorFormat != ColorFormat.RGB)
-                throw new IllegalArgumentException("RGB color must be created with RGB colorFormat, not: " + format);
-
-            float[] values = {one, two, three, four};
-            for (int i = 0; i < format.channelNames().size(); i++) {
-                channels.add(new Channel(values[i], format.channelNames().get(i)));
+    public String toString() { // Color:[Red:0.5, Green:0.5, Blue:0.5, Alpha:1.0]
+        StringBuilder builder = new StringBuilder();
+        builder.append("Color:[");
+        int i = 0;
+        for (ColorChannel channel : currentFormat.channelLookup()) {
+            if (i != 0) {
+                builder.append(", ");
             }
 
+            builder.append(channel.getSerializedName()).append(":").append(channels[i]);
+            i++;
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
+    public static class RGB extends NikdoColor<RGB> implements IColorSupplier {
+        public RGB(ChannelFormat<NikdoColor.RGB> format, float... values) {
+            super(format, values);
         }
 
         @Override
+        public RGB copy() {
+            return new RGB(currentFormat, channels.clone());
+        }
+
         public float getRed() {
-            return getChannel("red").get();
+            return getChannel(ColorChannel.RED);
         }
 
-        @Override
         public float getGreen() {
-            return getChannel("green").get();
+            return getChannel(ColorChannel.GREEN);
         }
 
-        @Override
         public float getBlue() {
-            return getChannel("blue").get();
+            return getChannel(ColorChannel.BLUE);
         }
 
-        @Override
-        public void setRed(float red) {
-            getChannel("red").set(red);
+        public RGB setRed(float red) {
+            return setChannel(ColorChannel.RED, red);
         }
 
-        @Override
-        public void setGreen(float green) {
-            getChannel("green").set(green);
+        public RGB setGreen(float green) {
+            return setChannel(ColorChannel.GREEN, green);
         }
 
-        @Override
-        public void setBlue(float blue) {
-            getChannel("blue").set(blue);
+        public RGB setBlue(float blue) {
+            return setChannel(ColorChannel.BLUE, blue);
         }
 
-        @Override
         public NikdoColor.RGB asRGBA() {
             return new NikdoColor.RGB(ChannelFormat.RGBA, getRed(), getGreen(), getBlue(), getAlpha());
         }
 
-        @Override
         public NikdoColor.HSV asHSVA() {
-            float[] hsv = ColorUtils.rgbToHsb(getRed(), getGreen(), getBlue());
+            float[] hsv = ColorUtils.rgbToHsv(getRed(), getGreen(), getBlue());
             return new NikdoColor.HSV(ChannelFormat.HSVA, hsv[0], hsv[1], hsv[2], getAlpha());
         }
     }
 
-    public static class HSV extends NikdoColor implements FourChannelColor.HSV {
-        public HSV(ChannelFormat<NikdoColor.HSV> format, float one, float two, float three, float four) {
-            super(format);
-
-            if (format.colorFormat != ColorFormat.HSV)
-                throw new IllegalArgumentException("HSV color must be created with HSV colorFormat, not: " + format);
-
-            float[] values = {one, two, three, four};
-            for (int i = 0; i < format.channelNames().size(); i++) {
-                channels.add(new Channel(values[i], format.channelNames().get(i)));
-            }
-
+    public static class HSV extends NikdoColor<HSV> {
+        public HSV(ChannelFormat<NikdoColor.HSV> format, float... values) {
+            super(format, values);
         }
 
         @Override
+        public HSV copy() {
+            return new HSV(currentFormat, channels.clone());
+        }
+
         public float getHue() {
-            return getChannel("hue").get();
+            return getChannel(ColorChannel.HUE);
         }
 
-        @Override
         public float getSaturation() {
-            return getChannel("saturation").get();
+            return getChannel(ColorChannel.SATURATION);
         }
 
-        @Override
         public float getValue() {
-            return getChannel("value").get();
+            return getChannel(ColorChannel.VALUE);
         }
 
-        @Override
-        public void setHue(float hue) {
-            getChannel("hue").set(hue);
+        public HSV setHue(float hue) {
+            return setChannel(ColorChannel.HUE, hue);
         }
 
-        @Override
-        public void setSaturation(float saturation) {
-            getChannel("saturation").set(saturation);
+        public HSV setSaturation(float saturation) {
+            return setChannel(ColorChannel.SATURATION, saturation);
         }
 
-        @Override
-        public void setValue(float value) {
-            getChannel("value").set(value);
+        public HSV setValue(float value) {
+            return setChannel(ColorChannel.VALUE, value);
         }
 
         @Override
@@ -205,101 +357,6 @@ public abstract class NikdoColor implements FourChannelColor{
         @Override
         public NikdoColor.HSV asHSVA() {
             return new NikdoColor.HSV(ChannelFormat.HSVA, getHue(), getSaturation(), getValue(), getAlpha());
-        }
-    }
-
-    public static class Channel{
-        protected float value;
-        protected final String name;
-
-        public Channel(float value, String name) {
-            this.value = value;
-            this.name = name;
-            if (name.length() < 2)
-                throw new IllegalArgumentException("Channel name should be at least 2 characters long: " + name);
-        }
-
-        public float get() {
-            return value;
-        }
-
-        public void set(float value) {
-            this.value = value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public char getChar(){
-            return name.toLowerCase().charAt(0);
-        }
-
-        public boolean matchesName(String nameOrChar){
-            nameOrChar = nameOrChar.toLowerCase();
-            String lowerCaseName = name.toLowerCase();
-            return nameOrChar.equals(lowerCaseName) || getChar() == nameOrChar.charAt(0);
-        }
-
-        @Override
-        public String toString() {
-            return name + ": " + value; //eg. red: 1.0
-        }
-    }
-
-    public record ChannelFormat<T extends NikdoColor>(String name, ColorFormat colorFormat,
-                                                      Function5<ChannelFormat<T>, Float, Float, Float, Float, T> factory,
-                                                      List<String> channelNames) {
-
-        public static final ChannelFormat<RGB> ARGB = new ChannelFormat<>("ARGB", ColorFormat.RGB, NikdoColor.RGB::new, "Alpha", "Red", "Green", "Blue");
-        public static final ChannelFormat<RGB> RGBA = new ChannelFormat<>("RGBA", ColorFormat.RGB, NikdoColor.RGB::new, "Red", "Green", "Blue", "Alpha");
-
-        public static final ChannelFormat<HSV> HSVA = new ChannelFormat<>("HSVA", ColorFormat.HSV, NikdoColor.HSV::new, "Hue", "Saturation", "Value", "Alpha");
-
-        public ChannelFormat(String name, ColorFormat format, Function5<ChannelFormat<T>, Float, Float, Float, Float, T> factory, String... channelNames) {
-            this(name, format, factory, List.of(channelNames));
-            verifyChannelsPresent(format, channelNames);
-        }
-
-        private static void verifyChannelsPresent(ColorFormat format, String[] channelNames) {
-            ArrayList<String> strings = new ArrayList<>(format.channelNames());
-            for (String channelName : channelNames) {
-                strings.remove(channelName);
-            }
-            if (!strings.isEmpty()){
-                throw new IllegalArgumentException("Channel colorFormat missing channels: " + strings);
-            }
-        }
-
-        public T reformatColor(NikdoColor color){
-            ChannelFormat<?> currentFormat = color.currentFormat;
-            List<String> currentChannelNames = currentFormat.colorFormat.channelNames();
-            List<Float> converted = this.colorFormat.convertFrom(
-                    List.of(
-                            color.getChannel(currentChannelNames.get(0)).get(),
-                            color.getChannel(currentChannelNames.get(1)).get(),
-                            color.getChannel(currentChannelNames.get(2)).get()
-                    ), this.colorFormat
-            );
-
-            Map<String, Float> channelValues = Map.of(
-                    this.colorFormat.channelNames().get(0), converted.get(0),
-                    this.colorFormat.channelNames().get(1), converted.get(1),
-                    this.colorFormat.channelNames().get(2), converted.get(2),
-                    "Alpha", color.getAlpha()
-            );
-
-            return factory.apply(this,
-                    channelValues.get(this.channelNames.get(0)),
-                    channelValues.get(this.channelNames.get(1)),
-                    channelValues.get(this.channelNames.get(2)),
-                    channelValues.get(this.channelNames.get(3))
-            );
-        }
-
-        @Override
-        public String toString() {
-            return name;
         }
     }
 }
