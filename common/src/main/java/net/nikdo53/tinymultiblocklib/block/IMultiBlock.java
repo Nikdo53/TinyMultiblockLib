@@ -217,7 +217,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
         List<BlockLive> list = new ArrayList<>();
 
         shape.getShape().forEach((posNew, entry) -> {
-            posNew = posNew.immutable();
+            posNew = posNew.immutable().offset(centerPos);
 
             BlockState stateNew = stateOriginal.setValue(BaseMultiblock.CENTER, centerPos.equals(posNew));
             stateNew = getStateForEachBlock(stateNew, posNew, posNew.subtract(centerPos), level, getDirection(stateOriginal));
