@@ -9,13 +9,14 @@ import net.minecraft.core.Vec3i;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class SymbolShapeBuilder {
-    public static final char CENTER_CHAR = 'c';
+    public static final char CENTER_CHAR = 'C';
     protected final Int2ObjectArrayMap<String[]> pattern = new Int2ObjectArrayMap<>();
     protected final Map<Character, BiConsumer<MultiblockShape.Builder, Vec3i>> lookup = Maps.newHashMap();
     protected int height;
@@ -25,17 +26,32 @@ public class SymbolShapeBuilder {
     protected @Nullable Vec3i centerPos = null;
     protected int currentDepth = 0;
 
+    /**
+     * Creates a new symbol shape builder
+     * @param direction direction where the builder is facing, each .nextAisle() moves the builder in that direction ❗❗ DO NOT USE THE MULTIBLOCKS DIRECTION❗❗
+     */
     public SymbolShapeBuilder(Direction direction) {
         this.direction = direction;
 
-        this.lookup.put(' ', (_, _) -> {});
-        this.lookup.put(CENTER_CHAR, (_, _) -> {});
+        this.lookup.put(' ', (a, b) -> {});
+        this.lookup.put(CENTER_CHAR, (a, b) -> {});
     }
 
+    /**
+     * creates the next aisle 1 block forwards in the direction of the builder
+     * @param aisle the aisle to be added
+     * @return this builder for chaining
+     */
     public SymbolShapeBuilder nextAisle(String... aisle) {
         return this.aisle(this.currentDepth, aisle);
     }
 
+    /**
+     * creates the next aisle in the given depth
+     * @param depth the depth of the aisle, 0 is always the aisle the center ('C') is located, moves in the diretion of the builder
+     * @param aisle the aisle to be added
+     * @return this builder for chaining
+     */
     public SymbolShapeBuilder aisle(int depth, String... aisle) {
         if (!ArrayUtils.isEmpty(aisle) && !StringUtils.isEmpty(aisle[0])) {
             if (this.pattern.isEmpty()) {
@@ -53,8 +69,9 @@ public class SymbolShapeBuilder {
                         throw new IllegalArgumentException("Not all rows in the given aisle are the correct width (expected " + var10002 + ", found one with " + row.length() + ")");
                     }
 
-                    int z = 0;
+                    int x = 0;
                     for(char c : row.toCharArray()) {
+                        c = Character.toUpperCase(c);
                         if (!this.lookup.containsKey(c)) {
                             this.unknownCharacters.add(c);
                         }
@@ -62,12 +79,12 @@ public class SymbolShapeBuilder {
                             if (this.centerPos != null) {
                                 throw new IllegalArgumentException("Multiple center positions found");
                             }
-                            this.centerPos = new Vec3i(depth, y, z);
+                            this.centerPos = getCorrectedVector(x, y, depth);
                         }
-                        z++;
+                        x++;
                     }
 
-                    y++;
+                    y--;
                 }
 
                 this.pattern.put(this.currentDepth, aisle);
@@ -79,10 +96,16 @@ public class SymbolShapeBuilder {
         }
     }
 
+    /**
+     * Adds a predicate for a specific character. All characters are converted to uppercase before being stored, so 'a' and 'A' are treated the same.
+     * This is so people don't accidentally assume lowercase == uppercase
+     * @param character the character to be added
+     * @param predicate operation to be performed on the multiblock builder
+     * @return this builder for chaining
+     */
     public SymbolShapeBuilder where(char character, BiConsumer<MultiblockShape.Builder, Vec3i> predicate) {
-        if (character == CENTER_CHAR) {
-            throw new IllegalArgumentException("Cannot use character 'C' as a predicate, it is already set and reserved for the center position");
-        }
+        character = Character.toUpperCase(character);
+
         this.lookup.put(character, predicate);
         this.unknownCharacters.remove(character);
         return this;
@@ -105,16 +128,21 @@ public class SymbolShapeBuilder {
 
         pattern.forEach((depth, aisle) -> {
             for(int y = 0; y < aisle.length; y++) {
-                for(int z = 0; z < aisle[y].length(); z++) {
-                    char c = aisle[y].charAt(z);
+                for(int x = 0; x < aisle[y].length(); x++) {
+                    char c = aisle[y].charAt(x);
+                    c = Character.toUpperCase(c);
                     BiConsumer<MultiblockShape.Builder, Vec3i> consumer = lookup.get(c);
-                    consumer.accept(multiblockBuilder, new Vec3i(depth, y, z).subtract(this.centerPos));
+                    consumer.accept(multiblockBuilder, getCorrectedVector(x, -y, -depth).subtract(this.centerPos));
                 }
             }
         });
 
         multiblockBuilder.popOperation();
 
+    }
+
+    private @NotNull Vec3i getCorrectedVector(int x, int y, int depth) {
+        return new Vec3i( this.direction == Direction.UP ? -x : x, this.direction == Direction.DOWN ? -y : y, depth);
     }
 
 }

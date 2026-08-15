@@ -13,38 +13,27 @@ import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import org.jspecify.annotations.Nullable;
 
-public class SimpleMultiblock extends LogicMultiblock implements IPreviewableMultiblock {
+public class SimpleMultiblock extends BaseMultiblock implements IPreviewableMultiblock {
     public SimpleMultiblock(Properties properties) {
         super(properties);
     }
 
     @Override
     public @Nullable DirectionContext makeDirectional() {
-        return DirectionContext.horizontal();
+        return DirectionContext.allAxis();
     }
-
 
     @Override
     public void makeMultiblockShape(MultiblockShape.Builder builder, ShapeContext context) {
-        builder.toSymbolBuilder(Direction.UP)
-                .nextAisle("xxx",
-                           "xcx",
-                           "xxx")
-                .nextAisle("xxx",
-                           "x x",
-                           "xxx")
+        Direction direction = context.getDirection();
+        builder.pushDirectionalOperation(direction);
+
+        builder.toSymbolBuilder(Direction.NORTH)
+                .nextAisle(" x",
+                           "xc")
+                .nextAisle("  ",
+                           " x")
                 .where('x', MultiblockShape.Builder::addNoLogic);
     }
-
-    @Override
-    public MultiblockLogic getCenterLogic() {
-        return new MultiblockLogic(){
-            @Override
-            public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-                return InteractionResult.SUCCESS;
-            }
-        };
-    }
-
 
 }

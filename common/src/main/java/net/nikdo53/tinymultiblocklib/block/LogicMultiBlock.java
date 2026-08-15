@@ -21,6 +21,7 @@ import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
+import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.platform.Services;
@@ -43,6 +44,14 @@ public abstract class LogicMultiblock extends BaseMultiblock implements IMovable
             return MultiblockLogic.EMPTY;
         }
         return entry.logic();
+    }
+
+    public abstract MultiblockLogic getCenterLogic(ShapeContext context);
+
+
+    @Override
+    public MultiblockLogic getDefaultCenterLogic(ShapeContext context) {
+        return getCenterLogic(context);
     }
 
     public MultiblockLogic getLogicForPos(BlockGetter level, BlockPos pos, BlockState state){

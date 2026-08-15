@@ -43,7 +43,10 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * */
     void makeMultiblockShape(MultiblockShape.Builder builder, ShapeContext context);
 
-    MultiblockLogic getCenterLogic();
+    @ApiStatus.Internal
+    default MultiblockLogic getDefaultCenterLogic(ShapeContext context){
+        return MultiblockLogic.EMPTY;
+    }
 
     @ApiStatus.Internal
     ShapeContext.@Nullable Properties getShapeProperties();
@@ -109,10 +112,9 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
             blockEntity = level.getBlockEntity(center);
         }
 
-        MultiblockShape.Builder builder = new MultiblockShape.Builder(center);
-        builder.add(BlockPos.ZERO, getCenterLogic());
-
         ShapeContext context = new ShapeContext(level, center, state, blockEntity, this);
+
+        MultiblockShape.Builder builder = new MultiblockShape.Builder(center, getDefaultCenterLogic(context));
         makeMultiblockShape(builder, context);
 
         ShapeContext.Properties properties = context.getProperties();
