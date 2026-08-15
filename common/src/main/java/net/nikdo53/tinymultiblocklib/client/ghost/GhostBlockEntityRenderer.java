@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class GhostBlockEntityRenderer extends GhostRenderer{
+public class GhostBlockEntityRenderer extends GhostRenderer<GhostBlockEntityRenderer>{
     BlockEntity blockEntity;
     protected int packedOverlay = OverlayTexture.NO_OVERLAY;
 

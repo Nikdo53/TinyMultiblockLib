@@ -19,7 +19,7 @@ import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 
 import java.util.function.Function;
 
-public class GhostModelRenderer extends GhostRenderer{
+public class GhostModelRenderer extends GhostRenderer<GhostModelRenderer>{
     protected final ModelPart MODEL_PART;
     protected RenderType renderType;
     protected final TextureAtlasSprite sprite;
