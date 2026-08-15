@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -12,30 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 // past 26.2 just contains util methods im too lazy to clean up
 public class TintedBufferSource {
 
-    public static final List<Pair<String, Function<Optional<Identifier>, RenderType>>> VALID_TYPES = getValidTypes();
+    public static final List<Pair<String, Function<Optional<Identifier>, RenderType>>> VALID_TYPES = getExtraTypes();
 
-    private static List<Pair<String, Function<Optional<Identifier>, @Nullable RenderType>>> getValidTypes() {
+    private static List<Pair<String, Function<Optional<Identifier>, @Nullable RenderType>>> getExtraTypes() {
         List<Pair<String, Function<Optional<Identifier>, @Nullable RenderType>>> list = new ArrayList<>();
-        list.add(new Pair<>("entity_solid",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
-        list.add(new Pair<>("entity_cutout",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
         list.add(new Pair<>("entity_cutout_no_cull",
                 loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
         list.add(new Pair<>("entity_cutout_no_cull_z_offset",
                 loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
-        list.add(new Pair<>("entity_smooth_cutout",
-                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucentCullItemTarget)));
-        list.add(new Pair<>("solid",
-                loc -> RenderTypes.translucentMovingBlock()));
-        list.add(new Pair<>("cutout_mipped",
-                loc -> RenderTypes.translucentMovingBlock()));
-        list.add(new Pair<>("cutout",
-                loc -> RenderTypes.translucentMovingBlock()));
+        list.add(new Pair<>("armor_cutout_no_cull",
+                loc -> renderTypeOrNull(loc, RenderTypes::entityTranslucent)));
 
         return list;
     }
@@ -46,15 +38,31 @@ public class TintedBufferSource {
                 .findAny();
 
         if (any.isPresent()) {
-            Optional<Identifier> Identifier = Services.PLATFORM.getUtils().locFromRenderType(renderType);
-            RenderType translucent = any.get().getSecond().apply(Identifier);
-
-            if (translucent != null) {
+            RenderType translucent = getRenderTypeFromFunction(renderType, any.get().getSecond());
+            if (translucent != null)
                 return translucent;
+        }
+
+        VertexFormat.Mode mode = ((RenderTypeAccessor) renderType).getMode();
+        VertexFormat format = ((RenderTypeAccessor) renderType).getFormat();
+        if (mode == VertexFormat.Mode.QUADS){
+            if (format == DefaultVertexFormat.BLOCK){
+                return RenderTypes.translucentMovingBlock();
+            } else if (format == DefaultVertexFormat.ENTITY){
+                Optional<Identifier> resourceLocation = Services.PLATFORM.getUtils().locFromRenderType(renderType);
+                if (resourceLocation.isPresent()){
+                    return RenderTypes.entityTranslucentCullItemTarget(resourceLocation.get());
+                }
             }
         }
 
         return renderType;
+    }
+
+    private static @Nullable RenderType getRenderTypeFromFunction(RenderType renderType, Function<Optional<Identifier>, RenderType> func) {
+        Optional<Identifier> loc = Services.PLATFORM.getUtils().locFromRenderType(renderType);
+
+        return func.apply(loc);
     }
 
     public static @Nullable RenderType renderTypeOrNull(Optional<Identifier> location, Function<Identifier, RenderType> function){

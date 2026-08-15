@@ -74,8 +74,6 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
         }
 
         new GhostBlockRenderer(pos.above(), 100, Blocks.GRASS_BLOCK.defaultBlockState())
-                .setBiome(level.getBiome(pos))
-                .setARGB(1, 0, 1, 0.5f)
                 .enableDistanceFade(10, 5)
                 .transform(poseStack -> poseStack.mulPose(Axis.XP.rotationDegrees(45)))
                 .addToRenderList();
