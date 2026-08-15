@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public class GhostBlockEntityRenderer extends GhostRenderer{
+public class GhostBlockEntityRenderer extends GhostRenderer<GhostBlockEntityRenderer>{
     BlockEntity blockEntity;
     protected int packedOverlay = OverlayTexture.NO_OVERLAY;
 
@@ -24,7 +24,7 @@ public class GhostBlockEntityRenderer extends GhostRenderer{
         var entityRender = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity);
 
         if (entityRender != null) {
-            entityRender.render(blockEntity, partialTick, poseStack, buffer, getLight(), OverlayTexture.NO_OVERLAY);
+            entityRender.render(blockEntity, partialTick, poseStack, buffer, getLight(), packedOverlay);
 
         }
     }

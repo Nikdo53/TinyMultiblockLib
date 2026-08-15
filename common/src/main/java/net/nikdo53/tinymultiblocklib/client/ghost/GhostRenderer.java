@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class GhostRenderer {
-    public static List<GhostRenderer> RENDERERS = new ArrayList<>();
+public abstract class GhostRenderer<T extends GhostRenderer<T>> {
+    public static List<GhostRenderer<?>> RENDERERS = new ArrayList<>();
 
     protected Either<Vec3, BlockPos> posEither;
     protected int ticksRemaining;
@@ -82,7 +82,7 @@ public abstract class GhostRenderer {
         IColorSupplier.Mutable color = new IColorSupplier.Mutable(1, 1, 1, 1);
         MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, color);
 
-        List<GhostRenderer> renderers = new ArrayList<>(RENDERERS);
+        List<GhostRenderer<?>> renderers = new ArrayList<>(RENDERERS);
         renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, tintedBuffer, color));
 
         poseStack.popPose();
@@ -147,42 +147,47 @@ public abstract class GhostRenderer {
         Minecraft minecraft = Minecraft.getInstance();
         return packedLight != null ? packedLight : minecraft.levelRenderer.getLightColor(minecraft.level, getBlockPos());
     }
-    public GhostRenderer setRenderOffsetType(RenderOffsetType renderOffsetType) {
+    public T setRenderOffsetType(RenderOffsetType renderOffsetType) {
         this.renderOffsetType = renderOffsetType;
-        return this;
+        return cast();
     }
 
-    public GhostRenderer setARGB(float red, float green, float blue, float alpha) {
+    public T setARGB(float red, float green, float blue, float alpha) {
         colorStatic = new IColorSupplier.Simple(red, green, blue, alpha);
-        return this;
+        return cast();
     }
 
-    public GhostRenderer setLight(int packedLight){
+    public T setLight(int packedLight){
         this.packedLight = packedLight;
-        return this;
+        return cast();
     }
 
 
-    public GhostRenderer transform(Consumer<PoseStack> poseStackConsumer){
+    public T transform(Consumer<PoseStack> poseStackConsumer){
         this.poseStackConsumer = poseStackConsumer;
-        return this;
+        return cast();
     }
 
-    public GhostRenderer enableTimeFade(int fadeOutTicks) {
+    public T enableTimeFade(int fadeOutTicks) {
         if (fadeOutTicks <= ticksRemaining){
             this.fadeOutTicks = fadeOutTicks;
         } else {
             Constants.LOGGER.error("{} fadeOutTicks can't be larger than remaining ticks", this);
         }
-        return this;
+        return cast();
     }
 
-    public GhostRenderer enableDistanceFade(double maxDistance, double fadeStart) {
+    public T enableDistanceFade(double maxDistance, double fadeStart) {
         if (maxDistance >= fadeStart){
             this.fadeDistanceAndStart = new Pair<>(maxDistance, fadeStart);
         } else {
             Constants.LOGGER.error("{} Fade cant start further from max maxDistance", this);
         }
-        return this;
+        return cast();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T cast(){
+        return (T) this;
     }
 }

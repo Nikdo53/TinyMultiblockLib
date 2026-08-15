@@ -18,7 +18,7 @@ import org.intellij.lang.annotations.Identifier;
 
 import java.util.function.Function;
 
-public class GhostModelRenderer extends GhostRenderer{
+public class GhostModelRenderer extends GhostRenderer<GhostModelRenderer>{
     protected final ModelPart MODEL_PART;
     protected final Material MATERIAL;
     protected Function<ResourceLocation, RenderType> renderTypeFunction = RenderType::entityTranslucent;
