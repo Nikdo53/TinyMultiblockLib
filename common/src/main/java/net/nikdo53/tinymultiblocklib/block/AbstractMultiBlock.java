@@ -54,12 +54,12 @@ public abstract class AbstractMultiBlock extends BaseMultiblock implements IMova
                     state.toString(), context.getCenterPos());
         }
 
-        list.forEach(pos -> builder.addGlobal(pos, getCenterLogic(), UnaryOperator.identity()));
+        list.forEach(pos -> builder.addGlobal(pos, getDefaultCenterLogic(context), UnaryOperator.identity()));
 
     }
 
     @Override
-    public MultiblockLogic getCenterLogic() {
+    public MultiblockLogic getDefaultCenterLogic(ShapeContext context) {
         return MultiblockLogic.EMPTY;
     }
 }

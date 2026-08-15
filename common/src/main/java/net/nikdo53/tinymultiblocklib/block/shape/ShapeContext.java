@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NullMarked;
@@ -35,15 +36,19 @@ public class ShapeContext {
 
     public Level getLevel() {
         if (getOldProperties() != null && !getOldProperties().usesLevelContext){
-            throw new IllegalStateException("Shape properties changed unexpectedly, please include any getters from the context at the top of the makeMultiblockShape method.");
+            logPropertiesChange();
         }
         usesLevelContext = true;
         return level;
     }
 
+    private static void logPropertiesChange() {
+        Constants.LOGGER.error("Shape properties changed unexpectedly, please include any getters from the context at the top of the makeMultiblockShape method. This might throw in future versions");
+    }
+
     public @Nullable BlockEntity getBlockEntity() {
         if (getOldProperties() != null && !getOldProperties().usesLevelContext){
-            throw new IllegalStateException("Shape properties changed unexpectedly, please include any getters from the context at the top of the makeMultiblockShape method.");
+            logPropertiesChange();
         }
         usesLevelContext = true;
         return blockEntity;
@@ -51,7 +56,7 @@ public class ShapeContext {
 
     public BlockState getBlockState() {
         if (getOldProperties() != null && !getOldProperties().usesStateContext){
-            throw new IllegalStateException("Shape properties changed unexpectedly, please include any getters from the context at the top of the makeMultiblockShape method.");
+            logPropertiesChange();
         }
         usesStateContext = true;
         return blockState;
