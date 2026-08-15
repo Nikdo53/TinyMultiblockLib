@@ -105,6 +105,7 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
+            // ⬇️⬇️ the line that disables previewing of everything
              if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock) || PREVIEW_BLACKLIST.contains(block)) return;
 
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
@@ -234,7 +235,7 @@ public class MultiblockPreviewRenderer {
         return state.canSurvive(level, pos);
     }
 
-    private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, FakeClientLevel fakeLevel) {
+    public static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, FakeClientLevel fakeLevel) {
 
         if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
 
