@@ -103,6 +103,7 @@ public class MultiblockPreviewRenderer {
             BlockPos hitPos = blockHitResult.getBlockPos();
             BlockPos pos = hitPos.relative(hitDirection);
 
+            // ⬇️⬇️ the line that disables previewing of everything
              if (!(stack.is(TMBLTags.ItemTags.SHOW_PREVIEW) || block instanceof IPreviewableMultiblock) || PREVIEW_BLACKLIST.contains(block)) return;
 
             BlockState state = block.getStateForPlacement(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
@@ -146,10 +147,9 @@ public class MultiblockPreviewRenderer {
                 previewMode = event.getPreviewMode();
 
                 TintedBufferSource bufferSource = new TintedBufferSource(minecraft.renderBuffers().bufferSource(), previewMode);
-                VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.translucent());
 
                 for (BlockLive blockLive : blockLiveSet) {
-                    renderJsonModels(blockLive, pos, poseStack, fakeLevel, vertexConsumer, minecraft, bufferSource);
+                    renderJsonModels(blockLive, pos, poseStack, fakeLevel, minecraft, bufferSource);
                 }
 
                 for (BlockLive blockLive : blockLiveSet) {
@@ -227,7 +227,7 @@ public class MultiblockPreviewRenderer {
         return state.canSurvive(level, pos);
     }
 
-    private static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, Level fakeLevel, VertexConsumer vertexConsumer, Minecraft minecraft, TintedBufferSource bufferSource) {
+    public static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, Level fakeLevel, Minecraft minecraft, TintedBufferSource bufferSource) {
 
         if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
 

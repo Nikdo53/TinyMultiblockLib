@@ -1,30 +1,42 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.mixin.BufferSourceAccessor;
+import net.nikdo53.tinymultiblocklib.mixin.RenderStateShardAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.RenderTypeAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class TintedBufferSource extends MultiBufferSource.BufferSource{
     public IColorSupplier color;
-    BufferSource originalBuffer;
+    public BufferSource originalBuffer;
+    public UnaryOperator<RenderType> renderTypeTransformer;
 
-    public TintedBufferSource(BufferSource bufferSource, IColorSupplier color) {
+    public TintedBufferSource(BufferSource bufferSource, IColorSupplier color, UnaryOperator<RenderType> renderTypeTransformer) {
         super(((BufferSourceAccessor)bufferSource).getSharedBuffer(), ((BufferSourceAccessor)bufferSource).getFixedBuffers());
         this.color = color;
         this.originalBuffer = bufferSource;
+        this.renderTypeTransformer = renderTypeTransformer;
     }
+
+    public TintedBufferSource(BufferSource bufferSource, IColorSupplier color) {
+        this(bufferSource, color, TintedBufferSource::getTranslucent);
+    }
+
 
     @Override
     public void endLastBatch() {
@@ -43,31 +55,21 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        VertexConsumer original = originalBuffer.getBuffer(getTranslucent(renderType));
+        VertexConsumer original = originalBuffer.getBuffer(renderTypeTransformer.apply(renderType));
 
         return new TintedVertexConsumer(original, color);
     }
 
-    public static final List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> VALID_TYPES = getValidTypes();
+    public static final List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> VALID_TYPES = getExtraTypes();
 
-    private static @NotNull List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> getValidTypes() {
+    private static @NotNull List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> getExtraTypes() {
         List<Pair<String, Function<Optional<ResourceLocation>, RenderType>>> list = new ArrayList<>();
-        list.add(new Pair<>("entity_solid",
-                loc -> renderTypeOrNull(loc, RenderType::entityTranslucentCull)));
-        list.add(new Pair<>("entity_cutout",
-                loc -> renderTypeOrNull(loc, RenderType::entityTranslucentCull)));
         list.add(new Pair<>("entity_cutout_no_cull",
                 loc -> renderTypeOrNull(loc, RenderType::entityTranslucent)));
         list.add(new Pair<>("entity_cutout_no_cull_z_offset",
                 loc -> renderTypeOrNull(loc, RenderType::entityTranslucent)));
-        list.add(new Pair<>("entity_smooth_cutout",
-                loc -> renderTypeOrNull(loc, RenderType::entityTranslucentCull)));
-        list.add(new Pair<>("solid",
-                loc -> RenderType.translucentMovingBlock()));
-        list.add(new Pair<>("cutout_mipped",
-                loc -> RenderType.translucentMovingBlock()));
-        list.add(new Pair<>("cutout",
-                loc -> RenderType.translucentMovingBlock()));
+        list.add(new Pair<>("armor_cutout_no_cull",
+                loc -> renderTypeOrNull(loc, RenderType::entityTranslucent)));
 
         return list;
     }
@@ -78,15 +80,31 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
                 .findAny();
 
         if (any.isPresent()) {
-            Optional<ResourceLocation> ResourceLocation = Services.PLATFORM.getUtils().locFromRenderType(renderType);
-            RenderType translucent = any.get().getSecond().apply(ResourceLocation);
-
-            if (translucent != null) {
+            RenderType translucent = getRenderTypeFromFunction(renderType, any.get().getSecond());
+            if (translucent != null)
                 return translucent;
+        }
+
+        VertexFormat.Mode mode = ((RenderTypeAccessor) renderType).getMode();
+        VertexFormat format = ((RenderTypeAccessor) renderType).getFormat();
+        if (mode == VertexFormat.Mode.QUADS){
+            if (format == DefaultVertexFormat.BLOCK){
+                return RenderType.translucentMovingBlock();
+            } else if (format == DefaultVertexFormat.NEW_ENTITY){
+                Optional<ResourceLocation> resourceLocation = Services.PLATFORM.getUtils().locFromRenderType(renderType);
+                if (resourceLocation.isPresent()){
+                    return RenderType.entityTranslucentCull(resourceLocation.get());
+                }
             }
         }
 
         return renderType;
+    }
+
+    private static @Nullable RenderType getRenderTypeFromFunction(RenderType renderType, Function<Optional<ResourceLocation>, RenderType> func) {
+        Optional<ResourceLocation> loc = Services.PLATFORM.getUtils().locFromRenderType(renderType);
+
+        return func.apply(loc);
     }
 
     public static RenderType renderTypeOrNull(Optional<ResourceLocation> location, Function<ResourceLocation, RenderType> function){
@@ -94,6 +112,6 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
     }
 
     public static String getName(RenderType renderType) {
-        return ((RenderTypeAccessor) renderType).getName();
+        return ((RenderStateShardAccessor) renderType).getName();
     }
 }

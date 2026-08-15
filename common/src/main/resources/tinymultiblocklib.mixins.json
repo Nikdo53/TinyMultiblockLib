@@ -12,9 +12,10 @@
     "carryon.PickupHandlerMixin"
   ],
   "client": [
-    "ClientLevelAccessorMixin",
     "BufferSourceAccessor",
+    "ClientLevelAccessorMixin",
     "ClientLevelMixin",
+    "RenderStateShardAccessor",
     "RenderTypeAccessor"
   ],
   "server": [
