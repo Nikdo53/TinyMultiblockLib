@@ -26,7 +26,7 @@ import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 
 import java.util.function.Function;
 
-public class GhostModelRenderer extends GhostRenderer{
+public class GhostModelRenderer extends GhostRenderer<GhostModelRenderer>{
     protected final ModelPart MODEL_PART;
     protected final SpriteId MATERIAL;
     protected Function<Identifier, RenderType> renderTypeFunction = RenderTypes::entityTranslucent;

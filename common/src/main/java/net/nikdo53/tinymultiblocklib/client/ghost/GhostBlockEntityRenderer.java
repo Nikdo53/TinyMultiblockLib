@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 
-public class GhostBlockEntityRenderer extends GhostRenderer{
+public class GhostBlockEntityRenderer extends GhostRenderer<GhostBlockEntityRenderer>{
     BlockEntity blockEntity;
     protected int packedOverlay = OverlayTexture.NO_OVERLAY;
 

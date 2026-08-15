@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 import org.jspecify.annotations.Nullable;
 
-public class GhostBlockRenderer extends GhostRenderer{
+public class GhostBlockRenderer extends GhostRenderer<GhostBlockRenderer>{
     protected BlockState state;
     protected RenderType renderType = Sheets.translucentBlockSheet();
     protected boolean checkSides = true;
@@ -41,6 +41,7 @@ public class GhostBlockRenderer extends GhostRenderer{
         submitNodeCollector.submitMovingBlock(poseStack, renderState);
     }
 
+
     public GhostBlockRenderer setRenderType(RenderType renderType) {
         this.renderType = renderType;
         return this;
@@ -55,5 +56,4 @@ public class GhostBlockRenderer extends GhostRenderer{
         this.biome = biome;
         return this;
     }
-
 }
