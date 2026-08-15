@@ -57,8 +57,9 @@ public class MultiblockShape {
         List<Operation> operations = new ArrayList<>();
         List<SymbolShapeBuilder> symbolShapeBuilders = new ArrayList<>();
 
-        public Builder(BlockPos center) {
+        public Builder(BlockPos center, MultiblockLogic centerLogic) {
             this.center = center;
+            map.put(BlockPos.ZERO, new Entry(centerLogic, UnaryOperator.identity()));
         }
 
         public Builder addGlobal(BlockPos pos, MultiblockLogic logic, UnaryOperator<BlockState> stateModifier, ShapeDataKey.Pair<?>... extraData) {
@@ -66,6 +67,11 @@ public class MultiblockShape {
             return this;
         }
 
+        /**
+         * Creates a new symbol shape builder
+         * @param fowardDirection direction where the builder is facing, each .nextAisle() moves the builder in that direction
+         *                      ❗THIS IS NOT THE MULTIBLOCKS DIRECTION❗
+         */
         public SymbolShapeBuilder toSymbolBuilder(Direction fowardDirection){
             SymbolShapeBuilder symbolShapeBuilder = new SymbolShapeBuilder(fowardDirection);
             symbolShapeBuilders.add(symbolShapeBuilder);
@@ -156,7 +162,12 @@ public class MultiblockShape {
                 stateModifier = stateModifier.andThen(operation.stateModifier()); // this doesnt work with unary operators
             }
 
-            map.put(new BlockPos(offset), new Entry(logic, stateModifier, dataMap));
+            if (!offset.equals(Vec3i.ZERO)) {
+                map.put(new BlockPos(offset), new Entry(logic, stateModifier, dataMap));
+            } else {
+                Entry centerEntry = map.get(BlockPos.ZERO); // center always exists and uses its own logic
+                map.put(BlockPos.ZERO, new Entry(centerEntry.logic(), stateModifier, dataMap));
+            }
         }
 
         public Builder pushOperation(UnaryOperator<Vec3i> posModifier, UnaryOperator<MultiblockLogic> logicModifier, UnaryOperator<BlockState> stateModifier) {
@@ -187,8 +198,8 @@ public class MultiblockShape {
                 case EAST -> new Vec3i(-offset.getZ(), offset.getY(), offset.getX());
                 case WEST -> new Vec3i(offset.getZ(), offset.getY(), -offset.getX());
 
-                case UP -> new Vec3i(-offset.getY(), offset.getX(), offset.getZ());
-                case DOWN -> new Vec3i(offset.getY(), -offset.getX(), offset.getZ());
+                case UP -> new Vec3i(-offset.getY(), -offset.getZ(),  -offset.getX());
+                case DOWN -> new Vec3i(offset.getY(), offset.getZ(), -offset.getX());
             };
         }
 
