@@ -13,7 +13,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
+import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.block.shape.ShapeDataKey;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
@@ -128,6 +132,18 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
             return state.setValue(getDirectionProperty(), mirror.getRotation(currentDirection).rotate(currentDirection));
         }
         return super.mirror(state, mirror);
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        MultiblockShape fullBlockShape = getFullBlockShape(level, pos, state);
+        BlockPos offset = IMultiBlock.getOffset(level, pos);
+        MultiblockShape.Entry entry = fullBlockShape.getShape().get(offset);
+
+        if (entry != null && entry.hasData(ShapeDataKey.VOXEL_SHAPE)){
+            return entry.getData(ShapeDataKey.VOXEL_SHAPE);
+        }
+        return super.getShape(state, level, pos, context);
     }
 
     /**

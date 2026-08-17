@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.chars.CharSet;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.UnaryOperator;
 
 public class SymbolShapeBuilder {
     public static final char CENTER_CHAR = 'C';
@@ -110,6 +112,25 @@ public class SymbolShapeBuilder {
         this.unknownCharacters.remove(character);
         return this;
     }
+
+    /**
+     * Adds a predicate for a specific character. All characters are converted to uppercase before being stored, so 'a' and 'A' are treated the same.
+     * This is so people don't accidentally assume lowercase == uppercase
+     * <p>
+     * simplified version of {@link #where(char, BiConsumer)}
+     * @param character the character to be added
+     * @param stateOperator operation to be performed on the block state
+     * @param extraData extra data to be passed to the shape entry
+     * @return this builder for chaining
+     */
+    public SymbolShapeBuilder where(char character, UnaryOperator<BlockState> stateOperator, ShapeDataKey.Pair<?>... extraData) {
+        character = Character.toUpperCase(character);
+
+        this.lookup.put(character, (b,v) -> b.addNoLogic(v, stateOperator, extraData));
+        this.unknownCharacters.remove(character);
+        return this;
+    }
+
 
     /**
      * No need to call this method, it is called by the multiblock builder
