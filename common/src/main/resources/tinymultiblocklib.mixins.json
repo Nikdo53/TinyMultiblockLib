@@ -15,6 +15,7 @@
     "BufferSourceAccessor",
     "ClientLevelAccessorMixin",
     "ClientLevelMixin",
+    "LevelRendererMixin",
     "RenderStateShardAccessor",
     "RenderTypeAccessor"
   ],

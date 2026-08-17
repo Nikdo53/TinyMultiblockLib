@@ -3,11 +3,16 @@ package net.nikdo53.tinymultiblocklib.block.shape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.logic.DelegatingMultiblockLogic;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -17,14 +22,31 @@ import java.util.stream.Collectors;
 public class MultiblockShape {
     final Map<BlockPos, Entry> shape;
     final BlockPos center;
+    VoxelShape jointVoxelShape = Shapes.empty();
 
     public MultiblockShape(Map<BlockPos, Entry> shape, BlockPos center) {
         this.shape = shape;
         this.center = center;
     }
 
+    public static MultiblockShape empty(){
+        return new MultiblockShape(Collections.emptyMap(), BlockPos.ZERO);
+    }
+
     public Map<BlockPos, Entry> getShape() {
         return shape;
+    }
+
+    public Entry getEntry(BlockPos offset){
+        return shape.get(offset);
+    }
+
+    public Entry getEntryGlobal(BlockPos globalPos){
+        return shape.get(getOffset(globalPos));
+    }
+
+    public BlockPos getOffset(BlockPos globalPos){
+        return globalPos.subtract(center);
     }
 
     public Set<BlockPos> getGlobalPositions() {
@@ -33,6 +55,18 @@ public class MultiblockShape {
 
     public Entry getEntryForGlobalPos(BlockPos pos){
         return shape.get(pos.subtract(center));
+    }
+
+    public VoxelShape getJointVoxelShape(Level level, BlockState state) {
+        if (jointVoxelShape.isEmpty()) {
+            shape.forEach((pos, entry) -> {
+                //cut out only the block so it isn't huge
+                VoxelShape shape1 = Shapes.join(state.getShape(level, pos.offset(getCenter())), Shapes.block(), BooleanOp.AND);
+
+                jointVoxelShape = Builder.joinMoved(jointVoxelShape, shape1, BooleanOp.OR, pos);
+            });
+        }
+        return jointVoxelShape;
     }
 
     public record Entry(MultiblockLogic logic, Function<BlockState, BlockState> stateModifier, Map<ShapeDataKey<?>, Object> data) {
@@ -45,6 +79,21 @@ public class MultiblockShape {
             T value = (T) data.get(key);
             return value;
         }
+
+        public <T> T getDataOrDefault(ShapeDataKey<T> key, T defaultValue) {
+            @SuppressWarnings("unchecked")
+            T value = (T) data.get(key);
+            return value != null ? value : defaultValue;
+        }
+
+        public boolean hasData(ShapeDataKey<?> key) {
+            return data.containsKey(key);
+        }
+
+        @ApiStatus.Internal
+        public <T> void putData(ShapeDataKey<T> key, T value) {
+            data.put(key, value);
+        }
     }
 
     public BlockPos getCenter() {
@@ -56,6 +105,7 @@ public class MultiblockShape {
         Map<BlockPos, Entry> map = new HashMap<>();
         List<Operation> operations = new ArrayList<>();
         List<SymbolShapeBuilder> symbolShapeBuilders = new ArrayList<>();
+        VoxelShape jointVoxelShape = Shapes.empty();
 
         public Builder(BlockPos center, MultiblockLogic centerLogic) {
             this.center = center;
@@ -76,6 +126,11 @@ public class MultiblockShape {
             SymbolShapeBuilder symbolShapeBuilder = new SymbolShapeBuilder(fowardDirection);
             symbolShapeBuilders.add(symbolShapeBuilder);
             return symbolShapeBuilder;
+        }
+
+        public Builder setJointVoxelShape(VoxelShape shape){
+            jointVoxelShape = shape;
+            return this;
         }
 
         // add() zone:
@@ -160,6 +215,14 @@ public class MultiblockShape {
                 offset = operation.posModifier().apply(offset);
                 logic = operation.logicModifier().apply(logic);
                 stateModifier = stateModifier.andThen(operation.stateModifier()); // this doesnt work with unary operators
+
+                dataMap.replaceAll((key, value) -> {
+                    ShapeDataKey.Operation dataModifier = operation.getDataModifier(key);
+                    if (dataModifier != null) {
+                        return dataModifier.operation().apply(value);
+                    }
+                    return value;
+                });
             }
 
             if (!offset.equals(Vec3i.ZERO)) {
@@ -170,8 +233,9 @@ public class MultiblockShape {
             }
         }
 
-        public Builder pushOperation(UnaryOperator<Vec3i> posModifier, UnaryOperator<MultiblockLogic> logicModifier, UnaryOperator<BlockState> stateModifier) {
-            operations.add(new Operation(posModifier, logicModifier, stateModifier));
+        public Builder pushOperation(UnaryOperator<Vec3i> posModifier, UnaryOperator<MultiblockLogic> logicModifier,
+                                     UnaryOperator<BlockState> stateModifier, ShapeDataKey.Operation<?>... dataModifiers) {
+            operations.add(new Operation(posModifier, logicModifier, stateModifier, dataModifiers));
             return this;
         }
 
@@ -182,7 +246,8 @@ public class MultiblockShape {
                         return rotatedOffset.offset(rotatedPivotPoint);
                     },
                     UnaryOperator.identity(),
-                    UnaryOperator.identity()
+                    UnaryOperator.identity(),
+                    new ShapeDataKey.Operation<>(ShapeDataKey.VOXEL_SHAPE, shape -> VoxelShapeUtils.rotateAll(direction, shape))
             );
         }
 
@@ -190,7 +255,7 @@ public class MultiblockShape {
             return pushDirectionalOperation(direction, Vec3i.ZERO);
         }
 
-        private static @NotNull Vec3i rotateVector(Direction direction, Vec3i offset) {
+        protected static @NotNull Vec3i rotateVector(Direction direction, Vec3i offset) {
             return switch (direction) {
                 case NORTH -> new Vec3i(offset.getX(), offset.getY(), offset.getZ());
                 case SOUTH -> new Vec3i(-offset.getX(), offset.getY(), -offset.getZ());
@@ -203,6 +268,23 @@ public class MultiblockShape {
             };
         }
 
+        protected void buildVoxelShapes(){
+
+            if (!jointVoxelShape.isEmpty()) {
+                map.forEach((pos, entry) -> {
+                    if (!entry.hasData(ShapeDataKey.VOXEL_SHAPE)) {
+                        // cut the joint shape into pieces and store them in the entry
+                        entry.putData(ShapeDataKey.VOXEL_SHAPE, joinMoved(Shapes.block(), jointVoxelShape, BooleanOp.AND, pos.multiply(-1)));
+                    }
+                });
+
+            }
+
+        }
+
+        static protected VoxelShape joinMoved(VoxelShape first, VoxelShape second, BooleanOp op, BlockPos pos){
+            return Shapes.join(first, second.move(pos.getX(), pos.getY(), pos.getZ()), op);
+        }
 
         public Builder popOperation() {
             operations.removeLast();
@@ -218,6 +300,7 @@ public class MultiblockShape {
             for (SymbolShapeBuilder builder : symbolShapeBuilders) {
                 builder.build(this);
             }
+            buildVoxelShapes();
             return new MultiblockShape(map, center);
         }
 
@@ -229,6 +312,15 @@ public class MultiblockShape {
         }
 
 
-        public record Operation(UnaryOperator<Vec3i> posModifier, UnaryOperator<MultiblockLogic> logicModifier, UnaryOperator<BlockState> stateModifier) {}
+        public record Operation(UnaryOperator<Vec3i> posModifier, UnaryOperator<MultiblockLogic> logicModifier,
+                                UnaryOperator<BlockState> stateModifier, ShapeDataKey.Operation<?>[] dataModifiers ) {
+            @SuppressWarnings("unchecked")
+            public <T> @Nullable ShapeDataKey.Operation<T> getDataModifier(ShapeDataKey<T> key) {
+                for (ShapeDataKey.Operation<?> dataModifier : dataModifiers) {
+                    return (ShapeDataKey.Operation<T>) dataModifier;
+                }
+                return null;
+            }
+        }
     }
 }

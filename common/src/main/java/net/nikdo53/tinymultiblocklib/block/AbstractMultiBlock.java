@@ -53,6 +53,7 @@ public abstract class AbstractMultiBlock extends BaseMultiblock implements IMova
                             + " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
                     state.toString(), context.getCenterPos());
         }
+       // builder.setCoolOutlines(false);
 
         list.forEach(pos -> builder.addGlobal(pos, getDefaultCenterLogic(context), UnaryOperator.identity()));
 

@@ -5,13 +5,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.*;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
+import net.nikdo53.tinymultiblocklib.block.shape.ShapeDataKey;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.UnaryOperator;
 
 public class SimpleMultiblock extends BaseMultiblock implements IPreviewableMultiblock {
     public SimpleMultiblock(Properties properties) {
@@ -33,7 +39,8 @@ public class SimpleMultiblock extends BaseMultiblock implements IPreviewableMult
                            "xc")
                 .nextAisle("  ",
                            " x")
-                .where('x', MultiblockShape.Builder::addNoLogic);
+                .where('x', UnaryOperator.identity())
+        ;
     }
 
 }

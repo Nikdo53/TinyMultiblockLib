@@ -11,22 +11,6 @@ import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 public interface IPreviewableMultiblock extends IMultiBlock {
     /**
-     * @deprecated Use the event
-     */
-    @Deprecated
-    default boolean skipJsonRendering() {
-        return false;
-    }
-
-    /**
-     * @deprecated Use the event
-     */
-    @Deprecated
-    default boolean shouldPreview(Level level, Player player, BlockPos pos, PreviewMode previewMode) {
-        return true;
-    }
-
-    /**
      * Returns the default BlockState that will be used for previews
      * */
     default BlockState getDefaultStateForPreviews(Direction direction) {
@@ -35,14 +19,6 @@ public interface IPreviewableMultiblock extends IMultiBlock {
         if (getDirectionProperty() == null) return blockState;
         return blockState.trySetValue(getDirectionProperty(), direction);
     };
-
-    /**
-     * @deprecated Use the event
-     */
-    @Deprecated
-    default BlockEntity getBlockEntityForPreviews(BlockEntity entity, Level level, BlockPos blockPos) {
-        return entity;
-    }
 
     private Block self(){
         if (this instanceof Block block){

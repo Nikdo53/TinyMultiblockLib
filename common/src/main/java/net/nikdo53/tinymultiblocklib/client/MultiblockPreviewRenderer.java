@@ -114,7 +114,17 @@ public class MultiblockPreviewRenderer {
                 state = block.defaultBlockState();
 
                 if (block instanceof IPreviewableMultiblock multiblock){
-                   state = multiblock.getDefaultStateForPreviews(player.getDirection());
+                    state = multiblock.getDefaultStateForPreviews(player.getDirection());
+                }
+
+                if (block instanceof IMultiBlock multiBlock && multiBlock.makeDirectional() != null){
+                    IMultiBlock.DirectionContext directionContext = multiBlock.makeDirectional();
+                    assert directionContext != null;
+                    Direction dir = directionContext.directionExtractor().apply(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
+
+                    if (dir != null) {
+                        state = state.setValue(directionContext.property(), dir);
+                    }
                 }
             }
 
