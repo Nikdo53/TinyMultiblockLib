@@ -18,6 +18,8 @@
     "ClientLevelMixin",
     "MinecraftAccessor",
     "ModelBlockRendererMixin",
+    "LevelRendererMixin",
+    "RenderStateShardAccessor",
     "RenderTypeAccessor"
   ],
   "server": [

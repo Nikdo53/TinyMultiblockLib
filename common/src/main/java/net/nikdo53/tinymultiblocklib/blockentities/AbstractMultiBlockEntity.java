@@ -21,7 +21,7 @@ import java.util.HashMap;
 public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlockEntity{
     private BlockPos offset;
     private boolean isPlaced;
-    private MultiblockShape blockShapeCache = new MultiblockShape(new HashMap<>(), BlockPos.ZERO);
+    private MultiblockShape blockShapeCache = MultiblockShape.empty();
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
