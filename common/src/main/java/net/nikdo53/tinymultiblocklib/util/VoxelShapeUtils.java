@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.block.shape;
+package net.nikdo53.tinymultiblocklib.util;
 
 import net.minecraft.Util;
 import net.minecraft.core.Direction;

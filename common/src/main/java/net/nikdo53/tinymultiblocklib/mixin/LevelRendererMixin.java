@@ -37,6 +37,7 @@ public class LevelRendererMixin {
     }
 
     @Unique
+    //returns true if the original outline should be rendered too
     private static boolean tinyMultiblockLib$actuallyRenderTheOutline(PoseStack poseStack, VertexConsumer consumer, double x, double y, double z, float red, float green, float blue, float alpha, Operation<Void> original, BlockState state, BlockPos pos, IMultiBlock multiBlock) {
         ClientLevel level = Minecraft.getInstance().level;
         assert level != null;
@@ -45,7 +46,10 @@ public class LevelRendererMixin {
         BlockPos offset = multiblockShape.getOffset(pos).multiply(-1);
         MultiblockShape.Entry entry = multiblockShape.getEntry(offset);
 
-        original.call(poseStack, consumer, multiblockShape.getJointVoxelShape(level, state).move(offset.getX(), offset.getY(), offset.getZ()), x, y, z, red, green, blue, alpha);
+        VoxelShape jointVoxelShape = multiblockShape.getJointVoxelShape(level, state);
+        if (jointVoxelShape.isEmpty()) return true;
+
+        original.call(poseStack, consumer, jointVoxelShape.move(offset.getX(), offset.getY(), offset.getZ()), x, y, z, red, green, blue, alpha);
         if (entry == null) return false;
         return entry.getDataOrDefault(ShapeDataKey.STANDALONE_VOXEL_SHAPE, false);
     }
