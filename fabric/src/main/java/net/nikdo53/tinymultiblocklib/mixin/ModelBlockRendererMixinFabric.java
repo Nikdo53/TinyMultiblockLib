@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.List;
 
 @Mixin(ModelBlockRenderer.class)
-public class ModelBlockRendererMixin {
+public class ModelBlockRendererMixinFabric {
     
     @WrapOperation(method = "renderModel", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;renderQuadList(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lcom/mojang/blaze3d/vertex/VertexConsumer;FFFLjava/util/List;II)V",

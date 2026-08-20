@@ -17,7 +17,6 @@
     "ClientLevelAccessorMixin",
     "ClientLevelMixin",
     "LevelRendererMixin",
-    "ModelBlockRendererMixin",
     "RenderStateShardAccessor",
     "RenderTypeAccessor"
   ],

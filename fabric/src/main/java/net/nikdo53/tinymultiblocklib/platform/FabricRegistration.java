@@ -10,9 +10,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.Constants;
+import net.nikdo53.tinymultiblocklib.mixin.BlockEntityTypeAccessor;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -42,6 +44,9 @@ public class FabricRegistration implements IRegistrationUtils {
 
     @Override
     public  <T extends BlockEntity> void addSupportedBEBlock(Supplier<BlockEntityType<T>> blockEntityType, Block block){
-        blockEntityType.get().addSupportedBlock(block);
-    }
-}
+        BlockEntityTypeAccessor accessor = (BlockEntityTypeAccessor) blockEntityType.get();
+        Set<Block> blocks = new HashSet<>(accessor.tinymultiblocklib$getValidBlocks());
+        blocks.add(block);
+
+        accessor.tinymultiblocklib$setValidBlocks(blocks);
+    }}

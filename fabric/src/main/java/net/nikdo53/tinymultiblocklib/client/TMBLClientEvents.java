@@ -3,7 +3,6 @@ package net.nikdo53.tinymultiblocklib.client;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.nikdo53.tinymultiblocklib.client.ghost.GhostRenderer;
 
@@ -15,13 +14,13 @@ public class TMBLClientEvents {
 
     private static void renderLevelStageEvent(WorldRenderContext event) {
         MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
-                DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
+                event.tickDelta(),
                 event.camera(),
                 event.matrixStack()
         );
 
         GhostRenderer.renderAll(
-                DeltaTracker.ONE.getGameTimeDeltaPartialTick(false),
+                event.tickDelta(),
                 event.camera(),
                 event.matrixStack()
         );
