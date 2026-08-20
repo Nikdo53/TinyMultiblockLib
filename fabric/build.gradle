@@ -2,6 +2,11 @@ plugins {
     id 'multiloader-loader'
     id 'net.fabricmc.fabric-loom'
 }
+
+base {
+    archivesName = "${publish_name}-fabric-${minecraft_version}"
+}
+
 dependencies {
     compileOnly(project(':common'))
     minecraft "com.mojang:minecraft:${minecraft_version}"
@@ -10,6 +15,17 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     localRuntime("curse.maven:carry-on-274259:8554252")
+
+    include(implementation("net.nikdo53:nikdo-color:1.0.0"))
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = "${publish_name}-fabric-${minecraft_version}"
+        }
+    }
 }
 
 loom {

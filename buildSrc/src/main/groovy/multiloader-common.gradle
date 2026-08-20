@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "tiny-multiblock-lib-${project.name}-${minecraft_version}"
+    archivesName = "${publish_name}-${project.name}-${minecraft_version}"
 }
 
 java {
@@ -61,6 +61,15 @@ repositories {
             }
         }
         filter { includeGroupAndSubgroups('software.bernie.geckolib') }
+    }
+
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+
+
+    maven {
+        url = 'https://nikdo53.github.io'
     }
 }
 
@@ -134,18 +143,4 @@ processResources {
     }
 
     inputs.properties(expandProps)
-}
-
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url System.getenv('local_maven_url')
-        }
-    }
 }

@@ -14,6 +14,11 @@ public interface MultiblockBehaviour {
      * Extra requirements for the block to survive or be placed, runs for every single block in the multiblock
      * */
     default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state, BlockPos centerOffset, MultiblockShape shape){
+        return extraSurviveRequirements(level, pos, state, centerOffset);
+    }
+
+    @Deprecated
+    default boolean extraSurviveRequirements(LevelReader level, BlockPos pos, BlockState state, BlockPos centerOffset){
         return true;
     }
 

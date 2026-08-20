@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
+import net.nikdo53.nikdocolor.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.mixin.BufferSourceAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.RenderTypeAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
