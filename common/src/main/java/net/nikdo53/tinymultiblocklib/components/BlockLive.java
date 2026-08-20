@@ -64,7 +64,7 @@ public class BlockLive {
             super(pos, state);
 
 
-            this.blockEntityTag = blockEntity.saveWithId(blockEntity.getLevel().registryAccess());
+            this.blockEntityTag = blockEntity.saveWithId();
         }
 
         public Tag(BlockPos pos, BlockState state, @NotNull CompoundTag tag) {
@@ -82,7 +82,7 @@ public class BlockLive {
 
             BlockPos posNew = pos.offset(offset);
 
-            BlockEntity blockEntity = BlockEntity.loadStatic(posNew, state, blockEntityTag, level.registryAccess());
+            BlockEntity blockEntity = BlockEntity.loadStatic(posNew, state, blockEntityTag);
             if (blockEntity != null)
                 level.setBlockEntity(blockEntity);
         }

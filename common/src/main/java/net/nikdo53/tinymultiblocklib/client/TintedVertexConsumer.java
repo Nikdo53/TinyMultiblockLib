@@ -15,32 +15,25 @@ public class TintedVertexConsumer extends VertexConsumerWrapper {
 
 
     @Override
-    public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int packedOverlay, boolean readAlpha) {
-        parent.putBulkData(pose, quad, brightness, red * colorSupplier.getRed(), green * colorSupplier.getGreen(), blue * colorSupplier.getBlue(), alpha * colorSupplier.getAlpha(), lightmap, packedOverlay, readAlpha);
+    public void vertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU, float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ) {
+        float[] colors = colorSupplier.applyColorsFloat(red, green, blue, alpha);
+        super.vertex(x, y, z, colors[0], colors[1], colors[2], colors[3], texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
     }
 
     @Override
-    public void putBulkData(PoseStack.Pose pose, BakedQuad quad, float red, float green, float blue, float alpha, int packedLight, int packedOverlay) {
-        parent.putBulkData(pose, quad, red * colorSupplier.getRed(), green * colorSupplier.getGreen(), blue * colorSupplier.getBlue(), alpha * colorSupplier.getAlpha(), packedLight, packedOverlay);
+    public VertexConsumer color(int r, int g, int b, int a) {
+        float[] colors = colorSupplier.applyColorsFloat(r, g, b, a);
+        return super.color(((int) colors[0]), (int) colors[1], (int) colors[2], (int) colors[3]);
     }
 
     @Override
-    public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight, float normalX, float normalY, float normalZ) {
-        parent.addVertex(x, y, z, colorSupplier.applyColors(color), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
+    public VertexConsumer color(float red, float green, float blue, float alpha) {
+        float[] colors = colorSupplier.applyColorsFloat(red, green, blue, alpha);
+        return super.color(colors[0], colors[1], colors[2], colors[3]);
     }
 
     @Override
-    public VertexConsumer setColor(int r, int g, int b, int a) {
-        return parent.setColor(r * colorSupplier.getRed(), g * colorSupplier.getGreen(), b * colorSupplier.getBlue(), a * colorSupplier.getAlpha());
-    }
-
-    @Override
-    public VertexConsumer setColor(float red, float green, float blue, float alpha) {
-        return parent.setColor(red * colorSupplier.getRed(), green * colorSupplier.getGreen(), blue * colorSupplier.getBlue(), alpha * colorSupplier.getAlpha());
-    }
-
-    @Override
-    public VertexConsumer setColor(int color) {
-        return parent.setColor(colorSupplier.applyColors(color));
+    public VertexConsumer color(int colorARGB) {
+        return super.color(colorSupplier.applyColors(colorARGB));
     }
 }

@@ -2,7 +2,7 @@ package net.nikdo53.tinymultiblocklib.platform;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.neoforged.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
@@ -17,12 +17,14 @@ public class NeoForgeEventPoster implements IEventPoster {
 
     @Override
     public IOnBlockPreviewEvent onBlockPreviewPre(PreviewMode previewMode, boolean isCancelled, BlockLive center, Set<BlockLive> blockLiveSet) {
-        return NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Pre(previewMode, isCancelled, center, blockLiveSet));
+        OnBlockPreviewEvent.Pre event = new OnBlockPreviewEvent.Pre(previewMode, isCancelled, center, blockLiveSet);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event;
     }
 
     @Override
     public void onBlockPreviewPost(PreviewMode previewMode, BlockLive center, Set<BlockLive> blockLiveSet, PoseStack poseStack, float partialTicks, MultiBufferSource.BufferSource bufferSource) {
-        NeoForge.EVENT_BUS.post(new OnBlockPreviewEvent.Post(previewMode, center, blockLiveSet, poseStack, partialTicks, bufferSource));
+        MinecraftForge.EVENT_BUS.post(new OnBlockPreviewEvent.Post(previewMode, center, blockLiveSet, poseStack, partialTicks, bufferSource));
     }
 
 }

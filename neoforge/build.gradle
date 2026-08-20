@@ -1,49 +1,52 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.moddev'
+    id 'net.neoforged.moddev.legacyforge'
 }
 
 base {
-    archivesName = "${publish_name}-neo-${minecraft_version}"
+    archivesName = "${publish_name}-forge-${minecraft_version}"
 }
 
-neoForge {
-    version = neoforge_version
-    // Automatically enable neoforge AccessTransformers if the file exists
+mixin {
+    add(sourceSets.main, "${mod_id}.refmap.json")
+
+    config("${mod_id}.mixins.json")
+    config("${mod_id}.neoforge.mixins.json")
+}
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
+
+    validateAccessTransformers = true
+
     def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
     if (at.exists()) {
-        accessTransformers.from(at.absolutePath)
+        accessTransformers = ["src/main/resources/META-INF/accesstransformer.cfg"]
     }
     parchment {
         minecraftVersion = parchment_minecraft
         mappingsVersion = parchment_version
     }
     runs {
-        configureEach {
-            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
-            ideName = "NeoForge ${it.name.capitalize()} (${project.path})" // Unify the run config names with fabric
-        }
         client {
             client()
         }
         data {
             data()
-
-            // DataGen can be run by - "./gradlew :neoforge:runData" in Terminal.
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-
         }
         server {
             server()
         }
     }
+
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
         }
     }
 }
+
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
@@ -55,24 +58,30 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifactId = "${publish_name}-neoforge-${minecraft_version}"
+            artifactId = "${publish_name}-forge-${minecraft_version}"
         }
     }
 }
 
 dependencies {
+    compileOnly project(":common")
+    annotationProcessor("org.spongepowered:mixin:0.8.7-SNAPSHOT:processor")
 
-    localRuntime("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
-    localRuntime("curse.maven:carry-on-274259:5649344"){transitive = false}
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:[0.5.0,)"))
 
-    compileOnly("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
-    compileOnly("curse.maven:carry-on-274259:5649344"){transitive = false}
-
-    localRuntime( "curse.maven:sodium-394468:6382651"){transitive = false}
-    localRuntime("curse.maven:irisshaders-455508:6661598"){transitive = false}
+    modImplementation("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}")
+    modImplementation("curse.maven:carry-on-274259:4882500")
 
     jarJar(implementation("net.nikdo53:nikdo-color:1.0.0"))
     additionalRuntimeClasspath("net.nikdo53:nikdo-color:1.0.0")
-    implementation "curse.maven:starcatcher-1357603:8431589"
 
 }
+
+jar {
+    finalizedBy('reobfJar')
+    manifest.attributes([
+            "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.neoforge.mixins.json"
+    ])
+}
+

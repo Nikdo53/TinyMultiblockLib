@@ -2,14 +2,15 @@ package net.nikdo53.tinymultiblocklib.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.neoforged.bus.api.Event;
-import net.neoforged.bus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
+import net.minecraftforge.eventbus.api.Event;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 import java.util.HashSet;
 import java.util.Set;
+
 
 public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     private PreviewMode previewMode;
@@ -50,7 +51,8 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         return blockLiveSet;
     }
 
-    public static class Pre extends OnBlockPreviewEvent implements ICancellableEvent{
+    @Cancelable
+    public static class Pre extends OnBlockPreviewEvent{
         public Pre(PreviewMode previewMode, boolean isCancelled, BlockLive center, Set<BlockLive> blockLiveSet) {
             super(previewMode, center, blockLiveSet);
 

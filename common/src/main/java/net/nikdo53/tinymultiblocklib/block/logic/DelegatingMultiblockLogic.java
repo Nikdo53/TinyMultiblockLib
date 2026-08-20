@@ -3,10 +3,8 @@ package net.nikdo53.tinymultiblocklib.block.logic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -16,8 +14,6 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import org.jetbrains.annotations.Nullable;
@@ -45,21 +41,9 @@ public class DelegatingMultiblockLogic extends MultiblockLogic{
     }
 
     @Override
-    public void onExplosionHit(BlockState state, Level level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> dropConsumer) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BlockLive centerBlock = getCenterBlock(level, pos);
-        centerBlock.state.onExplosionHit(level, centerBlock.pos, explosion, dropConsumer);
-    }
-
-    @Override
-    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.useWithoutItem(level, player, hitResult.withPosition(centerBlock.pos));
-    }
-
-    @Override
-    public ItemInteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        BlockLive centerBlock = getCenterBlock(level, pos);
-        return centerBlock.state.useItemOn(itemStack, level, player, hand, hitResult.withPosition(centerBlock.pos));
+        return centerBlock.state.use(level, player, hand, hit.withPosition(centerBlock.pos));
     }
 
     @Override

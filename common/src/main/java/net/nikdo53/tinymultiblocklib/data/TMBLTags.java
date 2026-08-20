@@ -16,7 +16,7 @@ public class TMBLTags {
 
 
         private static TagKey<Item> tag(String name) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, name));
+            return TagKey.create(Registries.ITEM, new ResourceLocation(Constants.MOD_ID, name));
         }
     }
 }

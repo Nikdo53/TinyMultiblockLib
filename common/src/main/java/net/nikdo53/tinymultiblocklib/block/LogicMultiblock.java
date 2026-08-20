@@ -5,7 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -76,12 +75,12 @@ public abstract class LogicMultiblock extends BaseMultiblock implements IMovable
 
     //vanilla logic delegations:
     @Override
-    protected void updateIndirectNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos, int updateFlags, int updateLimit) {
+    public void updateIndirectNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos, int updateFlags, int updateLimit) {
         getLogicForPos(level, pos, state).updateIndirectNeighbourShapes(state, level, pos, updateFlags, updateLimit);
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         BlockState logicState = getLogicForPos(level, pos, state).updateShape(state, direction, neighborState, level, pos, neighborPos);
         return super.updateShape(logicState, direction, neighborState, level, pos, neighborPos);
     }
@@ -93,32 +92,22 @@ public abstract class LogicMultiblock extends BaseMultiblock implements IMovable
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         getLogicForPos(level, pos, state).neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
     }
 
     @Override
-    protected void onExplosionHit(BlockState state, Level level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> dropConsumer) {
-        getLogicForPos(level, pos, state).onExplosionHit(state, level, pos, explosion, dropConsumer);
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return getLogicForPos(level, pos, state).use(state, level, pos, player, hand, hit);
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return getLogicForPos(level, pos, state).useWithoutItem(state, level, pos, player, hitResult);
-    }
-
-    @Override
-    protected ItemInteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return getLogicForPos(level, pos, state).useItemOn(itemStack, state, level, pos, player, hand, hitResult);
-    }
-
-    @Override
-    protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int b0, int b1) {
+    public boolean triggerEvent(BlockState state, Level level, BlockPos pos, int b0, int b1) {
         return getLogicForPos(level, pos, state).triggerEvent(state, level, pos, b0, b1);
     }
 
     @Override
-    protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+    public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return getLogicForPos(level, pos, state).getMenuProvider(state, level, pos);
     }
 
@@ -128,37 +117,37 @@ public abstract class LogicMultiblock extends BaseMultiblock implements IMovable
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         return getLogicForPos(level, pos, state).getAnalogOutputSignal(state, level, pos);
     }
 
     @Override
-    protected void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack tool, boolean dropExperience) {
+    public void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos, ItemStack tool, boolean dropExperience) {
         getLogicForPos(level, pos, state).spawnAfterBreak(state, level, pos, tool, dropExperience);
     }
 
     @Override
-    protected void attack(BlockState state, Level level, BlockPos pos, Player player) {
+    public void attack(BlockState state, Level level, BlockPos pos, Player player) {
         getLogicForPos(level, pos, state).attack(state, level, pos, player);
     }
 
     @Override
-    protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return getLogicForPos(level, pos, state).getSignal(state, level, pos, direction);
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         getLogicForPos(level, pos, state).entityInside(state, level, pos, entity);
     }
 
     @Override
-    protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+    public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return getLogicForPos(level, pos, state).getDirectSignal(state, level, pos, direction);
     }
 
     @Override
-    protected void onProjectileHit(Level level, BlockState state, BlockHitResult blockHit, Projectile projectile) {
+    public void onProjectileHit(Level level, BlockState state, BlockHitResult blockHit, Projectile projectile) {
         getLogicForPos(level, blockHit.getBlockPos(), state).onProjectileHit(level, state, blockHit, projectile);
     }
 }

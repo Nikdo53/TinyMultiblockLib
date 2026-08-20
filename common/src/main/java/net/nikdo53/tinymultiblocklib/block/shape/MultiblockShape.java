@@ -6,6 +6,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -64,7 +65,7 @@ public class MultiblockShape {
     public VoxelShape getJointVoxelShape(Level level, BlockState state) {
         if (state.getBlock() instanceof AbstractMultiBlock){
             AABB shape = state.getShape(level, getCenter()).bounds();
-            AABB block = AABB.encapsulatingFullBlocks(BlockPos.ZERO, BlockPos.ZERO);
+            AABB block = AABB.unitCubeFromLowerCorner(new Vec3(0, 0, 0));
             // should cancel fancy outlines for blocks that already have them done manually
             if (TMBLUtils.isShapeBiggerThan(shape, block)) {
                 return Shapes.empty();
@@ -300,7 +301,7 @@ public class MultiblockShape {
         }
 
         public Builder popOperation() {
-            operations.removeLast();
+            operations.remove(operations.size() - 1);
             return this;
         }
 

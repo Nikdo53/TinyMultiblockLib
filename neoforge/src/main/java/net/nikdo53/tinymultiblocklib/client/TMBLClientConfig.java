@@ -1,14 +1,14 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class TMBLClientConfig {
-    public static final ModConfigSpec CLIENT_CONFIG;
-    public static final ModConfigSpec.BooleanValue DISABLE_MULTIBLOCK_PREVIEWS;
+    public static final ForgeConfigSpec CLIENT_CONFIG;
+    public static final ForgeConfigSpec.BooleanValue DISABLE_MULTIBLOCK_PREVIEWS;
 
     static {
-        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         DISABLE_MULTIBLOCK_PREVIEWS = builder
                 .comment("Disables ghost previews when trying to place a multiblock")

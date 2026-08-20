@@ -26,13 +26,13 @@ public interface CommonRegistration {
 
     interface BlockReg {
         Supplier<Block> TEST_BLOCK =
-                REGISTRATION.registerBlockWithItem("test_block", TestBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
+                REGISTRATION.registerBlockWithItem("test_block", TestBlock::new, () -> BlockBehaviour.Properties.copy(Blocks.DIRT));
 
         Supplier<Block> DIAMOND_STRUCTURE_BLOCK =
-                REGISTRATION.registerBlockWithItem("diamond_structure", DiamondStructureBlock::new, () -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIAMOND_BLOCK));
+                REGISTRATION.registerBlockWithItem("diamond_structure", DiamondStructureBlock::new, () -> BlockBehaviour.Properties.copy(Blocks.DIAMOND_BLOCK));
 
         Supplier<Block> SIMPLE_MULTIBLOCK =
-                REGISTRATION.registerBlockWithItem("simple_multiblock", SimpleMultiblock::new,() -> BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT));
+                REGISTRATION.registerBlockWithItem("simple_multiblock", SimpleMultiblock::new,() -> BlockBehaviour.Properties.copy(Blocks.DIRT));
 
         static void init(){
 

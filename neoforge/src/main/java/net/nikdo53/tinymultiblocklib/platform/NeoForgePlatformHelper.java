@@ -1,7 +1,7 @@
 package net.nikdo53.tinymultiblocklib.platform;
 
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLLoader;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.nikdo53.tinymultiblocklib.platform.services.IEventPoster;
 import net.nikdo53.tinymultiblocklib.platform.services.IPlatformHelper;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;

@@ -49,7 +49,7 @@ public class DiamondStructureBlock extends AbstractStructureMultiBlock implement
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return voxelShapeHelper(state, level, pos, SHAPE);
     }
 }

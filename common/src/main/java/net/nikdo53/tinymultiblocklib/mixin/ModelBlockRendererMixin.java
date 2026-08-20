@@ -1,4 +1,4 @@
-package net.nikdo53.tinymultiblocklib.mixin.neoforge;
+package net.nikdo53.tinymultiblocklib.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -16,9 +16,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.List;
 
 @Mixin(ModelBlockRenderer.class)
-public class ModelBlockRendererMixinNeo {
+public class ModelBlockRendererMixin {
     
-    @WrapOperation(method = "renderModel(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/client/resources/model/BakedModel;FFFIILnet/neoforged/neoforge/client/model/data/ModelData;Lnet/minecraft/client/renderer/RenderType;)V", at = @At(value = "INVOKE",
+    @WrapOperation(method = "renderModel", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;renderQuadList(Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lcom/mojang/blaze3d/vertex/VertexConsumer;FFFLjava/util/List;II)V",
             ordinal = 0)
     )

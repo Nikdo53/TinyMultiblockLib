@@ -97,7 +97,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         return updateShapeHelper(state, direction, neighborState, level, pos, neighborPos);
     }
 
@@ -107,13 +107,13 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         preventCreativeDrops(player, level, pos);
-        return super.playerWillDestroy(level, pos, state, player);
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
+    public BlockState rotate(BlockState state, Rotation rotation) {
         if (getDirectionProperty() != null) {
             Direction currentDirection = state.getValue(getDirectionProperty());
             return state.setValue(getDirectionProperty(), rotation.rotate(currentDirection));
@@ -122,7 +122,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     }
 
     @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
+    public BlockState mirror(BlockState state, Mirror mirror) {
         if (getDirectionProperty() != null) {
             Direction currentDirection = state.getValue(getDirectionProperty());
             return state.setValue(getDirectionProperty(), mirror.getRotation(currentDirection).rotate(currentDirection));
@@ -131,7 +131,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         MultiblockShape fullBlockShape = getFullBlockShape(level, pos, state);
         BlockPos offset = IMultiBlock.getOffset(level, pos);
         MultiblockShape.Entry entry = fullBlockShape.getShape().get(offset);

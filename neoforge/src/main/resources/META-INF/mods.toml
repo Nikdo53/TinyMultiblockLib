@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "${neoforge_loader_version_range}"
+loaderVersion = "${forge_loader_version_range}"
 license = "${license}"
 issueTrackerURL="https://github.com/Nikdo53/TinyMultiblockLib/issues"
 
@@ -11,15 +11,10 @@ logoFile = "icon.png"
 authors = "${mod_author}"
 description = '''${description}'''
 
-[[mixins]]
-config = "${mod_id}.mixins.json"
-[[mixins]]
-config = "${mod_id}.neoforge.mixins.json"
-
 [[dependencies.${mod_id}]]
-modId = "neoforge"
+modId = "forge"
 mandatory = true
-versionRange = "[21.1.150, )"
+versionRange = "${forge_loader_version_range}"
 ordering = "NONE"
 side = "BOTH"
 

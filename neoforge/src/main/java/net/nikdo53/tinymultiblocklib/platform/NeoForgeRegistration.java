@@ -9,8 +9,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.test.TestBlockItem;
@@ -23,9 +23,9 @@ import java.util.function.Supplier;
 public class NeoForgeRegistration implements IRegistrationUtils {
     public static final NeoForgeRegistration INSTANCE = new NeoForgeRegistration();
 
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Constants.MOD_ID);
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, Constants.MOD_ID);
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Constants.MOD_ID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Constants.MOD_ID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Constants.MOD_ID);
 
 
     @Override
@@ -35,14 +35,14 @@ public class NeoForgeRegistration implements IRegistrationUtils {
 
     @Override
     public <T extends Block> Supplier<T> registerBlockWithItem(String name, Function<BlockBehaviour.Properties, ? extends T> func, Supplier<BlockBehaviour.Properties> properties) {
-        DeferredBlock<T> toReturn = BLOCKS.register(name, () -> func.apply(properties.get()));
+        Supplier<T> toReturn = BLOCKS.register(name, () -> func.apply(properties.get()));
         registerBlockItem(name, toReturn);
         return toReturn;
     }
 
     @Override
     public <T extends Block> Supplier<Item> registerBlockItem(String name, Supplier<T> block) {
-        return ITEMS.registerItem(name, (props) -> new TestBlockItem(block.get(), props));
+        return ITEMS.register(name, () -> new TestBlockItem(block.get(), new Item.Properties()));
     }
 
     @Override

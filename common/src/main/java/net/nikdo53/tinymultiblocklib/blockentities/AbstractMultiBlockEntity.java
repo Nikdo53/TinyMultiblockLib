@@ -27,27 +27,27 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.put("offset", NbtUtils.writeBlockPos(this.offset));
         tag.putBoolean("placed", this.isPlaced);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        saveAdditional(tag);
         return tag;
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.offset = NbtUtils.readBlockPos(tag, "offset").orElseGet(() -> this.offset);
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        this.offset = NbtUtils.readBlockPos(tag.getCompound("offset"));
         this.isPlaced = tag.getBoolean("placed");
 
         if (tag.contains("center")) // For maintaining compatibility with TMBL < 2.1
-            setCenter(NbtUtils.readBlockPos(tag, "center").orElseGet(this::getBlockPos));
+            setCenter(NbtUtils.readBlockPos(tag.getCompound("center")));
     }
 
     @Override

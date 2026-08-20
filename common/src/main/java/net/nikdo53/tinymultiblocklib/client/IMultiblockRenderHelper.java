@@ -72,20 +72,19 @@ public interface IMultiblockRenderHelper {
         return level;
     }
 
-    /**
-     * Should be used instead of {@link ModelPart#render(PoseStack, VertexConsumer, int, int)}
-     * <p>
-     * Applies the correct color + alpha according to the supplied PreviewMode
-     * */
+
     default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, PreviewMode previewMode) {
-        render(modelPart, poseStack, vertexConsumer, packedLight, packedOverlay, 0xffffffff, previewMode);
+        float r = 1f;
+        float g = 1f;
+        float b = 1f;
+        float alpha = 1f;
+
+        render(modelPart, poseStack, vertexConsumer, packedLight, packedOverlay, r, g, b, alpha, previewMode);
     }
 
-    default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int r, int g, int b, int alpha, PreviewMode previewMode) {
-        render(modelPart, poseStack, vertexConsumer, packedLight, packedOverlay, FastColor.ARGB32.color(alpha, r, g, b), previewMode);
-    }
+    default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float r, float g, float b, float alpha, PreviewMode previewMode) {
+        float[] rgba = previewMode.applyColorsFloat(r, g, b, alpha);
 
-    default void render(ModelPart modelPart, PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color, PreviewMode previewMode) {
-        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+        modelPart.render(poseStack, vertexConsumer, packedLight, packedOverlay, rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 }

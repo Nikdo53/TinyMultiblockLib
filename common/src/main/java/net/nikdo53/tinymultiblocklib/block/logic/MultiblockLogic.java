@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -41,12 +40,7 @@ public class MultiblockLogic extends BlockBehaviour implements MultiblockBehavio
     public static final MultiblockLogic EMPTY = new MultiblockLogic();
 
     public MultiblockLogic() {
-        super(MultiblockLogic.Properties.of());
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return null;
+        super(BlockBehaviour.Properties.of());
     }
 
     @Override
@@ -88,18 +82,8 @@ public class MultiblockLogic extends BlockBehaviour implements MultiblockBehavio
     }
 
     @Override
-    public void onExplosionHit(BlockState state, Level level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> dropConsumer) {
-        super.onExplosionHit(state, level, pos, explosion, dropConsumer);
-    }
-
-    @Override
-    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return super.useWithoutItem(state, level, pos, player, hitResult);
-    }
-
-    @Override
-    public ItemInteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return super.use(state, level, pos, player, hand, hit);
     }
 
     @Override
@@ -200,21 +184,5 @@ public class MultiblockLogic extends BlockBehaviour implements MultiblockBehavio
     @Override
     public int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
         return super.getLightBlock(state, level, pos);
-    }
-
-    @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
-        return super.propagatesSkylightDown(state, level, pos);
-    }
-
-
-    public static class Properties extends BlockBehaviour.Properties {
-        public Properties() {
-            super();
-        }
-
-        public static Properties of() {
-            return new Properties();
-        }
     }
 }
