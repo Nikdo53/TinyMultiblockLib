@@ -1,6 +1,7 @@
 package net.nikdo53.tinymultiblocklib.util;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.function.TriFunction;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -22,6 +23,10 @@ public class TMBLUtils {
                 return "memoize/3[function=" + var10000 + ", size=" + this.cache.size() + "]";
             }
         };
+    }
+
+    public static boolean isShapeBiggerThan(AABB shape, AABB otherShape){
+        return shape.getXsize() > otherShape.getXsize() && shape.getYsize() > otherShape.getYsize() && shape.getZsize() > otherShape.getZsize();
     }
 
 }

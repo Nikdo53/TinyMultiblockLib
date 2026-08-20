@@ -3,7 +3,7 @@ package net.nikdo53.tinymultiblocklib.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
+import net.nikdo53.nikdocolor.IColorSupplier;
 
 public class TintedVertexConsumer extends VertexConsumerWrapper {
     public IColorSupplier colorSupplier;

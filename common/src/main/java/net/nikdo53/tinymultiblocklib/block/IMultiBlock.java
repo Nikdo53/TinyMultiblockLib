@@ -70,7 +70,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * <p>
      * Use {@link #makeDirectional()} instead.
      * */
-    default @Nullable EnumProperty<Direction> getDirectionProperty(){
+    default @Nullable DirectionProperty getDirectionProperty(){
         DirectionContext directionContext = makeDirectional();
         return directionContext != null ? directionContext.property() : null; // null if block doesn't have directions
     }
@@ -89,7 +89,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * @param property The DirectionProperty of the multiblock
      * @param directionExtractor The function to extract the direction from a block place context, returns null if the block cannot be placed
      * */
-    record DirectionContext(EnumProperty<Direction> property, Function<BlockPlaceContext, Direction> directionExtractor){
+    record DirectionContext(DirectionProperty property, Function<BlockPlaceContext, Direction> directionExtractor){
         public static DirectionContext horizontal(){
             return new DirectionContext(HorizontalDirectionalBlock.FACING, UseOnContext::getHorizontalDirection);
         }

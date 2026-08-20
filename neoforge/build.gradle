@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "tiny-multiblock-lib-neo-${minecraft_version}"
+    archivesName = "${publish_name}-neo-${minecraft_version}"
 }
 
 neoForge {
@@ -51,6 +51,15 @@ configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = "${publish_name}-neoforge-${minecraft_version}"
+        }
+    }
+}
+
 dependencies {
 
     localRuntime("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
@@ -62,5 +71,8 @@ dependencies {
     localRuntime( "curse.maven:sodium-394468:6382651"){transitive = false}
     localRuntime("curse.maven:irisshaders-455508:6661598"){transitive = false}
 
+    jarJar(implementation("net.nikdo53:nikdo-color:1.0.0"))
+    additionalRuntimeClasspath("net.nikdo53:nikdo-color:1.0.0")
+    implementation "curse.maven:starcatcher-1357603:8431589"
 
 }

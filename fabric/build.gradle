@@ -4,7 +4,7 @@ plugins {
 }
 
 base {
-    archivesName = "tiny-multiblock-lib-fabric-${minecraft_version}"
+    archivesName = "${publish_name}-fabric-${minecraft_version}"
 }
 
 dependencies {
@@ -15,6 +15,7 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    implementation "com.google.code.findbugs:jsr305:3.0.1"
 
     modCompileOnly("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
     modCompileOnly "curse.maven:carry-on-274259:5649345"
@@ -22,6 +23,16 @@ dependencies {
     modLocalRuntime("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
     modLocalRuntime "curse.maven:carry-on-274259:5649345"
 
+    include(implementation("net.nikdo53:nikdo-color:1.0.0"))
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = "${publish_name}-fabric-${minecraft_version}"
+        }
+    }
 }
 
 loom {

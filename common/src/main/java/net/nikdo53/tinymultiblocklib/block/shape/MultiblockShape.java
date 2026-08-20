@@ -5,11 +5,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.logic.DelegatingMultiblockLogic;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
+import net.nikdo53.tinymultiblocklib.util.TMBLUtils;
+import net.nikdo53.tinymultiblocklib.util.VoxelShapeUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,6 +62,15 @@ public class MultiblockShape {
     }
 
     public VoxelShape getJointVoxelShape(Level level, BlockState state) {
+        if (state.getBlock() instanceof AbstractMultiBlock){
+            AABB shape = state.getShape(level, getCenter()).bounds();
+            AABB block = AABB.encapsulatingFullBlocks(BlockPos.ZERO, BlockPos.ZERO);
+            // should cancel fancy outlines for blocks that already have them done manually
+            if (TMBLUtils.isShapeBiggerThan(shape, block)) {
+                return Shapes.empty();
+            }
+
+        }
         if (jointVoxelShape.isEmpty()) {
             shape.forEach((pos, entry) -> {
                 //cut out only the block so it isn't huge

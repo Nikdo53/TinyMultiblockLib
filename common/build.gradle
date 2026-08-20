@@ -23,6 +23,16 @@ dependencies {
     compileOnly("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"){transitive = false}
     compileOnly("curse.maven:carry-on-274259:7393892"){transitive = false}
 
+    implementation("net.nikdo53:nikdo-color:1.0.0")
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = "${publish_name}-common-${minecraft_version}"
+        }
+    }
 }
 
 configurations {

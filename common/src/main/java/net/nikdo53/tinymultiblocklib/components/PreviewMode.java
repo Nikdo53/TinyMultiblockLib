@@ -1,7 +1,7 @@
 package net.nikdo53.tinymultiblocklib.components;
 
 
-import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
+import net.nikdo53.nikdocolor.IColorSupplier;
 
 public enum PreviewMode implements IColorSupplier {
     /**
