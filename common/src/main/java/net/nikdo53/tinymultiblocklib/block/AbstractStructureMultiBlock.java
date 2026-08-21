@@ -10,10 +10,12 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
+import net.nikdo53.tinymultiblocklib.blockentities.AbstractStructureMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.blockentities.IStructureMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
 public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
     public AbstractStructureMultiBlock(Properties properties) {
         super(properties);
@@ -29,7 +31,7 @@ public abstract class AbstractStructureMultiBlock extends AbstractMultiBlock {
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public @Nullable AbstractStructureMultiBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return CommonRegistration.BlockEntities.SIMPLE_STRUCTURE_MULTIBLOCK_ENTITY.get().create(pos, state);
     }
 
