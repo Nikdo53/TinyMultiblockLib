@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.client;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
@@ -83,8 +84,8 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
                 return translucent;
         }
 
-        VertexFormat.Mode mode = ((RenderTypeAccessor) renderType).getMode();
-        VertexFormat format = ((RenderTypeAccessor) renderType).getFormat();
+        VertexFormat.Mode mode = renderType.state.pipeline.getVertexFormatMode();
+        VertexFormat format = renderType.state.pipeline.getVertexFormat();
         if (mode == VertexFormat.Mode.QUADS){
             if (format == DefaultVertexFormat.BLOCK){
                 return RenderTypes.translucentMovingBlock();
