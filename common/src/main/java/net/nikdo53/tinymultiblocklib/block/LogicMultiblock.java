@@ -51,11 +51,6 @@ public abstract class LogicMultiblock extends BaseMultiblock implements IMovable
         return getLogicForPos(level, pos, state, null);
     }
 
-    @Override
-    public @Nullable AbstractMultiBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get().create(pos, state);
-    }
-
     //TMBL delegations (these do not use super since that's already a part of the logic)
     @Override
     public boolean canReplaceBlock(LevelReader level, BlockPos blockPos, BlockState state, MultiblockShape shape) {
