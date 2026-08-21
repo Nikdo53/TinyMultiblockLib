@@ -61,9 +61,15 @@ sourceSets.configureEach {
     }
 }
 
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+
+
 dependencies {
-  //  compileOnly("software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}")
-    implementation "curse.maven:carry-on-274259:8562912"
+    compileOnly(project(':common'))
+    localRuntime "curse.maven:carry-on-274259:8562912"
 
 
 }
