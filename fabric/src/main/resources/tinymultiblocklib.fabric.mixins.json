@@ -7,7 +7,7 @@
   ],
   "client": [
     "fabric.FabricBlockRendererMixin",
-    "fabric.LevelRendererMixinFabric",
+    "fabric.LevelExtractorMixinFabric",
     "fabric.VanillaBlockModelPartEncoderMixin"
   ],
   "server": [
