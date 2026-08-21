@@ -330,7 +330,7 @@ public class MultiblockShape {
             @SuppressWarnings("unchecked")
             public <T> @Nullable ShapeDataKey.Operation<T> getDataModifier(ShapeDataKey<T> key) {
                 for (ShapeDataKey.Operation<?> dataModifier : dataModifiers) {
-                    return (ShapeDataKey.Operation<T>) dataModifier;
+                   if (dataModifier.key().equals(key)) return (ShapeDataKey.Operation<T>) dataModifier;
                 }
                 return null;
             }

@@ -153,6 +153,7 @@ public class SymbolShapeBuilder {
                     char c = aisle[y].charAt(x);
                     c = Character.toUpperCase(c);
                     BiConsumer<MultiblockShape.Builder, Vec3i> consumer = lookup.get(c);
+                    assert this.centerPos != null;
                     consumer.accept(multiblockBuilder, getCorrectedVector(x, -y, -depth).subtract(this.centerPos));
                 }
             }
