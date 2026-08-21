@@ -18,6 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
 import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeDataKey;
+import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
@@ -146,7 +147,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
      * Remember to override {@link #hasCustomBE()} when overriding, so the block doesn't get added to valid blocks for no reason
      * */
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public @Nullable AbstractMultiBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return CommonRegistration.BlockEntities.SIMPLE_MULTIBLOCK_ENTITY.get().create(pos, state);
     }
 
