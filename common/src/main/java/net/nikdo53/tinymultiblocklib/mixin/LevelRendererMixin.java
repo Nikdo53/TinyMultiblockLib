@@ -43,13 +43,13 @@ public class LevelRendererMixin {
         assert level != null;
 
         MultiblockShape multiblockShape = multiBlock.getFullBlockShape(level, pos, state);
-        BlockPos offset = multiblockShape.getOffset(pos).multiply(-1);
+        BlockPos offset = multiblockShape.getOffset(pos);
         MultiblockShape.Entry entry = multiblockShape.getEntry(offset);
 
         VoxelShape jointVoxelShape = multiblockShape.getJointVoxelShape(level, state);
         if (jointVoxelShape.isEmpty()) return true;
 
-        original.call(poseStack, consumer, jointVoxelShape.move(offset.getX(), offset.getY(), offset.getZ()), x, y, z, red, green, blue, alpha);
+        original.call(poseStack, consumer, jointVoxelShape.move(-offset.getX(), -offset.getY(), -offset.getZ()), x, y, z, red, green, blue, alpha);
         if (entry == null) return false;
         return entry.getDataOrDefault(ShapeDataKey.STANDALONE_VOXEL_SHAPE, false);
     }
