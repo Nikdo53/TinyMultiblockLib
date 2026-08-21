@@ -39,7 +39,7 @@ public class SimpleMultiblock extends BaseMultiblock implements IPreviewableMult
                            "xc")
                 .nextAisle("  ",
                            " x")
-                .where('x', UnaryOperator.identity())
+                .where('x', UnaryOperator.identity(), new ShapeDataKey.Pair<>(ShapeDataKey.STANDALONE_VOXEL_SHAPE, true))
         ;
     }
 

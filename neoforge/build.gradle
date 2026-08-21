@@ -75,11 +75,8 @@ publishing {
 }
 
 dependencies {
-    compileOnly(project(':common'))
-    localRuntime "curse.maven:carry-on-274259:8562912"
+    localRuntime "curse.maven:carry-on-274259:8554262"
+    compileOnly("curse.maven:carry-on-274259:8562912")
 
     jarJar(implementation("net.nikdo53:nikdo-color:1.0.0"))
-    additionalRuntimeClasspath("net.nikdo53:nikdo-color:1.0.0")
-    implementation "curse.maven:starcatcher-1357603:8431589"
-
 }

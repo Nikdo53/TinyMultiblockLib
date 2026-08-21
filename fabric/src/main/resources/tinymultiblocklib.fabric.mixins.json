@@ -6,8 +6,9 @@
   "mixins": [
   ],
   "client": [
-    "fabric.VanillaBlockModelPartEncoderMixin",
-    "fabric.FabricBlockRendererMixin"
+    "fabric.FabricBlockRendererMixin",
+    "fabric.LevelRendererMixinFabric",
+    "fabric.VanillaBlockModelPartEncoderMixin"
   ],
   "server": [
   ],

@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -43,9 +44,9 @@ public class TintedBufferSource {
                 return translucent;
         }
 
-        VertexFormat.Mode mode = ((RenderTypeAccessor) renderType).getMode();
-        VertexFormat format = ((RenderTypeAccessor) renderType).getFormat();
-        if (mode == VertexFormat.Mode.QUADS){
+        PrimitiveTopology mode = renderType.state.pipeline.getPrimitiveTopology();
+        VertexFormat format = renderType.state.pipeline.getVertexFormatBinding(0);
+        if (mode == PrimitiveTopology.QUADS){
             if (format == DefaultVertexFormat.BLOCK){
                 return RenderTypes.translucentMovingBlock();
             } else if (format == DefaultVertexFormat.ENTITY){

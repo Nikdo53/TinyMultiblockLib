@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.nikdo53.tinymultiblocklib.color.IColorSupplier;
+import net.nikdo53.nikdocolor.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jspecify.annotations.Nullable;
 

@@ -17,8 +17,6 @@
     "ClientLevelMixin",
     "FeatureRenderDispatcherMixin",
     "ModelBlockRendererMixin",
-    "LevelRendererMixin",
-    "RenderStateShardAccessor",
     "RenderTypeAccessor",
     "RenderTypeFeatureRendererMixin",
     "StagedVertexBufferMixin"
