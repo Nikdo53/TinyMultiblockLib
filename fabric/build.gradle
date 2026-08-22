@@ -19,12 +19,15 @@ dependencies {
 
     modCompileOnly("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
     modCompileOnly "curse.maven:carry-on-274259:5649345"
-    localRuntime("com.terraformersmc:modmenu:11.0.4")
 
     modLocalRuntime("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
     modLocalRuntime "curse.maven:carry-on-274259:5649345"
 
     include(implementation("net.nikdo53:nikdo-color:1.0.0"))
+
+    // config
+    modLocalRuntime("com.terraformersmc:modmenu:11.0.4")
+    modImplementation("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${config_api_version}")
 }
 
 publishing {

@@ -1,16 +1,13 @@
 package net.nikdo53.tinymultiblocklib.client;
 
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.ghost.GhostRenderer;
-import net.nikdo53.tinymultiblocklib.platform.NeoForgePlatformHelper;
 
 @EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
 public class TMBLClientEvents {
@@ -19,13 +16,12 @@ public class TMBLClientEvents {
     public static void renderLevelStage(RenderLevelStageEvent event){
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
 
-        if (!TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
-            MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
-                    DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
-                    event.getCamera(),
-                    event.getPoseStack()
-            );
-        }
+        
+        MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
+                DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
+                event.getCamera(),
+                event.getPoseStack()
+        );
 
         GhostRenderer.renderAll(
                 DeltaTracker.ONE.getGameTimeDeltaPartialTick(true),
