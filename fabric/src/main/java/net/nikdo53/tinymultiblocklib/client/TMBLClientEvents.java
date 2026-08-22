@@ -8,7 +8,7 @@ import net.nikdo53.tinymultiblocklib.client.ghost.GhostRenderer;
 
 public class TMBLClientEvents {
     public static void init() {
-        WorldRenderEvents.AFTER_TRANSLUCENT.register(TMBLClientEvents::renderLevelStageEvent);
+        WorldRenderEvents.AFTER_ENTITIES.register(TMBLClientEvents::renderLevelStageEvent);
         ClientTickEvents.END_CLIENT_TICK.register(TMBLClientEvents::clientTick);
     }
 

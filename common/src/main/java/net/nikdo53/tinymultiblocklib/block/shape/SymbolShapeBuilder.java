@@ -148,9 +148,9 @@ public class SymbolShapeBuilder {
         multiblockBuilder.pushDirectionalOperation(direction);
 
         //adds this rotation to the first place in a cursed way cuz I doubt this will be needed again
-        MultiblockShape.Builder.Operation last = multiblockBuilder.operations.getLast();
+        MultiblockShape.Builder.Operation last = multiblockBuilder.operations.get(multiblockBuilder.operations.size() - 1);
         multiblockBuilder.popOperation();
-        multiblockBuilder.operations.addFirst(last);
+        multiblockBuilder.operations.add(0, last);
 
         pattern.forEach((depth, aisle) -> {
             for(int y = 0; y < aisle.length; y++) {
@@ -165,7 +165,7 @@ public class SymbolShapeBuilder {
         });
 
 
-        multiblockBuilder.operations.removeFirst();
+        multiblockBuilder.operations.remove(0);
     }
 
     private @NotNull Vec3i getCorrectedVector(int x, int y, int depth) {

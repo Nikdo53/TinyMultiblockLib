@@ -12,8 +12,8 @@ public record ShapeDataKey<T>(String name) {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ShapeDataKey<?>(String key1)) {
-            return key1.equals(name);
+        if (o instanceof ShapeDataKey<?> key1) {
+            return key1.name().equals(name);
         }
         return false;
     }

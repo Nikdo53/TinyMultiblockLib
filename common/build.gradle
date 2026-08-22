@@ -22,6 +22,10 @@ dependencies {
     modCompileOnly("curse.maven:carry-on-274259:4882500"){transitive = false}
 
     implementation("net.nikdo53:nikdo-color:1.0.0")
+
+    modApi("fuzs.forgeconfigapiport:forgeconfigapiport-common:${config_api_version}")
+
+
 }
 
 publishing {

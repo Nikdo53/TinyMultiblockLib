@@ -7,7 +7,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.ghost.GhostRenderer;
-import net.nikdo53.tinymultiblocklib.platform.NeoForgePlatformHelper;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT)
 public class TMBLClientEvents {
@@ -16,13 +15,11 @@ public class TMBLClientEvents {
     public static void renderLevelStage(RenderLevelStageEvent event){
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
 
-        if (!TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()){
-            MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
-                    event.getPartialTick(),
-                    event.getCamera(),
-                    event.getPoseStack()
-            );
-        }
+        MultiblockPreviewRenderer.tryRenderMultiblockPreviews(
+                event.getPartialTick(),
+                event.getCamera(),
+                event.getPoseStack()
+        );
 
         GhostRenderer.renderAll(
                 event.getPartialTick(),
