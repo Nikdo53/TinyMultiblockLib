@@ -3,5 +3,15 @@
   "tinymultiblocklib.configuration.section.tinymultiblocklib.client.toml.title": "TMBL Client Config",
   "tinymultiblocklib.configuration.section.tinymultiblocklib.client.toml": "TMBL Client Config",
   "tinymultiblocklib.configuration.disable_multiblock_previews": "Disable Multiblock Previews",
-  "tinymultiblocklib.configuration.disable_multiblock_previews.tooltip": "Disables ghost previews when trying to place a multiblock"
+  "tinymultiblocklib.configuration.disable_multiblock_previews.tooltip": "Disables ghost previews when trying to place a multiblock",
+  "tinymultiblocklib.configuration.previews_for_everything": "Previews for Everything",
+  "tinymultiblocklib.configuration.previews_for_everything.tooltip": "Enables previews for everything, Used for debugging",
+  "tinymultiblocklib.configuration.preview_whitelist": "Preview Whitelist",
+  "tinymultiblocklib.configuration.preview_whitelist.tooltip": "List of blocks for which to show previews",
+
+  "tinymultiblocklib.configuration.preview_blacklist": "Preview Blacklist",
+  "tinymultiblocklib.configuration.preview_blacklist.tooltip": "List of blocks for which to hide previews",
+
+  "tinymultiblocklib.configuration.preview_whitelist.button": "Edit",
+  "tinymultiblocklib.configuration.preview_blacklist.button": "Edit"
 }

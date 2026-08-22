@@ -4,6 +4,7 @@
   "package": "net.nikdo53.tinymultiblocklib.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "BlockItemAccessor",
     "ItemAccessor",
     "LevelAccessorMixin",
     "ShutUpWarnsMixin",

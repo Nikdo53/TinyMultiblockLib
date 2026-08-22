@@ -18,6 +18,10 @@ dependencies {
 
     compileOnly("curse.maven:carry-on-274259:8554262"){transitive = false}
     implementation("net.nikdo53:nikdo-color:1.0.0")
+
+    api("fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:${config_api_version}")
+
+
 }
 
 publishing {

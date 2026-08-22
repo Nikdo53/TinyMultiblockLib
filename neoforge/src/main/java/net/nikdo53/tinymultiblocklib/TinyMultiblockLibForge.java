@@ -10,7 +10,7 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
-import net.nikdo53.tinymultiblocklib.client.TMBLClientConfig;
+import net.nikdo53.tinymultiblocklib.config.TMBLClientConfig;
 
 import static net.nikdo53.tinymultiblocklib.platform.NeoForgeRegistration.*;
 
