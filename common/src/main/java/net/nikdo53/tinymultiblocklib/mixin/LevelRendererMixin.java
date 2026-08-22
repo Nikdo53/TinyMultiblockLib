@@ -19,7 +19,7 @@ public class LevelRendererMixin {
             ordinal = 4)
     )
     private void wrapRenderHitOutline(SubmitNodeCollector instance, PoseStack poseStack, VoxelShape voxelShape, RenderType renderType, int i, float v, boolean b,
-                                      Operation<Void> original, @Local(argsOnly = true, name = "state") BlockOutlineRenderState state) {
+                                      Operation<Void> original, @Local(argsOnly = true) BlockOutlineRenderState state) {
         original.call(instance, poseStack, voxelShape, renderType, i, v, b);
         if (state.interactionShape() != null) {
             original.call(instance, poseStack, state.interactionShape(), renderType, i, v, b);
