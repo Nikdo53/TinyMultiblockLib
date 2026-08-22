@@ -33,6 +33,18 @@
     },
     "suggests": {
         "another-mod": "*"
+    },
+
+    "icon": "icon.png",
+
+    "custom": {
+        "modmenu": {
+            "badges": [],
+            "id": "${mod_id}",
+            "name": "${mod_name}",
+            "description": "${description}",
+            "icon": "icon.png"
+        }
     }
 }
   
