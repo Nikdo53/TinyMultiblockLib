@@ -216,6 +216,7 @@ public class MultiblockShape {
 
 
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         protected void putOrThrow(Vec3i offset, MultiblockLogic logic, Function<BlockState, BlockState> stateModifier, ShapeDataKey.Pair<?>... extraData){
             if (localPosSuspiciouslyGlobalLooking(offset)){
                 throw new IllegalArgumentException("Offset " + offset + " looks like a global position. If you want to add a global position, use addGlobal() instead");
