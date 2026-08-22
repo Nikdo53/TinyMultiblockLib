@@ -19,6 +19,7 @@ dependencies {
 
     modCompileOnly("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
     modCompileOnly "curse.maven:carry-on-274259:5649345"
+    localRuntime("com.terraformersmc:modmenu:11.0.4")
 
     modLocalRuntime("software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}")
     modLocalRuntime "curse.maven:carry-on-274259:5649345"

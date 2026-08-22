@@ -74,6 +74,11 @@ repositories {
     maven {
         url = 'https://nikdo53.github.io'
     }
+
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
 }
 
 // Declare capabilities on the outgoing configurations.
