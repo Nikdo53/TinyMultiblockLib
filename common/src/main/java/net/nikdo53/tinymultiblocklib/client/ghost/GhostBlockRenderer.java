@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
+import net.nikdo53.tinymultiblocklib.client.FakeClientLevel;
 import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -25,7 +26,7 @@ public class GhostBlockRenderer extends GhostRenderer<GhostBlockRenderer>{
     }
 
     @Override
-    public void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack) {
+    protected void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack) {
         MovingBlockRenderState renderState = RenderUtils.createMovingBlockRenderState(level, getBlockPos(), state, checkSides, renderType, packedLight, biome);
         submitNodeCollector.submitMovingBlock(poseStack, renderState, 0);
     }

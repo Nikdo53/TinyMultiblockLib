@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import net.nikdo53.nikdocolor.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.*;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.RenderOffsetType;
 import org.jspecify.annotations.Nullable;
 
@@ -77,10 +78,9 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         poseStack.pushPose();
         poseStack.translate(-camX, -camY, -camZ);
 
-        IColorSupplier.Mutable color = new IColorSupplier.Mutable(1, 1, 1, 1);
 
         List<GhostRenderer<?>> renderers = new ArrayList<>(RENDERERS);
-        renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, color, submitNodeCollector));
+        renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, submitNodeCollector));
 
         poseStack.popPose();
     }
@@ -92,7 +92,8 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         });
     }
 
-    protected void prepareAndRender(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, IColorSupplier.Mutable currentColor, SubmitNodeCollector parentNodeCollector) {
+    protected void prepareAndRender(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack, SubmitNodeCollector parentNodeCollector) {
+        IColorSupplier.Mutable currentColor = new IColorSupplier.Mutable(1, 1, 1, 1);
         shouldRender = true;
         currentColor.copy(this.colorStatic);
 
@@ -150,6 +151,12 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         colorStatic = new IColorSupplier.Simple(red, green, blue, alpha);
         return cast();
     }
+
+    public T setARGB(IColorSupplier color) {
+        colorStatic = color;
+        return cast();
+    }
+
 
     public T setLight(int packedLight){
         this.packedLight = packedLight;

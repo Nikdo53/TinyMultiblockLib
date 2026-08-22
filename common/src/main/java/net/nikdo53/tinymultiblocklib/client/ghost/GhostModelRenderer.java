@@ -33,7 +33,7 @@ public class GhostModelRenderer extends GhostRenderer<GhostModelRenderer>{
     }
 
     @Override
-    public void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack) {
+    protected void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack) {
         poseStack.translate(0.5f, 1.5f, 0.5f);
         poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
 

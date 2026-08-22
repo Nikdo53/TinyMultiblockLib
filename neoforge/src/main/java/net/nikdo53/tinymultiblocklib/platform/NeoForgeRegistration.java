@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class NeoForgeRegistration implements IRegistrationUtils {
     public static final NeoForgeRegistration INSTANCE = new NeoForgeRegistration();
@@ -32,15 +33,13 @@ public class NeoForgeRegistration implements IRegistrationUtils {
     }
 
     @Override
-    public <T extends Block> Supplier<T> registerBlockWithItem(String name, Function<BlockBehaviour.Properties, ? extends T> func, Supplier<BlockBehaviour.Properties> properties) {
-        DeferredBlock<T> toReturn = BLOCKS.registerBlock(name, func, properties);
-        registerBlockItem(name, toReturn);
-        return toReturn;
+    public <T extends Block> Supplier<T> registerBlock(String name, Function<BlockBehaviour.Properties, ? extends T> func, Supplier<BlockBehaviour.Properties> properties) {
+        return BLOCKS.registerBlock(name, func, properties);
     }
 
     @Override
-    public <T extends Block> Supplier<Item> registerBlockItem(String name, Supplier<T> block) {
-        return ITEMS.registerItem(name, (props) -> new TestBlockItem(block.get(), props));
+    public <T extends Item> Supplier<T> registerItem(String name, Function<Item.Properties, T> func, UnaryOperator<Item.Properties> properties) {
+        return ITEMS.registerItem(name, func, properties);
     }
 
     @Override
