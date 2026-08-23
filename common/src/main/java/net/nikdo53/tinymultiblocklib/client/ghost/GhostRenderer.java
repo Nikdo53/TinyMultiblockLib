@@ -83,10 +83,9 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         poseStack.pushPose();
         poseStack.translate(-camX, -camY, -camZ);
 
-        MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, color);
-
         List<GhostRenderer<?>> renderers = new ArrayList<>(RENDERERS);
-        renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, tintedBuffer));
+        renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, buffer));
+        buffer.endLastBatch();
 
         poseStack.popPose();
     }
@@ -102,6 +101,7 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         IColorSupplier.Mutable currentColor = new IColorSupplier.Mutable(1, 1, 1, 1);
         shouldRender = true;
         currentColor.copy(this.colorStatic);
+        TintedBufferSource tintedBufferSource = new TintedBufferSource(buffer, currentColor);
 
         if (fadeOutTicks != null) doTimeFade(partialTick, currentColor);
         if (fadeDistanceAndStart != null) doDistanceFade(fadeDistanceAndStart.getFirst(), fadeDistanceAndStart.getSecond(), camera.pos, currentColor);
@@ -115,11 +115,10 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         renderOffsetType.applyTransforms(poseStack);
         poseStackConsumer.accept(poseStack);
 
-        render(partialTick, camera, level, poseStack, buffer);
+        render(partialTick, camera, level, poseStack, tintedBufferSource);
 
-        RenderUtils.renderFromStorage(submitNodeCollector, buffer);
+        RenderUtils.renderFromStorage(submitNodeCollector, tintedBufferSource);
 
-        buffer.endLastBatch();
         poseStack.popPose();
     }
 
