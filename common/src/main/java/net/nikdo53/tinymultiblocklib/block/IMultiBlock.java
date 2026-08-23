@@ -35,9 +35,11 @@ import static net.nikdo53.tinymultiblocklib.block.BaseMultiblock.CENTER;
 
 public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, EntityBlock {
 
-    /** Returns a BlockPos Stream of every block in this multiblock.
+    /** Builds the multiblocks shape along with each parts properties. Center is added automatically but can be overridden
      * <p>
      * Should only be used for overriding
+     * @param builder The builder to add the shape to, .build gets called automatically
+     * @param context The context of the shape, all getters should be included in the top of the method.
      * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
      * @see #getFullBlockShapeNoCache(Level, BlockEntity, BlockPos, BlockState)
      * */

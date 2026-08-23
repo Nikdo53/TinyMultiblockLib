@@ -21,7 +21,7 @@ import java.util.function.UnaryOperator;
 
 
 /**
- * @deprecated Use {@link LogicMultiblock} instead
+ * @deprecated Use {@link LogicMultiblock} or {@link BaseMultiblock} instead
  */
 @Deprecated
 public abstract class AbstractMultiBlock extends BaseMultiblock implements IMovableMultiblock, EntityBlock {
@@ -53,7 +53,6 @@ public abstract class AbstractMultiBlock extends BaseMultiblock implements IMova
                             + " Either map them to BlockPos::immutable or use IMultiBlock.posStreamToList()",
                     state.toString(), context.getCenterPos());
         }
-       // builder.setCoolOutlines(false);
 
         list.forEach(pos -> builder.addGlobal(pos, getDefaultCenterLogic(context), UnaryOperator.identity()));
 
