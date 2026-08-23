@@ -6,8 +6,16 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.function.UnaryOperator;
 
 public record ShapeDataKey<T>(String name) {
-    public static final ShapeDataKey<BlockState> BLOCK_STATE = new ShapeDataKey<>("block_state");
+  //  public static final ShapeDataKey<BlockState> BLOCK_STATE = new ShapeDataKey<>("block_state");
+
+    /**
+     * VoxelShape of this part, gets automatically rotated
+     */
     public static final ShapeDataKey<VoxelShape> VOXEL_SHAPE = new ShapeDataKey<>("voxel_shape");
+
+    /**
+     * Whether to show a second, exact hit outline when looking at this specific block
+     */
     public static final ShapeDataKey<Boolean> STANDALONE_VOXEL_SHAPE = new ShapeDataKey<>("standalone_voxel_shape");
 
     @Override
@@ -18,7 +26,11 @@ public record ShapeDataKey<T>(String name) {
         return false;
     }
 
-    public record Pair<T>(ShapeDataKey<T> key, T value) { }
+    public record Pair<T>(ShapeDataKey<T> key, T value) {
+        public static <T> Pair<T> of(ShapeDataKey<T> key, T value) {
+            return new Pair<>(key, value);
+        }
+    }
 
     public record Operation<T>(ShapeDataKey<T> key, UnaryOperator<T> operation) { }
 }
