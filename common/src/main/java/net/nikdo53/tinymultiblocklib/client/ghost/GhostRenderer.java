@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.nikdo53.nikdocolor.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.*;
+import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.RenderOffsetType;
 import org.jetbrains.annotations.Nullable;
 
@@ -155,6 +156,12 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         colorStatic = new IColorSupplier.Simple(red, green, blue, alpha);
         return cast();
     }
+
+    public T setARGB(IColorSupplier color) {
+        colorStatic = color;
+        return cast();
+    }
+
 
     public T setLight(int packedLight){
         this.packedLight = packedLight;
