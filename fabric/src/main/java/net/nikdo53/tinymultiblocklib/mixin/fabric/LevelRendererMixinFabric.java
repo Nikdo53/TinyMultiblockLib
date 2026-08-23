@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -56,16 +57,19 @@ public class LevelRendererMixinFabric {
         return original.call(pos, isTranslucent, highContrast, shape);
     }
 
-    @WrapOperation(method = "renderHitOutline", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/ShapeRenderer;renderShape(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/phys/shapes/VoxelShape;DDDIF)V",
-            ordinal = 4)
+
+    @WrapOperation(method = "renderBlockOutline", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderHitOutline(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;DDDLnet/minecraft/client/renderer/state/level/BlockOutlineRenderState;IF)V")
     )
-    private void wrapRenderHitOutline(PoseStack poseStack, VertexConsumer builder, VoxelShape shape, double x, double y, double z, int color, float width,
-                                      Operation<Void> original, @Local(argsOnly = true, name = "state") BlockOutlineRenderState state) {
-        original.call(poseStack, builder, shape, x, y, z, color, width);
-        if (state.interactionShape() != null) {
-            original.call(poseStack, builder, state.interactionShape(), x, y, z, color, width);
+    private void wrapRenderHitOutline(LevelRenderer instance, PoseStack poseStack, VertexConsumer builder, double camX, double camY, double camZ,
+                                      BlockOutlineRenderState state, int color, float width, Operation<Void> original) {
+        if (!SharedConstants.DEBUG_SHAPES && state.interactionShape() != null) {
+            original.call(instance, poseStack, builder, camX, camY, camZ,
+                    new BlockOutlineRenderState(state.pos(), state.isTranslucent(), state.highContrast(), state.interactionShape()),
+                    color, width);
         }
+        original.call(instance, poseStack, builder, camX, camY, camZ, state, color, width);
     }
+
 
 }
