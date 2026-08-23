@@ -79,11 +79,9 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         poseStack.pushPose();
         poseStack.translate(-camX, -camY, -camZ);
 
-        IColorSupplier.Mutable color = new IColorSupplier.Mutable(1, 1, 1, 1);
-        MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, color);
-
         List<GhostRenderer<?>> renderers = new ArrayList<>(RENDERERS);
-        renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, tintedBuffer, color));
+        renderers.forEach(renderer -> renderer.prepareAndRender(partialTick, camera, level, poseStack, buffer));
+        buffer.endLastBatch();
 
         poseStack.popPose();
     }
@@ -95,9 +93,11 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         });
     }
 
-    protected void prepareAndRender(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer, IColorSupplier.Mutable currentColor){
+    protected void prepareAndRender(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer){
+        IColorSupplier.Mutable currentColor = new IColorSupplier.Mutable(1, 1, 1, 1);
         shouldRender = true;
         currentColor.copy(this.colorStatic);
+        MultiBufferSource.BufferSource tintedBuffer = new TintedBufferSource(buffer, currentColor);
 
         if (fadeOutTicks != null) doTimeFade(partialTick, currentColor);
         if (fadeDistanceAndStart != null) doDistanceFade(fadeDistanceAndStart.getFirst(), fadeDistanceAndStart.getSecond(), camera.getPosition(), currentColor);
@@ -111,9 +111,8 @@ public abstract class GhostRenderer<T extends GhostRenderer<T>> {
         renderOffsetType.applyTransforms(poseStack);
         poseStackConsumer.accept(poseStack);
 
-        render(partialTick, camera, level, poseStack, buffer);
+        render(partialTick, camera, level, poseStack, tintedBuffer);
 
-        buffer.endLastBatch();
         poseStack.popPose();
     }
 
