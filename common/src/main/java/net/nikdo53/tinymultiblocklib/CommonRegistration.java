@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib;
 
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -9,6 +10,7 @@ import net.nikdo53.tinymultiblocklib.blockentities.SimpleStructureMultiBlockEnti
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import net.nikdo53.tinymultiblocklib.platform.services.IRegistrationUtils;
 import net.nikdo53.tinymultiblocklib.test.DiamondStructureBlock;
+import net.nikdo53.tinymultiblocklib.test.GhostBlockItem;
 import net.nikdo53.tinymultiblocklib.test.SimpleMultiblock;
 import net.nikdo53.tinymultiblocklib.test.TestBlock;
 
@@ -22,6 +24,7 @@ public interface CommonRegistration {
     static void init(){
         BlockReg.init();
         BlockEntities.init();
+        ItemReg.init();
     }
 
     interface BlockReg {
@@ -39,6 +42,11 @@ public interface CommonRegistration {
         }
     }
 
+    interface ItemReg{
+        Supplier<Item> GHOST_BLOCK_ITEM = REGISTRATION.registerItem("ghost_block_item", GhostBlockItem::new);
+
+        static void init(){}
+    }
 
     interface BlockEntities{
          Set<Block> VALID_BLOCKS_SIMPLE = new HashSet<>();

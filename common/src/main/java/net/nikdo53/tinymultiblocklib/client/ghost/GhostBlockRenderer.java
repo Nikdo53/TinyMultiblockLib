@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
+import net.nikdo53.tinymultiblocklib.client.FakeClientLevel;
 import net.nikdo53.tinymultiblocklib.client.RenderUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +29,7 @@ public class GhostBlockRenderer extends GhostRenderer<GhostBlockRenderer>{
     }
 
     @Override
-    public void render(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer) {
+    protected void render(float partialTick, Camera camera, ClientLevel level, PoseStack poseStack, MultiBufferSource.BufferSource buffer) {
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
                 state,
                 poseStack,

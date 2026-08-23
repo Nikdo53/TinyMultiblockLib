@@ -53,6 +53,8 @@ public class MultiblockPreviewRenderer {
 
     public static void tryRenderMultiblockPreviews(float partialTick, Camera camera, PoseStack poseStack) {
         if (TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()) return;
+        FakeClientLevel.getOrThrow().clear();
+
         //funny passthrough cuz im not restructuring this whole thing
         AtomicReference<@Nullable Block> blockReference = new AtomicReference<>();
 

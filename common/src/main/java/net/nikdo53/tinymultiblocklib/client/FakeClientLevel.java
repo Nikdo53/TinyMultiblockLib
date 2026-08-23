@@ -57,9 +57,12 @@ public class FakeClientLevel extends ClientLevel {
             throw new IllegalStateException("Tried accessing FakeClientLevel before any ClientLevel was initialized.");
         }
         instance.originalLevel = Minecraft.getInstance().level;
-        instance.blockLiveSet.clear();
 
         return instance;
+    }
+
+    public void clear(){
+        blockLiveSet.clear();
     }
 
     @Override
