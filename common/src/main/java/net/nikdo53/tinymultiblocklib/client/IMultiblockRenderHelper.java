@@ -49,7 +49,7 @@ public interface IMultiblockRenderHelper {
      * It's necessary to make multiple VertexConsumers instead of just 1, otherwise the RenderTypes won't apply correctly
      * */
     default VertexConsumer getConsumer(MultiBufferSource buffer, IMultiBlockEntity blockEntity, Material materialBase, Material materialSecondary, Block blockSecondary) {
-        PreviewMode previewMode = PreviewMode.PLACED;
+        PreviewMode previewMode = blockEntity.getPreviewMode();
 
         RenderType renderTypeBase = getRenderType(previewMode, materialBase.atlasLocation());
         RenderType renderTypeSecondary = getRenderType(previewMode, materialSecondary.atlasLocation());
