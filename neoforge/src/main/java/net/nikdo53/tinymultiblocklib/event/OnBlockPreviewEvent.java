@@ -12,7 +12,6 @@ import net.neoforged.bus.api.ICancellableEvent;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +51,7 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
     }
 
     @Override
-    public Set<BlockLive> getBlocksForPreview() {
+    public @NotNull Set<BlockLive> getBlocksForPreview() {
         return blockLiveSet;
     }
 
@@ -90,7 +89,7 @@ public class OnBlockPreviewEvent extends Event implements IOnBlockPreviewEvent {
         }
 
         @Override
-        public Set<BlockLive> getBlocksForPreview() {
+        public @NotNull Set<BlockLive> getBlocksForPreview() {
             return new HashSet<>(blockLiveSet);
         }
 

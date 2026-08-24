@@ -68,7 +68,7 @@ public class FakeClientLevel extends ClientLevel {
 
     @Override
     public BlockState getBlockState(BlockPos pos) {
-        BlockState blockState = super.getBlockState(pos);
+        BlockState blockState = originalLevel.getBlockState(pos);
         if(!blockState.canOcclude()) {
             Optional<BlockLive> previewed = blockLiveSet.stream().filter(like -> like.pos.equals(pos)).findAny();
 
