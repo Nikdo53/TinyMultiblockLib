@@ -72,8 +72,9 @@ dependencies {
     localRuntime("curse.maven:irisshaders-455508:6661598"){transitive = false}
 
     jarJar(implementation("net.nikdo53:nikdo-color:1.0.0"))
-    additionalRuntimeClasspath("net.nikdo53:nikdo-color:1.0.0")
+  //  additionalRuntimeClasspath("net.nikdo53:nikdo-color:1.0.0")
 
     localRuntime "curse.maven:starcatcher-1357603:8431589"
+    localRuntime("net.abraxator:MoreSnifferFlowers:6.7")
 
 }
