@@ -29,7 +29,8 @@ public interface IMultiBlockEntity {
     }
 
     static boolean isPlaced(LevelReader level, BlockPos blockPos) {
-        if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) return entity.isPlaced();
+        if(level.getBlockEntity(blockPos) instanceof AbstractMultiBlockEntity entity)
+            return entity.isPlaced();
         return false;
     }
 

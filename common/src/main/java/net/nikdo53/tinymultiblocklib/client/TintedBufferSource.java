@@ -55,7 +55,8 @@ public class TintedBufferSource extends MultiBufferSource.BufferSource{
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        VertexConsumer original = originalBuffer.getBuffer(renderTypeTransformer.apply(renderType));
+        RenderType transformedRenderType = renderTypeTransformer.apply(renderType);
+        VertexConsumer original = originalBuffer.getBuffer(transformedRenderType);
 
         return new TintedVertexConsumer(original, color);
     }

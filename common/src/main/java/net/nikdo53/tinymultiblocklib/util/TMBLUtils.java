@@ -26,7 +26,7 @@ public class TMBLUtils {
     }
 
     public static boolean isShapeBiggerThan(AABB shape, AABB otherShape){
-        return shape.getXsize() > otherShape.getXsize() && shape.getYsize() > otherShape.getYsize() && shape.getZsize() > otherShape.getZsize();
+        return shape.getXsize() > otherShape.getXsize() || shape.getYsize() > otherShape.getYsize() || shape.getZsize() > otherShape.getZsize();
     }
 
 }

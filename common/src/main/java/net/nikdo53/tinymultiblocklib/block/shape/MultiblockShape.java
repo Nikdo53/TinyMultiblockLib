@@ -10,6 +10,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.AbstractMultiBlock;
+import net.nikdo53.tinymultiblocklib.block.IMultiBlock;
 import net.nikdo53.tinymultiblocklib.block.logic.DelegatingMultiblockLogic;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
 import net.nikdo53.tinymultiblocklib.util.TMBLUtils;
@@ -62,15 +63,13 @@ public class MultiblockShape {
     }
 
     public VoxelShape getJointVoxelShape(Level level, BlockState state) {
-        if (state.getBlock() instanceof AbstractMultiBlock){
-            AABB shape = state.getShape(level, getCenter()).bounds();
-            AABB block = AABB.encapsulatingFullBlocks(BlockPos.ZERO, BlockPos.ZERO);
-            // should cancel fancy outlines for blocks that already have them done manually
-            if (TMBLUtils.isShapeBiggerThan(shape, block)) {
-                return Shapes.empty();
-            }
-
+        AABB fullShape = state.getShape(level, getCenter()).bounds();
+        AABB block = AABB.encapsulatingFullBlocks(BlockPos.ZERO, BlockPos.ZERO);
+        // should cancel fancy outlines for blocks that already have them done manually
+        if (TMBLUtils.isShapeBiggerThan(fullShape, block)) {
+            return Shapes.empty();
         }
+
         if (jointVoxelShape.isEmpty()) {
             shape.forEach((pos, entry) -> {
                 //cut out only the block so it isn't huge
