@@ -21,15 +21,8 @@ public interface IMultiBlockEntity {
 
     void invalidateCaches();
 
-    @Deprecated
-    default PreviewMode getPreviewMode(){
-        return PreviewMode.PLACED;
-    }
-
-    @Deprecated
-    default void setPreviewMode(PreviewMode mode){
-
-    }
+    PreviewMode getPreviewMode();
+    void setPreviewMode(PreviewMode mode);
 
     static void setPlaced(LevelReader level, BlockPos blockPos, boolean placed) {
         if(level.getBlockEntity(blockPos) instanceof IMultiBlockEntity entity) entity.setPlaced(placed);

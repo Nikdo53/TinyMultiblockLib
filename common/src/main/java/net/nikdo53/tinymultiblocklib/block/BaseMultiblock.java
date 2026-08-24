@@ -1,5 +1,6 @@
 package net.nikdo53.tinymultiblocklib.block;
 
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.CommonRegistration;
@@ -24,7 +26,11 @@ import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
+import net.nikdo53.tinymultiblocklib.util.TMBLUtils;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jspecify.annotations.Nullable;
+
+import java.util.function.BiFunction;
 
 public abstract class BaseMultiblock extends Block implements IMovableMultiblock {
     /**
@@ -38,6 +44,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     public static final BooleanProperty CENTER = BooleanProperty.create("center");
     private final SharedStatePropertiesBuilder SHARED_STATE_BUILDER = new SharedStatePropertiesBuilder();
     protected ShapeContext.@Nullable Properties shapeProperties = null;
+    protected final BiFunction<VoxelShape, Vec3, VoxelShape> voxelShapeCacheFunction = Util.memoize((s, v) -> s.move(v.x, v.y, v.z));
 
     public BaseMultiblock(Properties properties) {
         super(properties);
@@ -59,6 +66,11 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
     @Override
     public void setShapeProperties(ShapeContext.Properties properties) {
         this.shapeProperties = properties;
+    }
+
+    @Override
+    public BiFunction<VoxelShape, Vec3, VoxelShape> getVoxelShapeCacheFunction() {
+        return voxelShapeCacheFunction;
     }
 
     @Override

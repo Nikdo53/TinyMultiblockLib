@@ -36,5 +36,5 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "moresnifferflowers"
 type="incompatible"
-versionRange = "( , 6.6.6)"
+versionRange = "( , 6.6.6]"
 reason = "Update MoreSnifferFlowers!"

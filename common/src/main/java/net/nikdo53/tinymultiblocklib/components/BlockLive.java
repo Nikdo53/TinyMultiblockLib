@@ -57,6 +57,10 @@ public class BlockLive {
         return new BlockLive.Live(pos, state, entity);
     }
 
+    public @Nullable BlockEntity getBlockEntity(){
+        return null;
+    }
+
     public static class Tag extends BlockLive{
         public @NonNull CompoundTag blockEntityTag;
 
@@ -118,6 +122,11 @@ public class BlockLive {
                 return new Live(pos, state, blockEntity);
             }
             return new BlockLive(pos, state);
+        }
+
+        @Override
+        public @Nullable BlockEntity getBlockEntity() {
+            return blockEntity;
         }
 
         @Override
