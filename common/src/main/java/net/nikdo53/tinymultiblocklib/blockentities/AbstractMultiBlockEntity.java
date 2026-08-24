@@ -22,6 +22,7 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     private BlockPos offset;
     private boolean isPlaced;
     private MultiblockShape blockShapeCache = MultiblockShape.empty();
+    private PreviewMode previewMode = PreviewMode.PLACED;
 
     public AbstractMultiBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -89,5 +90,15 @@ public class AbstractMultiBlockEntity extends BlockEntity implements IMultiBlock
     @Override
     public void invalidateCaches() {
         blockShapeCache.getGlobalPositions().clear();
+    }
+
+    @Override
+    public PreviewMode getPreviewMode() {
+        return previewMode;
+    }
+
+    @Override
+    public void setPreviewMode(PreviewMode mode) {
+        this.previewMode = mode;
     }
 }
