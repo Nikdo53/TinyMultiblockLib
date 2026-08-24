@@ -11,14 +11,12 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -41,30 +39,63 @@ import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jspecify.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
+@FieldsAreNonnullByDefault
 public class MultiblockPreviewRenderer {
     public static final SubmitNodeStorage NODE_STORAGE = RenderUtils.createTranslucentNodeStorage();
 
     public static final Set<Block> PREVIEW_CRASHLIST = new HashSet<>();
     public static final Set<Block> SET_PLACED_BY_BLACKLIST = new HashSet<>();
 
+    final Minecraft minecraft;
+    final LocalPlayer player;
+    final ClientLevel level;
+    FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
+
+    ItemStack stack;
+    Item item;
+
+    @Nullable Block currentBlock = null;
+    boolean placeOnWater = false;
+    @Nullable BlockHitResult blockHitResult = null;
+
+    @Nullable MultiblockShape multiblockShape = null;
+    PreviewMode previewMode = PreviewMode.PREVIEW;
+
+    public MultiblockPreviewRenderer(Minecraft minecraft, LocalPlayer player, ClientLevel level) {
+        this.minecraft = minecraft;
+        this.player = player;
+        this.level = level;
+
+        stack = player.getMainHandItem();
+        item = stack.getItem();
+
+        if (Services.PLATFORM.isModLoaded("carryon")) {
+            if (CarryOnPreviewHelper.isValidMultiblock(player))
+                item = CarryOnPreviewHelper.getMultiblockItem(player);
+        }
+    }
+
+
     public static void tryRenderMultiblockPreviews(float partialTick, CameraRenderState camera, PoseStack poseStack) {
         if (TMBLClientConfig.DISABLE_MULTIBLOCK_PREVIEWS.get()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) return;
+
         FakeClientLevel.getOrThrow().clear();
 
-        //funny passthrough cuz im not restructuring this whole thing
-        AtomicReference<@Nullable Block> blockReference = new AtomicReference<>();
 
+        MultiblockPreviewRenderer renderer = new MultiblockPreviewRenderer(mc, mc.player, mc.level);
         try {
-            renderMultiblockPreviews(partialTick, camera, poseStack, blockReference);
+            renderer.renderMultiblockPreviews(partialTick, camera, poseStack);
         } catch (Exception e) {
-            Block block = blockReference.get();
+            Block block = renderer.currentBlock;
             if (block != null) {
                 PREVIEW_CRASHLIST.add(block);
-                Constants.LOGGER.error("Error rendering multiblock preview: " + e.getMessage() + " adding " + block + " to blacklist to prevent further errors", e);
+                Constants.LOGGER.error("Error rendering multiblock preview: " + e.getMessage() + ". Adding " + block + " to blacklist to prevent further errors", e);
             } else {
                 Constants.LOGGER.error("Error rendering multiblock preview: " + e.getMessage() + " this should never happen unless its carryons fault ig", e);
             }
@@ -72,129 +103,163 @@ public class MultiblockPreviewRenderer {
         }
     }
 
-    public static void renderMultiblockPreviews(float partialTick, CameraRenderState camera, PoseStack poseStack, AtomicReference<@Nullable Block> blockReference) {
-        Minecraft minecraft = Minecraft.getInstance();
-        LocalPlayer player = minecraft.player;
-        ClientLevel level = minecraft.level;
+    public void renderMultiblockPreviews(float partialTick, CameraRenderState camera, PoseStack poseStack) {
+        if (!(item instanceof BlockItem blockItem)) return;
+        if (!(minecraft.hitResult instanceof BlockHitResult)) return;
 
-        if (player == null || level == null) return;
+        blockHitResult = (BlockHitResult) minecraft.hitResult;
+        currentBlock = blockItem.getBlock();
 
-        ItemStack stack = player.getMainHandItem();
-        Item item = stack.getItem();
+        if (!canShowPreview(stack, currentBlock))
+            return;
 
-        double camX = camera.pos.x;
-        double camY = camera.pos.y;
-        double camZ = camera.pos.z;
+        checkPlaceOnWater();
+        centerPos = getCenterPos(blockHitResult.getBlockPos());
+        centerState = getCenterBlockState();
+        centerBlockEntity = getCenterBlockEntity();
+        multiblockShape = getMultiblockShape();
 
-        if (Services.PLATFORM.isModLoaded("carryon")) {
-           if (CarryOnPreviewHelper.isValidMultiblock(player)) item = CarryOnPreviewHelper.getMultiblockItem(player);
-        }
+        fakeLevel.blockLiveSet = gatherBlockLives();
+        IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(checkPreviewMode(hasNullState), shouldHidePreview(), getCenterBlockLive(), gatherBlockLives());
 
-        if (item instanceof BlockItem blockItem) {
-
-            if (!(minecraft.hitResult instanceof BlockHitResult blockHitResult)) return;
-
-            boolean placeOnWater = false;
-
-            if (blockItem instanceof PlaceOnWaterBlockItem) {
-                blockHitResult = ItemAccessor.getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-                placeOnWater = level.isWaterAt(blockHitResult.getBlockPos());
-            }
-
-            Direction hitDirection = blockHitResult.getDirection();
-            Block block = blockItem.getBlock();
-
-            blockReference.set(block);
-            BlockPos hitPos = blockHitResult.getBlockPos();
-            BlockPos pos = hitPos.relative(hitDirection);
-
-            // ⬇️⬇️ the line that disables previewing of everything
-            if (TMBLClientConfig.PREVIEWS_FOR_EVERYTHING.isFalse()) {
-                if (!canShowPreview(stack, block) || PREVIEW_CRASHLIST.contains(block))
-                    return;
-            }
-
-            BlockState state = ((BlockItemAccessor) blockItem).tinyMultiblockLib$getPlacementState(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
-            boolean hasNullState = false;
-
-            if (state == null){
-                hasNullState = true;
-                state = block.defaultBlockState();
-
-                if (block instanceof IPreviewableMultiblock multiblock){
-                    state = multiblock.getDefaultStateForPreviews(player.getDirection());
-                }
-
-                if (block instanceof IMultiBlock multiBlock && multiBlock.makeDirectional() != null){
-                    IMultiBlock.DirectionContext directionContext = multiBlock.makeDirectional();
-                    assert directionContext != null;
-                    Direction dir = directionContext.directionExtractor().apply(new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult));
-
-                    if (dir != null) {
-                        state = state.setValue(directionContext.property(), dir);
-                    }
-                }
-            }
-
-            BlockEntity blockEntity = block instanceof EntityBlock entityBlock ? entityBlock.newBlockEntity(pos, state) : null;
-            if (blockEntity != null) {
-                blockEntity.setLevel(level);
-            }
-
-            PreviewMode previewMode = getPreviewMode(level, pos, state, player, blockEntity, hasNullState);
-
-            boolean shouldShowPreview = level.getBlockState(pos).canBeReplaced()
-                    && (!level.getBlockState(hitPos).isAir() || placeOnWater);
-
-            if (level.getBlockState(hitPos).canBeReplaced() && !placeOnWater)
-                pos = pos.relative(hitDirection.getOpposite());
-
+        if (!event.isCancelledInternal()) {
+            blockLiveSet = event.getBlocksForPreview();
+            fakeLevel.blockLiveSet = blockLiveSet;
+            previewMode = event.getPreviewMode();
             poseStack.pushPose();
 
-            poseStack.translate(pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ);
+            poseStack.translate(
+                    centerPos.getX() - camera.pos.x,
+                    centerPos.getY() - camera.pos.y,
+                    centerPos.getZ() - camera.pos.z
+            );
 
-            FakeClientLevel fakeLevel = FakeClientLevel.getOrThrow();
-            Set<BlockLive> blockLiveSet = gatherBlockLives(fakeLevel, level, blockEntity, pos, state, minecraft.player, stack);
+            TintedBufferSource bufferSource = new TintedBufferSource(minecraft.renderBuffers().bufferSource(), previewMode);
 
-            BlockLive centerLive = BlockLive.Live.optionalBE(pos, state, blockEntity);
-            IOnBlockPreviewEvent event = IOnBlockPreviewEvent.firePreEvent(previewMode, !shouldShowPreview, centerLive, blockLiveSet);
-
-            if (!event.isCancelledInternal()) {
-                blockLiveSet = event.getBlocksForPreview();
-                fakeLevel.blockLiveSet = blockLiveSet;
-                previewMode = event.getPreviewMode();
-                TintedBufferSource bufferSource = new TintedBufferSource(minecraft.renderBuffers().bufferSource(), previewMode);
-
-                for (BlockLive blockLive : blockLiveSet) {
-                    renderJsonModels(blockLive, pos, poseStack, fakeLevel);
-                }
-
-                for (BlockLive blockLive : blockLiveSet) {
-                    renderBlockEntity(blockLive, pos, poseStack, partialTick, minecraft, fakeLevel, camera);
-                }
-
-                IOnBlockPreviewEvent.firePostEvent(previewMode, centerLive, blockLiveSet, poseStack, partialTick, NODE_STORAGE);
-
-                RenderUtils.renderFromStorage(NODE_STORAGE, bufferSource);
-
+            for (BlockLive blockLive : blockLiveSet) {
+                renderJsonModels(blockLive, poseStack, bufferSource);
             }
 
-            poseStack.popPose();
+            for (BlockLive blockLive : blockLiveSet) {
+                renderBlockEntity(blockLive, poseStack, partialTick, bufferSource);
+            }
 
+            IOnBlockPreviewEvent.firePostEvent(previewMode, getCenterBlockLive(), blockLiveSet, poseStack, partialTick, NODE_STORAGE);
+
+            RenderUtils.renderFromStorage(NODE_STORAGE, bufferSource);
+
+            poseStack.popPose();
+        }
+
+
+    }
+
+    private @NotNull BlockLive getCenterBlockLive() {
+        return BlockLive.Live.optionalBE(centerPos, getCenterBlockState(), getCenterBlockEntity());
+    }
+
+    private void checkPlaceOnWater() {
+        if (item instanceof PlaceOnWaterBlockItem) {
+            blockHitResult = ItemAccessor.getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+            placeOnWater = level.isWaterAt(blockHitResult.getBlockPos());
         }
     }
 
-    public static boolean canShowPreview(ItemStack stack, Block block) {
+    private boolean shouldHidePreview() {
+        return !(level.getBlockState(centerPos).canBeReplaced()
+                && (!level.getBlockState(blockHitResult.getBlockPos()).isAir() || placeOnWater));
+    }
+
+    @Nullable BlockPos centerPos = null;
+    private @NotNull BlockPos getCenterPos(BlockPos hitPos) {
+        if (centerPos != null) {
+            return centerPos;
+        }
+
+        assert blockHitResult != null;
+        return !(level.getBlockState(hitPos).canBeReplaced() && !placeOnWater) ? hitPos.relative(blockHitResult.getDirection()) : hitPos;
+    }
+
+    private @Nullable MultiblockShape getMultiblockShape() {
+        if (multiblockShape != null) {
+            return multiblockShape;
+        }
+
+        assert centerPos != null;
+        return currentBlock instanceof IMultiBlock multiBlock
+                ? multiBlock.getFullBlockShapeNoCache(level, getCenterBlockEntity(), centerPos, getCenterBlockState())
+                : null;
+    }
+
+    @Nullable BlockEntity centerBlockEntity = null;
+    private @Nullable BlockEntity getCenterBlockEntity() {
+        if (centerBlockEntity != null) {
+            return centerBlockEntity;
+        }
+
+        assert centerPos != null;
+        BlockEntity centerBlockEntity = currentBlock instanceof EntityBlock entityBlock
+                ? entityBlock.newBlockEntity(centerPos, getCenterBlockState())
+                : null;
+        if (centerBlockEntity != null) {
+            centerBlockEntity.setLevel(level);
+        }
+        return centerBlockEntity;
+    }
+
+    @Nullable BlockState centerState = null;
+    boolean hasNullState = false;
+    private @Nonnull BlockState getCenterBlockState() {
+        if (centerState != null) {
+            return centerState;
+        }
+
+        assert blockHitResult != null;
+        assert currentBlock != null;
+
+        BlockPlaceContext blockPlaceContext = new BlockPlaceContext(player, InteractionHand.MAIN_HAND, stack, blockHitResult);
+
+        BlockState centerState = ((BlockItemAccessor) item).tinyMultiblockLib$getPlacementState(blockPlaceContext);
+        if (centerState == null) {
+            centerState = currentBlock.getStateForPlacement(blockPlaceContext);
+        }
+
+        hasNullState = centerState == null;
+        if (hasNullState){
+            centerState = currentBlock.defaultBlockState();
+
+            if (currentBlock instanceof IMultiBlock multiBlock && multiBlock.makeDirectional() != null){
+                IMultiBlock.DirectionContext directionContext = multiBlock.makeDirectional();
+                assert directionContext != null;
+                Direction dir = directionContext.directionExtractor().apply(blockPlaceContext);
+
+                if (dir != null) {
+                    centerState = centerState.setValue(directionContext.property(), dir);
+                }
+            }
+        }
+
+        if (currentBlock instanceof IPreviewableMultiblock multiblock){
+            centerState = multiblock.getDefaultStateForPreviews(centerState, blockPlaceContext);
+        }
+        return centerState;
+    }
+
+    public boolean canShowPreview(ItemStack stack, Block block) {
+        if (TMBLClientConfig.PREVIEWS_FOR_EVERYTHING.get())
+            return true;
+        if (PREVIEW_CRASHLIST.contains(block))
+            return false;
+
         String registeredName = block.builtInRegistryHolder().getRegisteredName();
+
         return (stack.is(TMBLTags.ItemTags.SHOW_PREVIEW)
                 || block instanceof IPreviewableMultiblock
                 || TMBLClientConfig.PREVIEW_WHITELIST.get().contains(registeredName)
-        ) && !TMBLClientConfig.PREVIEW_BLACKLIST.get().contains(registeredName) ;
+        ) && !TMBLClientConfig.PREVIEW_BLACKLIST.get().contains(registeredName);
     }
 
-    private static void renderBlockEntity(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, float partialTick
-            , Minecraft minecraft, FakeClientLevel fakeClientLevel, CameraRenderState camera) {
-
+    private void renderBlockEntity(BlockLive blockLive, PoseStack poseStack, float partialTick, MultiBufferSource.BufferSource buffer) {
         BlockState state = blockLive.state;
         BlockPos pos = blockLive.pos;
 
@@ -202,10 +267,11 @@ public class MultiblockPreviewRenderer {
 
             BlockEntity entity = entityBlock.newBlockEntity(pos, state);
             if (entity == null) return;
-            entity.setLevel(fakeClientLevel);
+            entity.setLevel(fakeLevel);
 
             if (entity instanceof IMultiBlockEntity multiBlockEntity) {
-                multiBlockEntity.setCenter(originalPos);
+                multiBlockEntity.setCenter(pos);
+                multiBlockEntity.setPreviewMode(previewMode);
             }
 
             BlockEntityRenderer<BlockEntity, BlockEntityRenderState> entityRender = minecraft.getBlockEntityRenderDispatcher().getRenderer(entity);
@@ -216,7 +282,7 @@ public class MultiblockPreviewRenderer {
                 poseStack.pushPose();
                 poseStack.translate(0.0001, 0.0001, 0.0001);
 
-                BlockPos offset = blockLive.pos.subtract(originalPos).immutable();
+                BlockPos offset = blockLive.pos.subtract(pos).immutable();
                 poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
                 entityRender.extractRenderState(entity, renderState, partialTick, camera.pos, null);
@@ -228,45 +294,49 @@ public class MultiblockPreviewRenderer {
         }
     }
 
-    private static PreviewMode getPreviewMode(Level level, BlockPos pos, BlockState state, LocalPlayer player, @Nullable BlockEntity blockEntity, boolean hasNullState) {
-        if (hasNullState) return PreviewMode.INVALID;
-
-        IMultiBlock multiBlock = null;
-        MultiblockShape shape = null;
-        if (state.getBlock() instanceof IMultiBlock mb) {
-            multiBlock = mb;
-            shape = mb.getFullBlockShapeNoCache(level, blockEntity, pos, state);
+    private PreviewMode checkPreviewMode(boolean hasNullState) {
+        boolean canPlace = true;
+        boolean entityUnobstructed = true;
+        for (BlockLive blockLive : gatherBlockLives()) {
+           if (canPlace) canPlace = canPlace(blockLive);
+           if (entityUnobstructed) entityUnobstructed = isEntityUnobstructed(blockLive);
         }
 
-
-        boolean multiBlockCanPlace = canPlace(level, pos, state, player, shape, multiBlock);
-        boolean entityUnobstructed = isEntityUnobstructed(level, pos, state, player, shape, multiBlock);
-
-        return multiBlockCanPlace ? (entityUnobstructed ? PreviewMode.PREVIEW : PreviewMode.ENTITY_BLOCKED) : PreviewMode.INVALID;
+        PreviewMode ret = canPlace ? (entityUnobstructed ? PreviewMode.PREVIEW : PreviewMode.ENTITY_BLOCKED) : PreviewMode.INVALID;
+        if (ret == PreviewMode.PREVIEW && hasNullState){
+            return PreviewMode.INVALID;
+        }
+        return ret;
     }
 
-    private static boolean isEntityUnobstructed(Level level, BlockPos pos, BlockState state, LocalPlayer player, @Nullable MultiblockShape shape, @Nullable IMultiBlock multiBlock) {
-        if (shape != null && multiBlock != null)
-            return multiBlock.entityUnobstructed(level, pos, state, player, shape);
+    private boolean isEntityUnobstructed(BlockLive blockLive) {
+        BlockState state = blockLive.state;
+        BlockPos pos = blockLive.pos;
+        if (state.getBlock() instanceof IMultiBlock multiBlock && multiblockShape != null) {
+            return multiBlock.entityUnobstructed(level, pos, state, player, multiblockShape);
+        }
 
         return level.isUnobstructed(state, pos, CollisionContext.of(player));
     }
 
-    private static boolean canPlace(Level level, BlockPos pos, BlockState state, LocalPlayer player, @Nullable MultiblockShape shape, @Nullable IMultiBlock multiBlock) {
-        if (shape != null && multiBlock != null)
-            return multiBlock.canPlaceBlock(pos, level, pos, state,player, true, shape);
+    private boolean canPlace(BlockLive blockLive) {
+        BlockState state = blockLive.state;
+        BlockPos pos = blockLive.pos;
+        if (state.getBlock() instanceof IMultiBlock multiBlock && multiblockShape != null) {
+            return multiBlock.canPlaceBlock(pos, level, pos, state, player, true, multiblockShape);
+        };
 
-        return state.canSurvive(level, pos);
+        return state.canSurvive(fakeLevel, pos);
     }
 
-    public static void renderJsonModels(BlockLive blockLive, BlockPos originalPos, PoseStack poseStack, FakeClientLevel fakeLevel) {
-
+    private void renderJsonModels(BlockLive blockLive, PoseStack poseStack, TintedBufferSource bufferSource) {
         if (!blockLive.state.getRenderShape().equals(RenderShape.MODEL)) return;
+        assert centerPos != null;
 
         poseStack.pushPose();
         poseStack.translate(0.0001, 0.0001, 0.0001);
 
-        BlockPos offset = blockLive.pos.subtract(originalPos).immutable();
+        BlockPos offset = blockLive.pos.subtract(centerPos).immutable();
         poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
 
         NODE_STORAGE.submitMovingBlock(poseStack,
@@ -275,22 +345,30 @@ public class MultiblockPreviewRenderer {
         poseStack.popPose();
     }
 
-    public static Set<BlockLive> gatherBlockLives(FakeClientLevel fakeLevel, Level level, @Nullable BlockEntity blockEntity, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-        Set<BlockLive> blockLiveSet = new HashSet<>();
-        Block block = state.getBlock();
-
-        if (block instanceof IMultiBlock multiBlock) {
-            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, blockEntity, pos, state), level, pos, state));
-        } else {
-            blockLiveSet.add(BlockLive.Live.optionalBE(pos, state, blockEntity));
+    @Nullable Set<BlockLive> blockLiveSet = null;
+    private Set<BlockLive> gatherBlockLives() {
+        if (blockLiveSet != null) {
+            return blockLiveSet;
         }
 
-        if (!SET_PLACED_BY_BLACKLIST.contains(block)) {
+        assert currentBlock != null;
+        assert centerPos != null;
+        assert centerState != null;
+
+        Set<BlockLive> blockLiveSet = new HashSet<>();
+
+        if (currentBlock instanceof IMultiBlock multiBlock) {
+            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, centerBlockEntity, centerPos, centerState), level, centerPos, centerState));
+        } else {
+            blockLiveSet.add(BlockLive.Live.optionalBE(centerPos, centerState, centerBlockEntity));
+        }
+
+        if (!SET_PLACED_BY_BLACKLIST.contains(currentBlock)) {
             try {
-                block.setPlacedBy(fakeLevel, pos, state, placer, stack);
+                currentBlock.setPlacedBy(fakeLevel, centerPos, centerState, player, stack);
             } catch (Exception ignored) {
-                Constants.LOGGER.warn("setPlacedBy failed for block " + block + "adding to ignore list.");
-                SET_PLACED_BY_BLACKLIST.add(block);
+                Constants.LOGGER.warn("setPlacedBy failed for block {} adding to ignore list...", currentBlock);
+                SET_PLACED_BY_BLACKLIST.add(currentBlock);
             }
         }
 

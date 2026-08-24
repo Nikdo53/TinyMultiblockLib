@@ -11,6 +11,7 @@ import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 import net.nikdo53.tinymultiblocklib.platform.Services;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import java.util.Set;
 
 public interface IOnBlockPreviewEvent {
@@ -21,6 +22,7 @@ public interface IOnBlockPreviewEvent {
     void setCancelledInternal(boolean canceled);
 
     BlockLive getCenterBlockLive();
+    @Nonnull
     Set<BlockLive> getBlocksForPreview();
 
     default BlockState getCenterBlockState() {
