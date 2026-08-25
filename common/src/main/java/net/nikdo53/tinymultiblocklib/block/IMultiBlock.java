@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockBehaviour;
 import net.nikdo53.tinymultiblocklib.block.logic.MultiblockLogic;
@@ -28,6 +29,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -72,6 +74,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * <p>
      * Use {@link #makeDirectional()} instead.
      * */
+    @ApiStatus.NonExtendable
     default @Nullable DirectionProperty getDirectionProperty(){
         DirectionContext directionContext = makeDirectional();
         return directionContext != null ? directionContext.property() : null; // null if block doesn't have directions
@@ -255,7 +258,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
             state = state.setValue(getDirectionProperty(), direction);
         }
 
-        return canPlace(level, pos, state, context.getPlayer(), true) ? state : null;
+        return state;
     }
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {
@@ -264,10 +267,11 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     }
 
     default boolean canPlaceBlock(BlockPos pos, LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities, MultiblockShape shape) {
-        return canReplaceBlock(level, pos, level.getBlockState(pos), shape)
-                && extraSurviveRequirements(level, pos, state, pos.subtract(center), shape)
-                && (entityUnobstructed(level, pos, state, player, shape) || ignoreEntities)
-                && pos.getY() < level.getMaxBuildHeight() && pos.getY() > level.getMinBuildHeight();
+        boolean b  = canReplaceBlock(level, pos, level.getBlockState(pos), shape);
+        boolean b1 = extraSurviveRequirements(level, pos, state, pos.subtract(center), shape);
+        boolean b2 = (entityUnobstructed(level, pos, state, player, shape) || ignoreEntities);
+        boolean b3 = pos.getY() < level.getMaxBuildHeight() && pos.getY() > level.getMinBuildHeight();
+        return b && b1 && b2 && b3;
     }
 
     default void destroy(BlockPos center, LevelAccessor level, BlockState state, boolean dropBlock){
@@ -403,11 +407,12 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
                     case WEST -> z -= 1;
                 }
             }
-            TriFunction<Double, Double, Double, VoxelShape> memoize = TMBLUtils.memoize(shape::move);
-            return memoize.apply(x, y, z);
+            return getVoxelShapeCacheFunction().apply(shape, new Vec3(x, y, z));
         }
         return shape;
     }
+
+    BiFunction<VoxelShape, Vec3, VoxelShape> getVoxelShapeCacheFunction();
 
     static boolean isSameMultiblock(Level level, BlockState state1, BlockState state2, BlockPos center, BlockPos posNew){
         return state1.getBlock().equals(state2.getBlock()) && level.getBlockEntity(posNew) instanceof IMultiBlockEntity entity && entity.getCenter().equals(center);

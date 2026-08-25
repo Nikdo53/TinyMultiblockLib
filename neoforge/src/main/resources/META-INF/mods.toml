@@ -32,5 +32,5 @@ side = "BOTH"
 modId = "moresnifferflowers"
 mandatory = false
 type="incompatible"
-versionRange = "( , 6.6.6)"
+versionRange = "( , 6.6.6]"
 reason = "Update MoreSnifferFlowers!"
