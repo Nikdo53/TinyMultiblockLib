@@ -71,8 +71,8 @@ public interface IExpandingMultiblock extends IMultiBlock {
         if (level == null) return false;
 
         BlockPos center = IMultiBlock.getCenter(level, pos);
-        Set<BlockPos> fullBlockShape = getFullBlockShape(level, center, oldState).getGlobalPositions();
-        Set<BlockPos> fullBlockShapeNoCache = getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state).getGlobalPositions();
+        Set<BlockPos> fullBlockShape = getMultiblockShape(level, center, oldState).getGlobalPositions();
+        Set<BlockPos> fullBlockShapeNoCache = getMultiblockShapeNoCache(center, state, level, level.getBlockEntity(center)).getGlobalPositions();
         return !fullBlockShape.equals(fullBlockShapeNoCache);
     }
 
@@ -80,11 +80,11 @@ public interface IExpandingMultiblock extends IMultiBlock {
         if (level.isClientSide()) return;
         BlockPos center = IMultiBlock.getCenter(level, pos);
 
-        Set<BlockPos> oldShape = getFullBlockShape(level, pos, oldState).getGlobalPositions();
+        Set<BlockPos> oldShape = getMultiblockShape(level, pos, oldState).getGlobalPositions();
 
         IMultiBlock.invalidateCaches(level, pos);
 
-        Set<BlockPos> shapeNew = getFullBlockShape(level, pos, state).getGlobalPositions();
+        Set<BlockPos> shapeNew = getMultiblockShape(level, pos, state).getGlobalPositions();
 
 
         oldShape.forEach(posOld -> {
@@ -103,7 +103,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
     default boolean canChangeShape(BlockState state, Level level, BlockPos pos) {
         BlockPos center = IMultiBlock.getCenter(level, pos);
 
-        MultiblockShape shape = getFullBlockShapeNoCache(level, level.getBlockEntity(center), center, state);
+        MultiblockShape shape = getMultiblockShapeNoCache(center, state, level, level.getBlockEntity(center));
         return shape.getGlobalPositions().stream().allMatch(posNew -> {
             BlockState stateNew = level.getBlockState(posNew);
 
@@ -114,7 +114,7 @@ public interface IExpandingMultiblock extends IMultiBlock {
     }
 
     default void postChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState) {
-        getFullBlockShape(level, pos, state).getGlobalPositions().forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
+        getMultiblockShape(level, pos, state).getGlobalPositions().forEach(posNew -> IMultiBlockEntity.setPlaced(level, posNew, true));
     }
 
     default void cancelChangeShape(BlockState state, Level level, BlockPos pos, BlockState oldState){

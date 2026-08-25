@@ -37,13 +37,13 @@ import net.nikdo53.tinymultiblocklib.data.TMBLTags;
 import net.nikdo53.tinymultiblocklib.mixin.BlockItemAccessor;
 import net.nikdo53.tinymultiblocklib.mixin.ItemAccessor;
 import net.nikdo53.tinymultiblocklib.platform.Services;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 
-@FieldsAreNonnullByDefault
+@NullMarked
 public class MultiblockPreviewRenderer {
     public static final SubmitNodeStorage NODE_STORAGE = RenderUtils.createTranslucentNodeStorage();
 
@@ -128,11 +128,7 @@ public class MultiblockPreviewRenderer {
             previewMode = event.getPreviewMode();
             poseStack.pushPose();
 
-            poseStack.translate(
-                    centerPos.getX() - camera.pos.x,
-                    centerPos.getY() - camera.pos.y,
-                    centerPos.getZ() - camera.pos.z
-            );
+            poseStack.translate(-camera.pos.x, -camera.pos.y, -camera.pos.z);
 
             TintedBufferSource bufferSource = new TintedBufferSource(minecraft.renderBuffers().bufferSource(), previewMode);
 
@@ -141,7 +137,7 @@ public class MultiblockPreviewRenderer {
             }
 
             for (BlockLive blockLive : blockLiveSet) {
-                renderBlockEntity(blockLive, poseStack, partialTick, bufferSource);
+                renderBlockEntity(blockLive, poseStack, partialTick, camera);
             }
 
             IOnBlockPreviewEvent.firePostEvent(previewMode, getCenterBlockLive(), blockLiveSet, poseStack, partialTick, NODE_STORAGE);
@@ -154,7 +150,7 @@ public class MultiblockPreviewRenderer {
 
     }
 
-    private @NotNull BlockLive getCenterBlockLive() {
+    private BlockLive getCenterBlockLive() {
         return BlockLive.Live.optionalBE(centerPos, getCenterBlockState(), getCenterBlockEntity());
     }
 
@@ -171,7 +167,7 @@ public class MultiblockPreviewRenderer {
     }
 
     @Nullable BlockPos centerPos = null;
-    private @NotNull BlockPos getCenterPos(BlockPos hitPos) {
+    private BlockPos getCenterPos(BlockPos hitPos) {
         if (centerPos != null) {
             return centerPos;
         }
@@ -187,7 +183,7 @@ public class MultiblockPreviewRenderer {
 
         assert centerPos != null;
         return currentBlock instanceof IMultiBlock multiBlock
-                ? multiBlock.getFullBlockShapeNoCache(level, getCenterBlockEntity(), centerPos, getCenterBlockState())
+                ? multiBlock.getMultiblockShapeNoCache(centerPos, getCenterBlockState(), level, getCenterBlockEntity())
                 : null;
     }
 
@@ -209,7 +205,7 @@ public class MultiblockPreviewRenderer {
 
     @Nullable BlockState centerState = null;
     boolean hasNullState = false;
-    private @Nonnull BlockState getCenterBlockState() {
+    private BlockState getCenterBlockState() {
         if (centerState != null) {
             return centerState;
         }
@@ -259,9 +255,13 @@ public class MultiblockPreviewRenderer {
         ) && !TMBLClientConfig.PREVIEW_BLACKLIST.get().contains(registeredName);
     }
 
-    private void renderBlockEntity(BlockLive blockLive, PoseStack poseStack, float partialTick, MultiBufferSource.BufferSource buffer) {
+    private void renderBlockEntity(BlockLive blockLive, PoseStack poseStack, float partialTick, CameraRenderState camera) {
         BlockState state = blockLive.state;
         BlockPos pos = blockLive.pos;
+
+        if (state.getRenderShape() == RenderShape.INVISIBLE) {
+            return;
+        }
 
         if (state.getBlock() instanceof EntityBlock entityBlock) {
 
@@ -282,8 +282,7 @@ public class MultiblockPreviewRenderer {
                 poseStack.pushPose();
                 poseStack.translate(0.0001, 0.0001, 0.0001);
 
-                BlockPos offset = blockLive.pos.subtract(pos).immutable();
-                poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
+                poseStack.translate(blockLive.pos.getX(), blockLive.pos.getY(), blockLive.pos.getZ());
 
                 entityRender.extractRenderState(entity, renderState, partialTick, camera.pos, null);
                 entityRender.submit(renderState, poseStack, NODE_STORAGE, camera);
@@ -336,8 +335,7 @@ public class MultiblockPreviewRenderer {
         poseStack.pushPose();
         poseStack.translate(0.0001, 0.0001, 0.0001);
 
-        BlockPos offset = blockLive.pos.subtract(centerPos).immutable();
-        poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
+        poseStack.translate(blockLive.pos.getX(), blockLive.pos.getY(), blockLive.pos.getZ());
 
         NODE_STORAGE.submitMovingBlock(poseStack,
                 RenderUtils.createMovingBlockRenderState(fakeLevel, blockLive.pos, blockLive.state, true, Sheets.translucentBlockItemSheet(), null, null));
@@ -358,7 +356,7 @@ public class MultiblockPreviewRenderer {
         Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (currentBlock instanceof IMultiBlock multiBlock) {
-            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, centerBlockEntity, centerPos, centerState), level, centerPos, centerState));
+            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getMultiblockShapeNoCache(centerPos, centerState, level, centerBlockEntity), level, centerPos, centerState));
         } else {
             blockLiveSet.add(BlockLive.Live.optionalBE(centerPos, centerState, centerBlockEntity));
         }
@@ -372,8 +370,12 @@ public class MultiblockPreviewRenderer {
             }
         }
 
-        blockLiveSet.addAll(fakeLevel.blockLiveSet);
-
+        for (BlockLive toAdd : fakeLevel.blockLiveSet) {
+            if (blockLiveSet.stream().map(b -> b.pos).noneMatch(p -> p.equals(toAdd.pos))) {
+                blockLiveSet.add(toAdd);
+            }
+        }
+        this.blockLiveSet = blockLiveSet;
         return blockLiveSet;
     }
 }

@@ -21,8 +21,6 @@ import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.IBlockPosOffsetEnum;
 import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
-import net.nikdo53.tinymultiblocklib.util.TMBLUtils;
-import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
@@ -42,8 +40,8 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * Should only be used for overriding
      * @param builder The builder to add the shape to, .build gets called automatically
      * @param context The context of the shape, all getters should be included in the top of the method.
-     * @see #getFullBlockShape(BlockGetter, BlockPos, BlockState)
-     * @see #getFullBlockShapeNoCache(Level, BlockEntity, BlockPos, BlockState)
+     * @see #getMultiblockShape(BlockGetter, BlockPos, BlockState)
+     * @see #getMultiblockShapeNoCache(BlockPos, BlockState, Level, BlockEntity)
      * */
     void makeMultiblockShape(MultiblockShape.Builder builder, ShapeContext context);
 
@@ -112,7 +110,10 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
         return Direction.NORTH;
     }
 
-    default MultiblockShape getFullBlockShapeNoCache(@Nullable Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
+    /**
+     * Gets the current multiblock shape of this block, does not cache.
+     */
+    default MultiblockShape getMultiblockShapeNoCache(BlockPos center, BlockState state, @Nullable Level level, @Nullable BlockEntity blockEntity){
         if (blockEntity == null && level != null){
             blockEntity = level.getBlockEntity(center);
         }
@@ -133,15 +134,30 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
         return builder.build();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    default List<BlockPos> getFullBlockShapeNoCache(@Nullable Level level, @Nullable BlockEntity blockEntity, BlockPos center, BlockState state){
+        return getMultiblockShapeNoCache(center, state, level, blockEntity).getGlobalPositions().stream().toList();
+    }
 
-    default MultiblockShape getFullBlockShape(BlockGetter level, BlockPos pos, BlockState state){
+    @Deprecated
+    default List<BlockPos> getFullBlockShape(BlockGetter level, BlockPos pos, BlockState state){
+        return getMultiblockShape(level, pos, state).getGlobalPositions().stream().toList();
+    }
+
+    /**
+     * Gets the multiblock shape of this block, uses cache on the block entity if present.
+     */
+    default MultiblockShape getMultiblockShape(BlockGetter level, BlockPos pos, BlockState state){
         BlockPos center = getCenter(level, pos);
         BlockEntity blockEntity = level.getBlockEntity(center);
         Level betterLevel = level instanceof Level ? (Level) level : null;
 
         assert betterLevel != null;
         if (!(blockEntity instanceof IMultiBlockEntity mbEntity)){
-            return getFullBlockShapeNoCache(betterLevel, blockEntity ,center, state);
+            return getMultiblockShapeNoCache(center ,state, betterLevel, blockEntity);
         }
 
         if (mbEntity.getFullBlockShapeCache().getShape().isEmpty()){
@@ -152,7 +168,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     }
 
     private MultiblockShape getAndUpdateShapeCache(BlockState state, IMultiBlockEntity mbEntity, Level betterLevel, BlockEntity blockEntity, BlockPos center) {
-        MultiblockShape blockPosList = getFullBlockShapeNoCache(betterLevel, blockEntity, center, state);
+        MultiblockShape blockPosList = getMultiblockShapeNoCache(center, state, betterLevel, blockEntity);
 
         mbEntity.setFullBlockShapeCache(blockPosList);
         return blockPosList;
@@ -162,7 +178,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
         BlockState state = level.getBlockState(pos);
 
         if (state.getBlock() instanceof IMultiBlock multiBlock){
-            return multiBlock.getFullBlockShape(level, pos, state).getGlobalPositions().stream().toList();
+            return multiBlock.getMultiblockShape(level, pos, state).getGlobalPositions().stream().toList();
         }
 
         return List.of(pos);
@@ -200,7 +216,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
      * Places the multiblock, sets its BlockStates and BlockEntity center
      * */
     default void place(Level level, BlockPos centerPos, BlockState stateOriginal){
-        prepareForPlace(getFullBlockShape(level, centerPos, stateOriginal), level, centerPos, stateOriginal).forEach(blockLike -> {
+        prepareForPlace(getMultiblockShape(level, centerPos, stateOriginal), level, centerPos, stateOriginal).forEach(blockLike -> {
             int flags = 66;
 
             BlockState stateNew = blockLike.state;
@@ -262,7 +278,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     }
 
     default boolean canPlace(LevelReader level, BlockPos center, BlockState state, @Nullable Entity player, boolean ignoreEntities) {
-        MultiblockShape shape = getFullBlockShape(level, center, state);
+        MultiblockShape shape = getMultiblockShape(level, center, state);
         return shape.getGlobalPositions().stream().allMatch(pos -> canPlaceBlock(pos, level, center, state, player, ignoreEntities, shape));
     }
 
@@ -276,7 +292,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
 
     default void destroy(BlockPos center, LevelAccessor level, BlockState state, boolean dropBlock){
         if (level.isClientSide()) return;
-        Set<BlockPos> blocks = getFullBlockShape(level, center, state).getGlobalPositions();
+        Set<BlockPos> blocks = getMultiblockShape(level, center, state).getGlobalPositions();
 
         if (level.getBlockState(center).is(state.getBlock())) {
             level.destroyBlock(center, dropBlock);
@@ -296,11 +312,11 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
         if (level.isClientSide()) return true;
         BlockPos center = getCenter(level, pos);
 
-        boolean ret = getFullBlockShape(level, center, state).getGlobalPositions().stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
+        boolean ret = getMultiblockShape(level, center, state).getGlobalPositions().stream().allMatch(blockPos -> level.getBlockState(blockPos).is(self()));
 
         boolean isMultiblock = isMultiblock(level, pos);
         if (ret && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity && !entity.isPlaced() && isMultiblock) {
-            getFullBlockShape(level, center, state).getGlobalPositions().forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
+            getMultiblockShape(level, center, state).getGlobalPositions().forEach(blockPos -> IMultiBlockEntity.setPlaced(level, blockPos, true));
         }
 
         return ret;
@@ -330,7 +346,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     default boolean canSurviveHelper(BlockState state, LevelReader level, BlockPos pos){
         if (level.getBlockEntity(pos) instanceof IMultiBlockEntity entity){
             //survive logic
-            MultiblockShape shape = getFullBlockShape(level, pos, state);
+            MultiblockShape shape = getMultiblockShape(level, pos, state);
             boolean extraSurvive = shape.getGlobalPositions().stream().allMatch(blockPos -> extraSurviveRequirements(level, blockPos, state, entity.getOffset(), shape));
             return (allBlocksPresent(level, pos, state) || !entity.isPlaced()) && extraSurvive;
         } else {

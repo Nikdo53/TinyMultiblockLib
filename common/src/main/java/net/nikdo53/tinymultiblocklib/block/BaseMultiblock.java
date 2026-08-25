@@ -1,9 +1,9 @@
 package net.nikdo53.tinymultiblocklib.block;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -26,8 +25,6 @@ import net.nikdo53.tinymultiblocklib.blockentities.AbstractMultiBlockEntity;
 import net.nikdo53.tinymultiblocklib.components.SharedStatePropertiesBuilder;
 import net.nikdo53.tinymultiblocklib.block.shape.ShapeContext;
 import net.nikdo53.tinymultiblocklib.platform.Services;
-import net.nikdo53.tinymultiblocklib.util.TMBLUtils;
-import org.apache.commons.lang3.function.TriFunction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -151,7 +148,7 @@ public abstract class BaseMultiblock extends Block implements IMovableMultiblock
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        MultiblockShape fullBlockShape = getFullBlockShape(level, pos, state);
+        MultiblockShape fullBlockShape = getMultiblockShape(level, pos, state);
         BlockPos offset = IMultiBlock.getOffset(level, pos);
         MultiblockShape.Entry entry = fullBlockShape.getShape().get(offset);
 
