@@ -30,7 +30,7 @@ public class SymbolShapeBuilder {
 
     /**
      * Creates a new symbol shape builder
-     * @param direction direction where the builder is facing, each .nextAisle() moves the builder in that direction ❗❗ DO NOT USE THE MULTIBLOCKS DIRECTION❗❗
+     * @param direction direction where the builder is facing, each .nextAisle() moves the builder in that direction !! DO NOT USE THE MULTIBLOCKS DIRECTION !!
      */
     public SymbolShapeBuilder(Direction direction) {
         this.direction = direction;

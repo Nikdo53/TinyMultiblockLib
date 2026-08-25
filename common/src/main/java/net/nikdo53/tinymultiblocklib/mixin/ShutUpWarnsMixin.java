@@ -20,7 +20,7 @@ public abstract class ShutUpWarnsMixin implements ServerPlayerConnection, Tickab
     /**
      * Minecraft loves spamming errors when the player interacts with a VoxelShape larger than 1 block, this shuts it up
      * */
-    @ModifyVariable(method = "handleUseItemOn", at = @At(value = "STORE"), ordinal = 1)
+    @ModifyVariable(method = "handleUseItemOn", at = @At(value = "STORE"), ordinal = 2)
     public Vec3 useAllower(Vec3 vec3, @Local ServerLevel level, @Local BlockPos pos) {
         if(level.getBlockState(pos).getBlock() instanceof IMultiBlock){
             return new Vec3(0, 0 , 0);
