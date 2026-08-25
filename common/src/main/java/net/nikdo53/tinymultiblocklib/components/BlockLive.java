@@ -58,6 +58,14 @@ public class BlockLive {
         return null;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BlockLive blockLive) {
+            return blockLive.pos.equals(pos) && blockLive.state.equals(state);
+        }
+        return false;
+    }
+
     public static class Tag extends BlockLive{
         public @NotNull CompoundTag blockEntityTag;
 
