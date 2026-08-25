@@ -15,6 +15,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.block.shape.MultiblockShape;
+import net.nikdo53.tinymultiblocklib.components.PreviewMode;
 
 import java.util.HashMap;
 

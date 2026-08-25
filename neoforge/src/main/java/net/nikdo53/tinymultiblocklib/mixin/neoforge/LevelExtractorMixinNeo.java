@@ -31,7 +31,7 @@ public class LevelExtractorMixinNeo {
             ClientLevel level = Minecraft.getInstance().level;
             assert level != null;
 
-            MultiblockShape multiblockShape = multiBlock.getFullBlockShape(level, pos, state);
+            MultiblockShape multiblockShape = multiBlock.getMultiblockShape(level, pos, state);
             BlockPos offset = multiblockShape.getOffset(pos);
             MultiblockShape.Entry entry = multiblockShape.getEntry(offset);
 
