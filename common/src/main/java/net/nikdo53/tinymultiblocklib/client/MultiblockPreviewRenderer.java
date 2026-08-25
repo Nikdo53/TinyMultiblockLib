@@ -130,8 +130,7 @@ public class MultiblockPreviewRenderer {
 
             poseStack.pushPose();
 
-            poseStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z
-            );
+            poseStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
 
             TintedBufferSource bufferSource = new TintedBufferSource(minecraft.renderBuffers().bufferSource(), previewMode);
 
