@@ -130,10 +130,7 @@ public class MultiblockPreviewRenderer {
 
             poseStack.pushPose();
 
-            poseStack.translate(
-                    centerPos.getX() - camera.getPosition().x,
-                    centerPos.getY() - camera.getPosition().y,
-                    centerPos.getZ() - camera.getPosition().z
+            poseStack.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z
             );
 
             TintedBufferSource bufferSource = new TintedBufferSource(minecraft.renderBuffers().bufferSource(), previewMode);
@@ -189,7 +186,7 @@ public class MultiblockPreviewRenderer {
 
         assert centerPos != null;
         return currentBlock instanceof IMultiBlock multiBlock
-                ? multiBlock.getFullBlockShapeNoCache(level, getCenterBlockEntity(), centerPos, getCenterBlockState())
+                ? multiBlock.getMultiblockShapeNoCache(centerPos, getCenterBlockState(), level, getCenterBlockEntity())
                 : null;
     }
 
@@ -264,6 +261,10 @@ public class MultiblockPreviewRenderer {
         BlockState state = blockLive.state;
         BlockPos pos = blockLive.pos;
 
+        if (state.getRenderShape() == RenderShape.INVISIBLE) {
+            return;
+        }
+
         if (state.getBlock() instanceof EntityBlock entityBlock) {
 
             BlockEntity entity = entityBlock.newBlockEntity(pos, state);
@@ -281,8 +282,7 @@ public class MultiblockPreviewRenderer {
                 poseStack.pushPose();
                 poseStack.translate(0.0001, 0.0001, 0.0001);
 
-                BlockPos offset = blockLive.pos.subtract(pos).immutable();
-                poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
+                poseStack.translate(blockLive.pos.getX(), blockLive.pos.getY(), blockLive.pos.getZ());
 
                 entityRender.render(entity, partialTick, poseStack, buffer, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
 
@@ -335,8 +335,7 @@ public class MultiblockPreviewRenderer {
         poseStack.pushPose();
         poseStack.translate(0.0001, 0.0001, 0.0001);
 
-        BlockPos offset = blockLive.pos.subtract(centerPos).immutable();
-        poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
+        poseStack.translate(blockLive.pos.getX(), blockLive.pos.getY(), blockLive.pos.getZ());
 
         RenderUtils.CHECK_SIDES_CONTEXT = new RenderUtils.CheckSidesContext(fakeLevel, blockLive.state, blockLive.pos);
         blockRenderer.renderSingleBlock(blockLive.state, poseStack, bufferSource, 0xFFFFFF, OverlayTexture.NO_OVERLAY);
@@ -358,7 +357,7 @@ public class MultiblockPreviewRenderer {
         Set<BlockLive> blockLiveSet = new HashSet<>();
 
         if (currentBlock instanceof IMultiBlock multiBlock) {
-            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getFullBlockShapeNoCache(level, centerBlockEntity, centerPos, centerState), level, centerPos, centerState));
+            blockLiveSet.addAll(multiBlock.prepareForPlace(multiBlock.getMultiblockShapeNoCache(centerPos, centerState, level, centerBlockEntity), level, centerPos, centerState));
         } else {
             blockLiveSet.add(BlockLive.Live.optionalBE(centerPos, centerState, centerBlockEntity));
         }
@@ -372,8 +371,12 @@ public class MultiblockPreviewRenderer {
             }
         }
 
-        blockLiveSet.addAll(fakeLevel.blockLiveSet);
-
+        for (BlockLive toAdd : fakeLevel.blockLiveSet) {
+            if (blockLiveSet.stream().map(b -> b.pos).noneMatch(p -> p.equals(toAdd.pos))) {
+                blockLiveSet.add(toAdd);
+            }
+        }
+        this.blockLiveSet = blockLiveSet;
         return blockLiveSet;
     }
 }

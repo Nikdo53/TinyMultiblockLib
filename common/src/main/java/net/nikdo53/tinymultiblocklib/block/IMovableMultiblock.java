@@ -17,7 +17,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
         BlockPos center = IMultiBlock.getCenter(level, pos);
         BlockPos centerMoved = center.relative(direction);
 
-        Set<BlockPos> fullBlockShape = getFullBlockShape(level, center, state).getGlobalPositions();
+        Set<BlockPos> fullBlockShape = getMultiblockShape(level, center, state).getGlobalPositions();
         fullBlockShape.forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, false));
 
         Set<BlockLive> originalBlocks = new HashSet<>();
@@ -28,7 +28,7 @@ public interface IMovableMultiblock extends IExpandingMultiblock {
         originalBlocks.forEach(blockLike -> blockLike.move(level, BlockPos.ZERO.relative(direction)));
 
 
-        getFullBlockShape(level, centerMoved, state).getGlobalPositions().forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
+        getMultiblockShape(level, centerMoved, state).getGlobalPositions().forEach(pos1 -> IMultiBlockEntity.setPlaced(level, pos1, true));
     }
 
 }

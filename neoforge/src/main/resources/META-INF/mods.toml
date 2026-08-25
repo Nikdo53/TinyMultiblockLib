@@ -10,6 +10,7 @@ displayName = "${mod_name}"
 logoFile = "icon.png"
 iconFile = "icon.png"
 bannerFile = "icon.png"
+logoBlur= false
 
 authors = "${mod_author}"
 description = '''${description}'''
@@ -27,10 +28,3 @@ mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
-
-[[dependencies.${mod_id}]]
-modId = "moresnifferflowers"
-mandatory = false
-type="incompatible"
-versionRange = "( , 6.6.6]"
-reason = "Update MoreSnifferFlowers!"
