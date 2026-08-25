@@ -3,16 +3,12 @@ package net.nikdo53.tinymultiblocklib.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.nikdo53.tinymultiblocklib.Constants;
 import net.nikdo53.tinymultiblocklib.client.IOnBlockPreviewEvent;
 import net.nikdo53.tinymultiblocklib.components.BlockLive;
 import net.nikdo53.tinymultiblocklib.components.PreviewMode;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -52,7 +48,7 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
     }
 
     @Override
-    public @NotNull Set<BlockLive> getBlocksForPreview() {
+    public @NonNull Set<BlockLive> getBlocksForPreview() {
         return blockLiveSet;
     }
 
@@ -98,7 +94,7 @@ public class OnBlockPreviewEvent implements IOnBlockPreviewEvent {
         }
 
         @Override
-        public @NotNull Set<BlockLive> getBlocksForPreview() {
+        public @NonNull Set<BlockLive> getBlocksForPreview() {
             return new HashSet<>(blockLiveSet);
         }
 
