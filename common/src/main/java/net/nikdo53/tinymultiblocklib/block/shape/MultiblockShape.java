@@ -133,7 +133,7 @@ public class MultiblockShape {
         /**
          * Creates a new symbol shape builder
          * @param fowardDirection direction where the builder is facing, each .nextAisle() moves the builder in that direction
-         *                      ❗THIS IS NOT THE MULTIBLOCKS DIRECTION❗
+         *                      !THIS IS NOT THE MULTIBLOCKS DIRECTION!
          */
         public SymbolShapeBuilder toSymbolBuilder(Direction fowardDirection){
             SymbolShapeBuilder symbolShapeBuilder = new SymbolShapeBuilder(fowardDirection);
