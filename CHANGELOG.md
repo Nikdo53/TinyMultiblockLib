@@ -1,0 +1,2 @@
+- (neoforge) Hopefully fixed crash with the Epic Fight mod
+- (fabric) Properly added forge config api port as a dependency
