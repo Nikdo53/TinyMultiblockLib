@@ -35,7 +35,7 @@ public class GhostModelRenderer extends GhostRenderer<GhostModelRenderer>{
     @Override
     protected void render(float partialTick, CameraRenderState camera, ClientLevel level, PoseStack poseStack) {
         poseStack.translate(0.5f, 1.5f, 0.5f);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180f));
+        poseStack.rotateDegrees(Axis.ZP,180f);
 
         submitNodeCollector.submitModelPart(MODEL_PART, poseStack, renderType, packedLight == null ? LightCoordsUtil.FULL_BRIGHT : packedLight, packedOverlay, sprite);
     }

@@ -6,4 +6,4 @@ accessible field net/minecraft/client/renderer/rendertype/RenderSetup textures L
 accessible class net/minecraft/client/renderer/rendertype/RenderSetup$TextureBinding
 accessible method net/minecraft/world/level/block/state/BlockBehaviour$Properties <init> ()V
 
-accessible field net/minecraft/client/renderer/rendertype/RenderSetup pipeline Lcom/mojang/blaze3d/pipeline/RenderPipeline;
+accessible field net/minecraft/client/renderer/rendertype/RenderSetup pipeline Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;

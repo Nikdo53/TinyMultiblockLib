@@ -3,6 +3,7 @@ package net.nikdo53.tinymultiblocklib.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import org.joml.*;
 
 public abstract class VertexConsumerWrapper implements VertexConsumer{
@@ -140,5 +141,16 @@ public abstract class VertexConsumerWrapper implements VertexConsumer{
     public VertexConsumer setLineWidth(float p_456188_) {
         parent.setLineWidth(p_456188_);
         return this;
+    }
+
+    @Override
+    public VertexConsumer setUv3(float v, float v1) {
+        parent.setUv3(v, v1);
+        return this;
+    }
+
+    @Override
+    public void putBakedQuadWithGlint(PoseStack.Pose pose, BakedQuad quad, QuadInstance instance, PoseStack.Pose sheetedDecalPose) {
+        parent.putBakedQuadWithGlint(pose, quad, instance, sheetedDecalPose);
     }
 }

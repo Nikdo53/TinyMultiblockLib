@@ -14,7 +14,6 @@ public class TintedVertexConsumer extends VertexConsumerWrapper {
         this.colorSupplier = colorSupplier;
     }
 
-
     @Override
     public void putBakedQuad(PoseStack.Pose pose, BakedQuad quad, QuadInstance instance) {
         instance.multiplyColor(colorSupplier.packedARGB());
@@ -40,4 +39,5 @@ public class TintedVertexConsumer extends VertexConsumerWrapper {
     public VertexConsumer setColor(int color) {
         return parent.setColor(colorSupplier.applyColors(color));
     }
+
 }

@@ -45,11 +45,6 @@ public class MultiblockLogic extends BlockBehaviour implements MultiblockBehavio
     }
 
     @Override
-    protected MapCodec<? extends Block> codec() {
-        return null;
-    }
-
-    @Override
     public Item asItem() {
         return this.asBlock().asItem();
     }

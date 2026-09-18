@@ -75,7 +75,7 @@ public class TestBlock extends AbstractMultiBlock implements IPreviewableMultibl
 
         new GhostBlockRenderer(pos.above(), 100, Blocks.GRASS_BLOCK.defaultBlockState())
                 .enableDistanceFade(10, 5)
-                .transform(poseStack -> poseStack.mulPose(Axis.XP.rotationDegrees(45)))
+                .transform(poseStack -> poseStack.rotateDegrees(Axis.XP,45))
                 .addToRenderList();
 
         Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);

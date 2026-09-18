@@ -13,13 +13,13 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    localRuntime("curse.maven:carry-on-274259:8562911")
+   // localRuntime("curse.maven:carry-on-274259:8562911")
     compileOnly("curse.maven:carry-on-274259:8562911")
 
     include(implementation("net.nikdo53:nikdo-color:1.0.0"))
 
     // config
-    localRuntime("com.terraformersmc:modmenu:20.0.1")
+    localRuntime("com.terraformersmc:modmenu:21.0.0-beta.1")
     implementation("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${config_api_version}")
 
 }

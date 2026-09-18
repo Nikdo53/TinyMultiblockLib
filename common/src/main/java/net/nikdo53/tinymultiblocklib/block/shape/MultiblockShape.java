@@ -239,7 +239,7 @@ public class MultiblockShape {
             }
 
             if (!offset.equals(Vec3i.ZERO)) {
-                map.put(new BlockPos(offset), new Entry(logic, stateModifier, dataMap));
+                map.put(BlockPos.containing(offset.getX(), offset.getY(), offset.getZ()), new Entry(logic, stateModifier, dataMap));
             } else {
                 Entry centerEntry = map.get(BlockPos.ZERO); // center always exists and uses its own logic
                 map.put(BlockPos.ZERO, new Entry(centerEntry.logic(), stateModifier, dataMap));

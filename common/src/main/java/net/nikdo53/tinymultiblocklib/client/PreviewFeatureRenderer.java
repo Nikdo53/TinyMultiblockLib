@@ -1,9 +1,11 @@
 package net.nikdo53.tinymultiblocklib.client;
 
+import com.mojang.renderpearl.api.commands.RenderPass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.*;
 import net.minecraft.client.renderer.feature.submit.TranslucentSubmit;
+import net.minecraft.client.renderer.oit.OitStage;
 import net.nikdo53.nikdocolor.IColorSupplier;
 import net.nikdo53.tinymultiblocklib.client.extensions.IFeatureRenderDispatcherExtension;
 import net.nikdo53.tinymultiblocklib.client.extensions.IStagedVertexBufferWrapExtension;
@@ -52,16 +54,16 @@ public class PreviewFeatureRenderer extends RenderTypeFeatureRenderer<PreviewFea
     }
 
     @Override
-    public void executeGroup(FeatureFrameContext context, int groupIndex, List<Submit> submits, boolean strictlyOrdered) {
-        super.executeGroup(context, groupIndex, submits, strictlyOrdered);
+    public void executeGroup(FeatureFrameContext context, @Nullable OitStage stage, RenderPass renderPass, int groupIndex, List<Submit> submits, boolean strictlyOrdered) {
+        super.executeGroup(context, stage, renderPass, groupIndex, submits, strictlyOrdered);
 
         for (Submit submit : submits) {
             FeatureRenderDispatcher.PreparedFrame preparedFrame = preparedFrames.get(submit);
             if (preparedFrame != null) {
-                preparedFrame.executeSolid();
-                preparedFrame.executeTranslucent();
-                preparedFrame.executeTranslucentAfterTerrain();
-                preparedFrame.executeAlwaysOnTop();
+                preparedFrame.executeSolid(renderPass);
+                preparedFrame.executeTranslucent(renderPass);
+                preparedFrame.executeTranslucentAfterTerrain(renderPass);
+                preparedFrame.executeAlwaysOnTop(renderPass);
             }
         }
     }
