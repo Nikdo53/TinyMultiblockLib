@@ -16,7 +16,7 @@ legacyForge {
 
 dependencies {
     compileOnly ("org.spongepowered:mixin:0.8.7")
-    compileOnly(annotationProcessor('io.github.llamalad7:mixinextras-common:0.5.4'))
+    compileOnly(annotationProcessor('io.github.llamalad7:mixinextras-common:0.5.5'))
 
     modCompileOnly("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}"){transitive = false}
     modCompileOnly("curse.maven:carry-on-274259:4882500"){transitive = false}

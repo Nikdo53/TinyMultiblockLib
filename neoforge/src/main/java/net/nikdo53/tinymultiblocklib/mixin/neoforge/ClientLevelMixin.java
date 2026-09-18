@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
-    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"), remap = false)
+    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"), remap = false, order = 2000)
     private boolean afterLoad1(IEventBus instance, Event event, Operation<Boolean> original){
         if ((Object) this instanceof FakeClientLevel){
             return false;
