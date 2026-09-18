@@ -2,6 +2,8 @@ package net.nikdo53.tinymultiblocklib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -356,7 +358,7 @@ public interface IMultiBlock extends IMBStateSharer, MultiblockBehaviour, Entity
     }
 
     /**
-     * Should be added into {@link Block#playerDestroy(Level, Player, BlockPos, BlockState, BlockEntity, ItemStack)}
+     * Should be added into {@link Block#playerDestroy(ServerLevel, ServerPlayer, BlockPos, BlockState, BlockEntity, ItemStack)}
      * */
     default void preventCreativeDrops(Player player, Level level, BlockPos pos){
         if (player.isCreative() && level.getBlockEntity(pos) instanceof IMultiBlockEntity entity) {
