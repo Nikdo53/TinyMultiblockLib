@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
-    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;post(Lnet/neoforged/bus/api/Event;)Lnet/neoforged/bus/api/Event;"))
+    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/neoforged/bus/api/IEventBus;post(Lnet/neoforged/bus/api/Event;)Lnet/neoforged/bus/api/Event;"), order = 2000)
     private <T extends Event> T afterLoad1(IEventBus instance, T t, Operation<T> original){
         if ((Object) this instanceof FakeClientLevel){
             return null;
